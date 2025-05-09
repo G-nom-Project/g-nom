@@ -1,0 +1,10 @@
+{
+    "options": [
+        {"label": "Spectrum", "value": "spectrum"},
+        {"label": "Colorblind", "value": "colorblind"}
+    ],
+    "palettes": {
+        "spectrum": ["#fc0303", "#fc4503", "#fc8c03", "#fcdb03", "#8cfc03", "#03fc0b", "#03fcd3", "#03fcd3", "#2003fc", "#2003fc"],
+        "colorblind": ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7"]
+    }
+}

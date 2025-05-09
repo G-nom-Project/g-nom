@@ -1,0 +1,15 @@
+[
+  { "label": "Seq ID", "value": "sseqid" },
+  { "label": "e-value", "value": "evalue"},
+  { "label": "Bitscore", "value": "bitscore"},
+  { "label": "scientific name", "value": "ssciname"},
+  { "label": "Query seq ID"," value": "qseqid" },
+  { "label": "% identity", "value": "pident" },
+  { "label": "Length", "value": "length"},
+  { "label": "Mismatches", "value": "mismatch"},
+  { "label": "Gapopen", "value": "gapopen"},
+  { "label": "qstart", "value": "qstart"},
+  { "label": "qend", "value": "qend"},
+  { "label": "sstart", "value": "send"},
+  { "label": "staxids", "value": "staxids"}
+]

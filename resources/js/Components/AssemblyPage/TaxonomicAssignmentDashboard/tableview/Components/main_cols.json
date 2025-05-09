@@ -1,0 +1,5 @@
+[
+  { "label": "ID", "value": "g_name" },
+  { "label": "Plot Label", "value": "plot_label" },
+  { "label": "e-value", "value": "bh_evalue" }
+]
