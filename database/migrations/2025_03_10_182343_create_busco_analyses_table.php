@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('busco_analyses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('assembly_id')->constrained()->cascadeOnDelete();
-            $table->integer("analysis_id");
+            $table->string("name");
             $table->integer("completeSingle");
             $table->integer("completeDuplicated");
             $table->integer("fragmented");

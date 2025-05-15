@@ -48,6 +48,9 @@ export default function Import() {
     // Mapping Import
     const [mappingName, setMappingName] = useState<string>();
     const [mappingFile, setMappingFile] = useState<File | null>(null);
+    // BUSCO Import
+    const [buscoName, setBuscoName] = useState<string>();
+    const [buscoSummary, setBuscoSummary] = useState<File | null>(null);
 
     const updateTaxon = () => {
         axios.get('/taxon-assemblies/' + taxonID).then((taxon) => {
@@ -130,6 +133,29 @@ export default function Import() {
         }
     };
 
+    const handleBuscoUpload = async () => {
+        if (!buscoSummary) return;
+
+        const formData = new FormData();
+        formData.append('summary', buscoSummary);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', parseInt(taxonID));
+        formData.append('name', buscoName);
+
+        try {
+            const response = await axios.post('/upload-busco', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return True
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return False
+        }
+    };
+
     const handleUpload = async () => {
         if (assemblyName) {
             await handleAssemblyUpload()
@@ -140,6 +166,10 @@ export default function Import() {
             }
             if (mappingName) {
                 const success = await handleMappingUpload();
+                return success
+            }
+            if (buscoName) {
+                const success = await handleBuscoUpload();
                 return success
             }
         }
@@ -344,10 +374,32 @@ export default function Import() {
                                             <Accordion.Header>
                                                 BUSCO
                                             </Accordion.Header>
+                                            <Accordion.Body>
+                                                <Form.Label>
+                                                    Select BUSCO summary file
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".txt"
+                                                    onChange={(e) =>
+                                                        setBuscoSummary(
+                                                            e.target.files?.[0] ?? null,
+                                                        )
+                                                    }
+                                                />
+                                                <br />
+                                                <Form.Label>
+                                                    Name BUSCO Analysis
+                                                </Form.Label>
+                                                <Form.Control
+                                                    placeholder="Enter a custom name for this annotation"
+                                                    onChange={(e: any) => {setBuscoName(e.target.value)}}/>
+                                                <br />
+                                            </Accordion.Body>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="fcat">
                                             <Accordion.Header>
-                                                BUSCO
+                                                fCat
                                             </Accordion.Header>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="repeatmasker">

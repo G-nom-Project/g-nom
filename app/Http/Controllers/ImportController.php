@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ImportAnnotation;
 use App\Jobs\ImportAssembly;
+use App\Jobs\ImportBusco;
 use App\Jobs\ImportMapping;
 use App\Jobs\PrepareAssemblyJBrowse;
 use App\Notifications\UploadComplete;
@@ -112,6 +113,42 @@ class ImportController extends Controller
         Log::info("Dispatching Job now");
         // Handle files and database entry
         ImportMapping::dispatch($path, $originalExtension, $assemblyID, $taxonID, $name, $user);
+
+
+        return response()->json([
+            'message' => 'Assembly imported successfully.',
+            'path' => $path,
+        ]);
+    }
+
+    public function uploadBusco(Request $request)
+    {
+        $request->validate([
+            'summary' => 'required|file',
+            'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
+            'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
+            'name' => 'required|string|max:255'
+        ]);
+
+        // Store in upload directory
+        $file = $request->file('summary');
+        $originalExtension = $file->getClientOriginalExtension();
+        $uniqueName = Str::random(20);  // Generate a random string for uniqueness
+
+        // Store the file with a unique name and the original extension
+        $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
+        $assemblyID = $request->input('assemblyID');
+        $taxonID = $request->input('taxonID');
+        $name = $request->input('name');
+        $user = Auth::user();
+
+        if ($user) {
+            $user->notify(new UploadComplete($path));
+        }
+
+        Log::info("Dispatching Job now");
+        // Handle files and database entry
+        ImportBusco::dispatch($path, $assemblyID, $taxonID, $name, $user);
 
 
         return response()->json([

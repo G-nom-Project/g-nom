@@ -75,6 +75,7 @@ Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->na
 Route::post('/upload-assembly', [ImportController::class, 'uploadAssembly']);
 Route::post('/upload-annotation', [ImportController::class, 'uploadAnnotation']);
 Route::post('/upload-mapping', [ImportController::class, 'uploadMapping']);
+Route::post('/upload-busco', [ImportController::class, 'uploadBusco']);
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
     ->where('path', '.*')->middleware(['auth']);
