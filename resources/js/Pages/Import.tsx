@@ -229,6 +229,7 @@ export default function Import() {
                                             imagepath={taxon.imagepath}
                                             ncbiTaxonID={taxon.ncbiTaxonID}
                                             ncbiTaxonRank={taxon.taxonRank}
+                                            withAssemblySelection={false}
                                         />
                                     </Col>
                                 </Row>
