@@ -14,14 +14,20 @@ import {
     InputGroup,
     Row,
 } from 'react-bootstrap';
+import {Assembly, Taxon} from "@/types/data";
 
 const default_taxon = {
     assemblies: [],
     commonName: 'No Taxon selected',
     scientificName: 'No Taxon selected',
-    imagepath: null,
     ncbiTaxonID: '0000',
-    taxonRank: "no rank"
+    taxonRank: "no rank",
+    created_at: "string",
+    id: 0,
+    imageCredit: null,
+    imagePath: null,
+    parentNcbiTaxonID: '0000',
+    updated_at: "Never"
 };
 
 export default function Import() {
@@ -32,7 +38,7 @@ export default function Import() {
     // Taxon Infos
     const [taxonID, setTaxonID] = useState<number>(-1);
     const [selectedTaxonID, setSelectedTaxonID] = useState<number>(-1);
-    const [taxon, setTaxon] = useState<any>(default_taxon);
+    const [taxon, setTaxon] = useState<Taxon | typeof default_taxon>(default_taxon);
     const [assemblies, setAssemblies] = useState<any>();
     const [invalidID, setInvalidID] = useState(true);
 
@@ -71,7 +77,7 @@ export default function Import() {
 
         const formData = new FormData();
         formData.append('assembly', assemblyFile);
-        formData.append('taxonID', parseInt(taxonID));
+        formData.append('taxonID', taxonID);
         formData.append('name', assemblyName);
 
         try {
@@ -92,7 +98,7 @@ export default function Import() {
         const formData = new FormData();
         formData.append('annotation', annotationFile);
         formData.append('assemblyID', assemblyID);
-        formData.append('taxonID', parseInt(taxonID));
+        formData.append('taxonID', taxonID);
         formData.append('name', annotationName);
 
         try {
@@ -116,7 +122,7 @@ export default function Import() {
         const formData = new FormData();
         formData.append('mapping', mappingFile);
         formData.append('assemblyID', assemblyID);
-        formData.append('taxonID', parseInt(taxonID));
+        formData.append('taxonID', taxonID);
         formData.append('name', mappingName);
 
         try {
@@ -139,7 +145,7 @@ export default function Import() {
         const formData = new FormData();
         formData.append('summary', buscoSummary);
         formData.append('assemblyID', assemblyID);
-        formData.append('taxonID', parseInt(taxonID));
+        formData.append('taxonID', taxonID);
         formData.append('name', buscoName);
 
         try {
@@ -221,15 +227,8 @@ export default function Import() {
                                     <Col>
                                         <Form.Label>Selected Taxon</Form.Label>
                                         <TaxonCard
-                                            assemblies={taxon.assemblies}
-                                            commonName={taxon.commonName}
-                                            scientificName={
-                                                taxon.scientificName
-                                            }
-                                            imagepath={taxon.imagepath}
-                                            ncbiTaxonID={taxon.ncbiTaxonID}
-                                            ncbiTaxonRank={taxon.taxonRank}
-                                            withAssemblySelection={false}
+                                           taxon={taxon as Taxon}
+                                           withAssemblySelection={false}
                                         />
                                     </Col>
                                 </Row>

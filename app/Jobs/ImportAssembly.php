@@ -126,7 +126,9 @@ class ImportAssembly implements ShouldQueue
             return ['error' => 'File not found ' . $filePath];
         }
 
+
         $script = base_path('resources/scripts/fasta_parser.pl');
+        Log::info("$script \"$filePath\"");
         $result = Process::run("$script \"$filePath\"");
 
         if ($result->failed()) {

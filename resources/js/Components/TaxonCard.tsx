@@ -6,14 +6,10 @@ import {
 } from 'react-bootstrap';
 import placeholder from '../../static/img/dnaPlaceholder.PNG';
 import {useState} from "react";
+import {Taxon} from "@/types/data";
 
 interface Props {
-    assemblies: [];
-    commonName: string | null;
-    scientificName: string;
-    imagepath: string | null;
-    ncbiTaxonID: number;
-    ncbiTaxonRank: string;
+    taxon: Taxon
     withAssemblySelection: boolean;
 }
 
@@ -34,9 +30,9 @@ const TaxonCard = (props: Props) => {
             />
             <Card.Body>
                 <Card.Title>
-                    {props.scientificName}
+                    {props.taxon.scientificName}
                 </Card.Title>
-                <Card.Subtitle className="text-muted mb-2">NCBI ID: {props.ncbiTaxonID} | {props.ncbiTaxonRank}</Card.Subtitle>
+                <Card.Subtitle className="text-muted mb-2">NCBI ID: {props.taxon.ncbiTaxonID} | {props.taxon.ncbiTaxonRank}</Card.Subtitle>
                 <Card.Text>
                     {
                         // TODO: Taxon Info Text
@@ -44,7 +40,7 @@ const TaxonCard = (props: Props) => {
                 </Card.Text>
             </Card.Body>
             <ListGroup className="list-group-flush">
-                {(props.withAssemblySelection && props.assemblies.length > 0) && (
+                {(props.withAssemblySelection && props.taxon.assemblies.length > 0) && (
                     <ListGroup.Item>
                         <Form.Group>
                             <Form.Label>
@@ -54,7 +50,7 @@ const TaxonCard = (props: Props) => {
                                 onChange={(e: any) => {setAssemblyID(e.target.value)}}
                             >
                                 <option default>Select an assembly</option>
-                                {props.assemblies.map((assembly) => {
+                                {props.taxon.assemblies.map((assembly) => {
                                     return <option value={assembly.id}>{assembly.name} {assembly.label && "|" + assembly.label} | {assembly.id}</option>
                                 })}
                             </Form.Select>
@@ -64,10 +60,10 @@ const TaxonCard = (props: Props) => {
                     </ListGroup.Item>
                 )}
                 <ListGroup.Item>
-                    Common Name: {props.commonName || "No common name provided"}
+                    Common Name: {props.taxon.commonName || "No common name provided"}
                 </ListGroup.Item>
                 <ListGroup.Item>
-                    Assemblies: {props.assemblies.length}
+                    Assemblies: {props.taxon.assemblies.length}
                 </ListGroup.Item>
             </ListGroup>
         </Card>
