@@ -4,19 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class AssemblyController extends Controller
 {
-    public function index(): \Inertia\Response
+    public function index(Request $request): \Inertia\Response
     {
-        // Fetch all assemblies from the database
-        $assemblies = Assembly::withCount('mappings')
-            ->withCount(['genomicAnnotations', 'buscoAnalyses', "repeatmaskerAnalyses", 'taxaminerAnalyses'])
-            ->paginate(12);
+        $search = $request->input('search');
 
-        // Pass the data to the Inertia component
+        $assemblies = Assembly::query()
+            ->when($search, function ($query) use ($search) {
+                if (is_numeric($search)) {
+                    return $query->where('taxon_id', (int)$search);
+                } else {
+                    return $query->where('name', 'LIKE', '%' . $search . '%');
+                }
+            })
+            ->withCount('mappings')
+            ->withCount(['genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'taxaminerAnalyses'])
+            ->paginate(12)
+            ->withQueryString();
+
         return Inertia::render('Assemblies', [
-            'assemblies' => $assemblies
+            'assemblies' => $assemblies,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

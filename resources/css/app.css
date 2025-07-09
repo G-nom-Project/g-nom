@@ -143,3 +143,12 @@ div {
     transform: translateY(-10px);
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
+.assembly-card {
+    transition: box-shadow 0.3s ease;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1); /* Light gray shadow by default */
+}
+
+.assembly-card:hover {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.75); /* Blue glow on hover */
+}

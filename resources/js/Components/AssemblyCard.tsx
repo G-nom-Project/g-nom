@@ -27,7 +27,7 @@ interface Props {
 
 const AssemblyCard = (props: Props) => {
     return (
-        <Card className="md-2 m-2" style={{ width: '100%' }}>
+        <Card className="md-2 m-2 assembly-card" style={{ width: '100%'}}>
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
