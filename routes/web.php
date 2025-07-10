@@ -70,6 +70,7 @@ Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $
 
 // Taxon Information
 Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies')->middleware(['auth']);
+Route::get('/lineage/{ncbiTaxonID}', [TaxonController::class, 'getLineage']);
 
 // UPLOADING DATA
 Route::post('/upload-assembly', [ImportController::class, 'uploadAssembly']);

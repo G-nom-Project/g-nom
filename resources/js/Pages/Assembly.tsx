@@ -1,3 +1,4 @@
+import axios from "axios";
 import TopNavBar from '@/Components/TopNavBar';
 import {useEffect, useState} from 'react';
 import {
@@ -27,9 +28,23 @@ export default function Assemblies({ assembly }) {
     const [renderRepeats, setRenderRepeats] = useState<boolean>(false);
     const [location, setLocation] = useState<string>("");
     const [scroll, setScroll] = useState<boolean>(false);
+    const [lineage, setLineage] = useState<any[] | null>(null);
 
     useEffect(() => {
-        console.log(assembly);
+        const fetchLineage = async () => {
+            console.log(assembly);
+
+            try {
+                const new_lineage = await getLineage(assembly.taxon_id);
+                setLineage(new_lineage);
+            } catch (error) {
+                console.error('Error fetching lineage:', error);
+            }
+        };
+
+        if (assembly?.taxon_id) {
+            fetchLineage();
+        }
     }, [assembly]);
 
     useEffect(() => {
@@ -37,6 +52,15 @@ export default function Assemblies({ assembly }) {
     }, [location]);
 
 
+    const getLineage = async (ncbiTaxonID: number) => {
+        try {
+            const response = await axios.get(`/lineage/${ncbiTaxonID}`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch lineage:', error);
+            throw error;
+        }
+    };
 
     return (
         <>
@@ -46,10 +70,11 @@ export default function Assemblies({ assembly }) {
                     <Nav className="m-1">
                         <Nav.Item>
                             <h4 className="text-white">
-                                TODO {'>'}{' '}
+                                <b className="capitalize">{assembly.taxon.scientificName}</b> {'>'}{' '}
                                 {assembly?.label
                                     ? assembly.label
                                     : assembly.name}
+
                             </h4>
                         </Nav.Item>
                     </Nav>
@@ -69,7 +94,7 @@ export default function Assemblies({ assembly }) {
                             <Card.Img
                                 variant="center"
                                 className="image-class-name img-responsive rounded-top"
-                                src={placeholder_image}
+                                src={placeholder_image as string}
                                 alt="Card image"
                                 style={{
                                     height: '300px',
@@ -78,15 +103,19 @@ export default function Assemblies({ assembly }) {
                                 }}
                             />
 
-                            <Card.Body>Image Credit: </Card.Body>
+                            <Card.Body>Image Credit: {assembly.taxon.imageCredit}</Card.Body>
                         </Card>
                     </Col>
                     <Col>
                         <Card className="shadow">
                             <Card.Body>
-                                <Card.Title>Taxon Name</Card.Title>
+                                <Card.Title className={"capitalize"}>{assembly.taxon.commonName || assembly.taxon.scientificName}</Card.Title>
                                 <Card.Subtitle className="text-muted">
-                                    NCBI {assembly.taxonID}
+                                    {'root '}
+                                    {lineage && lineage.map(each => {
+                                        return <><i className="bi bi-arrow-right"> </i> {each.scientificName} </>
+                                    })}
+                                    ({assembly.taxon_id})
                                 </Card.Subtitle>
                                 <Card.Text>Taxon Info</Card.Text>
                             </Card.Body>

@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Assembly;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Inertia\Response;
 
 class AssemblyController extends Controller
 {
-    public function index(Request $request): \Inertia\Response
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
 
@@ -33,7 +34,7 @@ class AssemblyController extends Controller
         ]);
     }
 
-    public function selection(): \Inertia\Response
+    public function selection(): Response
     {
         // Fetch all assemblies from the database
         $assemblies = Assembly::all();
@@ -44,16 +45,16 @@ class AssemblyController extends Controller
         ]);
     }
 
-    public function show($id): \Inertia\Response
+    public function show($id): Response
     {
-        $assembly = Assembly::with(["mappings", "genomicAnnotations", "buscoAnalyses", "repeatmaskerAnalyses", "fcatAnalyses", 'taxaminerAnalyses'])->findOrFail($id);
+        $assembly = Assembly::with(["mappings", "genomicAnnotations", "buscoAnalyses", "repeatmaskerAnalyses", "fcatAnalyses", 'taxaminerAnalyses', "taxon"])->findOrFail($id);
 
         return Inertia::render('Assembly', [
             'assembly' => $assembly
         ]);
     }
 
-    public function browser($id): \Inertia\Response
+    public function browser($id): Response
     {
         $assembly = Assembly::with(["mappings", "genomicAnnotations"])->findOrFail($id);
 

@@ -16,4 +16,19 @@ class TaxonController extends Controller
             "taxon" => $taxon,
         ]);
     }
+
+    public function getLineage(int $ncbiTaxonID): JsonResponse
+    {
+        $lineage = [];
+
+        while ($taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->first()) {
+            $lineage[] = $taxon;
+            if ($taxon->ncbiTaxonID === 1 || $taxon->parentNcbiTaxonID === $taxon->ncbiTaxonID) {
+                break;
+            }
+            $ncbiTaxonID = $taxon->parentNcbiTaxonID;
+        }
+
+        return response()->json(array_reverse($lineage));
+    }
 }
