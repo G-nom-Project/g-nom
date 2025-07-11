@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('taxa', function (Blueprint $table) {
-            $table->id();
-            $table->integer('ncbiTaxonID');
+            $table->integer('ncbiTaxonID')->primary();
             $table->integer('parentNcbiTaxonID');
             $table->string('scientificName');
             $table->string('taxonRank');

@@ -11,7 +11,7 @@ import {
     InputGroup,
     ListGroup,
     Nav,
-    Navbar,
+    Navbar, Placeholder,
     Row,
 } from 'react-bootstrap';
 import placeholder_image from '../../static/img/dnaPlaceholder.PNG';
@@ -111,11 +111,14 @@ export default function Assemblies({ assembly }) {
                             <Card.Body>
                                 <Card.Title className={"capitalize"}>{assembly.taxon.commonName || assembly.taxon.scientificName}</Card.Title>
                                 <Card.Subtitle className="text-muted">
-                                    {'root '}
                                     {lineage && lineage.map(each => {
-                                        return <><i className="bi bi-arrow-right"> </i> {each.scientificName} </>
-                                    })}
-                                    ({assembly.taxon_id})
+                                        if (each.scientificName === "root") {
+                                            return <><i className="bi bi-diamond-half"></i> </>
+                                        } else {
+                                            return <><i className="bi bi-arrow-right"> </i> <a href={`https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${each.ncbiTaxonID}`}>{each.scientificName}</a> </>
+                                        }
+                                    }) || <Placeholder as="p" animation="glow"><Placeholder xs={12} /></Placeholder>}
+                                    {lineage && `(${assembly.taxon_id})`}
                                 </Card.Subtitle>
                                 <Card.Text>Taxon Info</Card.Text>
                             </Card.Body>
