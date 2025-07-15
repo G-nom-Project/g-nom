@@ -15,6 +15,13 @@ class Taxon extends Model
 
     public function infos()
     {
-        return $this->hasMany(TaxonGeneralInfo::class);
+        return $this->hasMany(TaxonGeneralInfo::class, 'taxon_id', 'ncbiTaxonID');
     }
+
+    public function geoData()
+    {
+        return $this->hasMany(TaxonGeoData::class, 'taxon_ncbiTaxonID', 'ncbiTaxonID');
+    }
+
+
 }

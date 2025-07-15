@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('taxon_general_infos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taxon_id')->constrained()->cascadeOnDelete();
-            $table->string('label');
-            $table->text('text');
+            $table->foreignId('taxon_id')->references('ncbiTaxonID')->on('taxa')->cascadeOnDelete();;
+            $table->string('label')->nullable();
+            $table->string('headline')->nullable();
+            $table->text('text')->nullable();
             $table->timestamps();
         });
     }

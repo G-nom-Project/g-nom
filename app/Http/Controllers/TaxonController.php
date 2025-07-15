@@ -31,4 +31,32 @@ class TaxonController extends Controller
 
         return response()->json(array_reverse($lineage));
     }
+
+    public function getGeoData(int $ncbiTaxonID): JsonResponse
+    {
+        $taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->with(["geoData"])->first();
+        return response()->json($taxon);
+    }
+
+    public function getInfos(int $ncbiTaxonID): JsonResponse
+    {
+        $taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)
+            ->with(['infos' => function ($query) {
+                $query->where('label', 'info-text');
+            }])
+            ->first();
+
+        return response()->json($taxon);
+    }
+
+    public function getHeadline(int $ncbiTaxonID): JsonResponse
+    {
+        $taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)
+            ->with(['infos' => function ($query) {
+                $query->where('label', 'headline');
+            }])
+            ->first();
+
+        return response()->json($taxon);
+    }
 }
