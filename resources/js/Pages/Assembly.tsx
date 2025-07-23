@@ -113,15 +113,18 @@ export default function Assemblies({ assembly }) {
                                 <b className="capitalize">{assembly.taxon.scientificName}</b>{' '}
                             </h4>
                         </Nav.Item>
-                        {
-                            assembly.taxon.phylopic_url && <img
-                                src={assembly.taxon.phylopic_url}
-                                style={{
-                                    height: "3vh",
-                                    filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)"
-                                }}
-                            />
-                        }
+                        <Nav.Item>
+                            {
+                                assembly.taxon.phylopic_url && <img
+                                    src={assembly.taxon.phylopic_url}
+                                    style={{
+                                        height: "30px",
+                                        filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)"
+                                    }}
+                                />
+                            }
+                        </Nav.Item>
+
 
                         <Nav.Item>
                             <h4 className="text-white">

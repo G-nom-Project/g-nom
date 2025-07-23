@@ -4,9 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Taxon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
 
 class TaxonController extends Controller
 {
+    public function index($id)
+    {
+        $taxon = Taxon::with(["assemblies"])->where("ncbiTaxonID", $id)->first();
+        return Inertia::render('Taxon', [
+            'taxon' => $taxon
+        ]);
+    }
 
     public function assemblies($id): JsonResponse
     {
@@ -19,17 +28,19 @@ class TaxonController extends Controller
 
     public function getLineage(int $ncbiTaxonID): JsonResponse
     {
-        $lineage = [];
-
-        while ($taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->first()) {
-            $lineage[] = $taxon;
-            if ($taxon->ncbiTaxonID === 1 || $taxon->parentNcbiTaxonID === $taxon->ncbiTaxonID) {
-                break;
+        // Retrieving lineages may be time-intensive -> cache for one week
+        $value = Cache::remember('lineage-' . $ncbiTaxonID, 604800, function () use ($ncbiTaxonID) {
+            $lineage = [];
+            while ($taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->first()) {
+                $lineage[] = $taxon;
+                if ($taxon->ncbiTaxonID === 1 || $taxon->parentNcbiTaxonID === $taxon->ncbiTaxonID) {
+                    break;
+                }
+                $ncbiTaxonID = $taxon->parentNcbiTaxonID;
             }
-            $ncbiTaxonID = $taxon->parentNcbiTaxonID;
-        }
-
-        return response()->json(array_reverse($lineage));
+            return $lineage;
+        });
+        return response()->json(array_reverse($value));
     }
 
     public function getGeoData(int $ncbiTaxonID): JsonResponse

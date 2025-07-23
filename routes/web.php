@@ -58,7 +58,7 @@ Route::get('/import', function () {
 Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $request, $any = '') {
     $proxyUrl = "http://gdock.izn-ffm.intern:1234/{$any}";
 
-    $response = Http::withHeaders($request->headers->all()) // ✅ Fixed headers
+    $response = Http::withHeaders($request->headers->all())
     ->send($request->method(), $proxyUrl, [
         'query' => $request->query(),
         'body' => $request->getContent(),
@@ -67,6 +67,9 @@ Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $
     return response($response->body(), $response->status())
         ->withHeaders($response->headers());
 })->where('any', '.*');
+
+// Taxon Page
+Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon');
 
 // Taxon Information
 Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies')->middleware(['auth']);
