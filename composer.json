@@ -17,6 +17,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "tightenco/ziggy": "^2.0",
+        "livewire/livewire": "^3.6.4",
         "ext-zlib": "*"
     },
     "require-dev": {
