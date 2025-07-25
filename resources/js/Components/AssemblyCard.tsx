@@ -31,7 +31,7 @@ const AssemblyCard = (props: Props) => {
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
-                src={placeholder}
+                src={`/taxon/${props.ncbiID}/image`}
                 style={{
                     height: '200px',
                     objectFit: 'cover',

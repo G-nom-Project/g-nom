@@ -2,7 +2,7 @@ import TopNavBar from '@/Components/TopNavBar';
 import {useEffect, useState} from 'react';
 import {
     Accordion,
-    Button,
+    Button, ButtonGroup, ButtonToolbar,
     Card,
     Col,
     Container,
@@ -13,7 +13,6 @@ import {
     Navbar, Placeholder,
     Row, Tab, Tabs,
 } from 'react-bootstrap';
-import placeholder_image from '../../static/img/dnaPlaceholder.PNG';
 import AssemblyStatistics from "@/Components/AssemblyPage/AssemblyStatistics";
 import BuscoViewer from "@/Components/AssemblyPage/BuscoViewer";
 import FcatViewer from "@/Components/AssemblyPage/FCatViewer";
@@ -22,9 +21,8 @@ import {Annotation} from "@/types/data";
 import JBrowseView from "@/Components/AssemblyPage/JBrowseView";
 import {TaxaminerDashboard} from "@/Components/AssemblyPage/TaxonomicAssignmentDashboard/dashboard";
 import TaxMap from "@/Components/AssemblyPage/TaxMap";
-import {getGeoData, getLineage, getTaxonHeadline, getTaxonInfo} from "@/REST/taxon";
+import {getLineage, getTaxonInfo} from "@/REST/taxon";
 import axios from "axios";
-import {width} from "@mui/system";
 
 export default function Assemblies({ assembly }) {
     const [renderCompleteness, setRenderCompleteness] = useState<boolean>(false);
@@ -36,24 +34,24 @@ export default function Assemblies({ assembly }) {
     const [activeTab, setActiveTab] = useState("image");
 
     // Taxon Information
-    const [taxonHeadline, setTaxonHeadline] = useState<string|null>(null);
-    const [taxonInfos, setTaxonInfos] = useState(null);
+    const [taxonHeadline, setTaxonHeadline] = useState<string>(null);
+    const [taxonInfo, setTaxonInfo] = useState<string>(null);
 
 
     useEffect(() => {
         const fetchTaxonData = async () => {
             try {
-                // Taxon Headline
-                const headline_response = await getTaxonHeadline(assembly.taxon_id);
-                if (headline_response.data.infos[0]) {
-                    setTaxonHeadline(headline_response.data.infos[0]?.text)
+
+
+                const info_response = await getTaxonInfo(assembly.taxon_id);
+                if (info_response.data.infos[0]) {
+                    setTaxonInfo(info_response.data.infos[0]?.text)
+                    setTaxonHeadline(info_response.data.infos[0]?.headline)
                 } else {
                     setTaxonHeadline("No Taxon headline available")
+                    setTaxonInfo("No Taxon infos provided")
                 }
 
-                // Taxon Info Text
-                const info_response = await getTaxonInfo(assembly.taxon_id);
-                setTaxonInfos(info_response.data.infos)
 
                 // Taxon Geo Data
                 const data = await getGeoData(assembly.taxon_id);
@@ -136,9 +134,15 @@ export default function Assemblies({ assembly }) {
                     </Nav>
                     <Nav className="m-1">
                         <Nav.Link>
-                            <Button>
-                                <i className={'bi bi-bookmark-plus'}></i>
-                            </Button>
+                            <ButtonToolbar aria-label="Toolbar with button groups">
+                                <ButtonGroup className="me-2">
+                                    <Button size="lg"><i className="bi bi-wrench"></i></Button>
+                                    <Button size="lg" target="_blank" href={`/taxon/${assembly.taxon_id}`} onClick={() => window.location.href=`/taxon/${assembly.taxon_id}`}> <i className="bi bi-diagram-2"></i></Button>
+                                </ButtonGroup>
+                                <ButtonGroup>
+                                    <Button size="lg"><i className="bi bi-bookmark-plus"></i></Button>
+                                </ButtonGroup>
+                            </ButtonToolbar>
                         </Nav.Link>
                     </Nav>
                 </Container>
@@ -153,7 +157,7 @@ export default function Assemblies({ assembly }) {
                                     <Card className="shadow m-1" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
-                                            src={placeholder_image as string}
+                                            src={`/taxon/${assembly.taxon_id}/image`}
                                             alt="Card image"
                                             style={{
                                                 height: '400px',
@@ -185,13 +189,30 @@ export default function Assemblies({ assembly }) {
                                 <Card.Title className="capitalize">
                                     {assembly.taxon.commonName || assembly.taxon.scientificName}
                                 </Card.Title>
-                                <Card.Subtitle className="text-muted mb-2">
-
-                                </Card.Subtitle>
                                 <Card.Text>
                                     {taxonHeadline ||  <Placeholder as="p" animation="glow"><Placeholder xs={12} /><Placeholder xs={5} /></Placeholder>}
                                     <hr/>
-                                    {taxonInfos && (<p>{taxonInfos[0]?.text || "No Taxon info text available"}</p>) || <Placeholder as="p" animation="glow"><Placeholder xs={12} /><Placeholder xs={5} /><Placeholder xs={8} /><Placeholder xs={3} /></Placeholder>}
+                                    {
+                                        (taxonInfo &&
+                                        <Form>
+                                            <Form.Group className="mb-3">
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={10}
+                                                    value={taxonInfo}
+                                                    readOnly={true}
+                                                    style={{
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        resize: 'none',
+                                                        overflowY: 'auto',
+                                                        padding: 0,
+                                                        boxShadow: 'none'
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Form>) || <><Placeholder xs={10} /><Placeholder xs={12} /><Placeholder xs={8} /></>
+                                    }
                                 </Card.Text>
                             </Card.Body>
                             <ListGroup className="list-group-flush">

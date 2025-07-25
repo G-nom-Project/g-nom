@@ -75,7 +75,7 @@ export default function Assemblies({
                                 assemblyName={each.name}
                                 assemblyID={each.id}
                                 ncbiID={each.taxon_id}
-                                info_text={each.infoText}
+                                info_text={each.taxon.infos[0]?.headline}
                                 last_update={'Never'}
                                 public={true}
                                 mappings={each.mappings_count}

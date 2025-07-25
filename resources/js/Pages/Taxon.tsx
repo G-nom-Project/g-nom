@@ -6,6 +6,7 @@ import TaxMap from "@/Components/AssemblyPage/TaxMap";
 import {getGeoData, getLineage, getTaxonHeadline, getTaxonInfo} from "@/REST/taxon";
 import {useEffect, useState} from "react";
 import InputGroup from 'react-bootstrap/InputGroup';
+import axios from "axios";
 
 export default function Taxon({ taxon }) {
     const [lineage, setLineage] = useState<any[] | null>(null);
@@ -20,21 +21,57 @@ export default function Taxon({ taxon }) {
     const [showEditImage, setEditImage] = useState<boolean>(false);
     const [showEditGeo, setEditGeo] = useState<boolean>(false);
 
+    // Upload only
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageCredit, setImageCredit] = useState();
+
+    const handleImageUpload = async () => {
+        if (!imageFile) return;
+
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('taxonID', taxon.ncbiTaxonID);
+        formData.append('credit', imageCredit);
+
+        try {
+            const response = await axios.post('/taxon/upload-image', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+        } catch (error) {
+            console.error('Upload failed:', error);
+        }
+    };
+
+    const handleUpdateTexts = async () => {
+        const formData = new FormData();
+        formData.append('taxonID', taxon.ncbiTaxonID);
+        formData.append('headline', taxonHeadline);
+        formData.append('text', taxonInfo);
+
+        try {
+            const response = await axios.post('/taxon/update-infos', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Update success:', response.data);
+        } catch (error) {
+            console.error('Update failed:', error);
+        }
+    }
+
     useEffect(() => {
         const fetchTaxonData = async () => {
             try {
-                // Taxon Headline
-                const headline_response = await getTaxonHeadline(taxon.ncbiTaxonID);
-                if (headline_response.data.infos[0]) {
-                    setTaxonHeadline(headline_response.data.infos[0]?.text)
-                } else {
-                    setTaxonHeadline("No Taxon headline available")
-                }
 
                 // Taxon Info Text
                 const info_response = await getTaxonInfo(taxon.ncbiTaxonID);
                 if (info_response.data.infos[0]) {
                     setTaxonInfo(info_response.data.infos[0]?.text)
+                    setTaxonHeadline(info_response.data.infos[0]?.headline)
                 }
 
                 // Taxon Geo Data
@@ -51,7 +88,9 @@ export default function Taxon({ taxon }) {
         }
 
         if (taxon.ncbiTaxonID) {
-            fetchTaxonData().then();
+            fetchTaxonData().then( () =>
+                setImageCredit(taxon.imageCredit)
+            );
         }
     }, []);
 
@@ -69,7 +108,7 @@ export default function Taxon({ taxon }) {
                                     <Card className="shadow m-1" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
-                                            src={placeholder_image as string}
+                                            src={`/taxon/${taxon.ncbiTaxonID}/image`}
                                             alt="Card image"
                                             style={{
                                                 height: '400px',
@@ -78,7 +117,7 @@ export default function Taxon({ taxon }) {
                                             }}
                                         />
                                         <Card.Body>
-                                            Image Credit: {taxon.imageCredit}
+                                            Image Credit: {imageCredit}
                                             <br/>
                                             <Button onClick={() => setEditImage(true)}><i className="bi bi-pencil-square"></i> Edit Taxon Image</Button>
                                         </Card.Body>
@@ -87,13 +126,11 @@ export default function Taxon({ taxon }) {
                                 <Tab title="Map" eventKey="overview-map">
                                     {activeTab === "overview-map" && (
                                         <Card className="m-1 shadow" style={{ height: "450px" }}>
-
                                             <TaxMap isVisible={true} geoDataMeta={geoData}/>
                                             <Card.Body>
                                                 <Button className="m-2" onClick={() => setEditGeo(true)}><i className="bi bi-pencil-square"></i> Edit Geo Data</Button>
                                             </Card.Body>
                                         </Card>
-
                                     )}
                                 </Tab>
                             </Tabs>
@@ -107,23 +144,19 @@ export default function Taxon({ taxon }) {
                                 <Card.Title className="capitalize">
                                     {taxon.commonName || taxon.scientificName}
                                 </Card.Title>
-                                <Card.Subtitle className="text-muted mb-2">
-
-                                </Card.Subtitle>
                                 <Card.Text>
                                     <Form>
                                         <Form.Group className="mb-3">
                                             <Form.Control as="textarea" rows={3} value={taxonHeadline} onChange={(e) => setTaxonHeadline(e.target.value)}/>
                                         </Form.Group>
                                     </Form>
-                                    <Button><i className="bi bi-pencil-square"></i> Save</Button>
                                     <hr/>
                                     <Form>
                                         <Form.Group className="mb-3">
                                             <Form.Control as="textarea" rows={10} value={taxonInfo} onChange={(e) => setTaxonInfo(e.target.value)}/>
                                         </Form.Group>
                                     </Form>
-                                    <Button><i className="bi bi-pencil-square"></i> Save</Button>
+                                    <Button onClick={() => handleUpdateTexts()}><i className="bi bi-pencil-square"></i> Save</Button>
                                 </Card.Text>
                             </Card.Body>
                             <ListGroup className="list-group-flush">
@@ -159,14 +192,14 @@ export default function Taxon({ taxon }) {
                         </Modal.Title>
                         <p>Uploading a new image will replace the previous one. Please provide proper image credit for all uploaded images and only upload images you have permission to use.</p>
                         <InputGroup>
-                            <Form.Control type="file" />
+                            <Form.Control type="file" onChange={(e) => setImageFile(e.target?.files?.[0] ?? null)}/>
                         </InputGroup>
                         <InputGroup className="mt-2">
                             <InputGroup.Text id="basic-addon1">Image Credit</InputGroup.Text>
-                            <Form.Control type="text"></Form.Control>
+                            <Form.Control type="text" onChange={(e) => setImageCredit(e.target.value)} value={imageCredit}></Form.Control>
                         </InputGroup>
                         <Button className="mt-1" variant="danger" onClick={() => setEditImage(false)}>Cancel</Button>
-                        <Button className="ml-1 mt-1" variant="success" onClick={() => setEditImage(false)}>Save</Button>
+                        <Button className="ml-1 mt-1" variant="success" onClick={() => handleImageUpload().then(r => setEditImage(false))}>Save</Button>
 
                     </Modal.Body>
                 </Modal>

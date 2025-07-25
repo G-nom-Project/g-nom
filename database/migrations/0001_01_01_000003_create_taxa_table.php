@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('commonName')->nullable();
             $table->string('imagePath')->nullable();
             $table->string('imageCredit')->nullable();
+            $table->string('phylopic_url')->nullable();
             $table->timestamps();
         });
     }
