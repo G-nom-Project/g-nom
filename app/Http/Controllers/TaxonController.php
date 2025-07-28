@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -97,7 +98,9 @@ class TaxonController extends Controller
         // Set Image credit
         $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
         $taxon->imageCredit = $credit;
+        $taxon->updated_at = now();
         $taxon->update();
+
 
         if ($user) {
             $user->notify(new UploadComplete($path));
@@ -125,6 +128,56 @@ class TaxonController extends Controller
             ->header('Cache-Control', 'public, max-age=604800'); // cache for 7 days
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function uploadIcon(Request $request)
+    {
+        $request->validate([
+            'icon' => 'required|file|mimes:svg,svg+xml',
+            'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID',
+        ]);
+
+        $taxonID = $request->input('taxonID');
+        $file = $request->file('icon');
+
+        // Store file
+        $path = $file->storeAs("taxa/{$taxonID}", 'icon.svg', 'vault');
+        Log::info("Stored icon at: " . $path);
+
+        // Update Taxon Icon flag
+        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
+        $taxon->phylopic = true;
+        $taxon->updated_at = now();
+        $taxon->update();
+
+        return response()->json([
+            'message' => 'Image imported and converted successfully.',
+        ]);
+    }
+
+    /**
+     * @param $taxonID
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|object
+     */
+    public function showIcon($taxonID)
+    {
+        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
+
+        if ($taxon->phylopic) {
+            $vault = Storage::disk('vault');
+            $imagePath = "taxa/{$taxonID}/icon.svg";
+            $imageContents = $vault->get($imagePath);
+        } else {
+            return response(401);
+        }
+
+        return response($imageContents, 200)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Cache-Control', 'public, max-age=604800');
+    }
+
     public function updateTexts(Request $request)
     {
         $request->validate([
@@ -138,6 +191,12 @@ class TaxonController extends Controller
             'headline' => $request->input('headline'),
             'text' => $request->input('text'),
         ], uniqueBy: ['ncbiTaxonID'], update: ['headline', 'text']);
+
+
+        $taxonID = $request->input('taxonID');
+        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
+        $taxon->updated_at = now();
+        $taxon->update();
 
         return response()->json([
             'message' => 'Headline updated successfully.',

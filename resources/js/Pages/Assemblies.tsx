@@ -85,6 +85,7 @@ export default function Assemblies({
                                 maxBuscoScore={10}
                                 repeatmaskers={each.repeatmasker_analyses_count}
                                 taxaminers={each.taxaminer_analyses_count}
+                                taxon_updated_at={each.taxon.updated_at}
                             />
                         </Col>
                     ))}

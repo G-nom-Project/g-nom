@@ -113,24 +113,22 @@ export default function Assemblies({ assembly }) {
                         </Nav.Item>
                         <Nav.Item>
                             {
-                                assembly.taxon.phylopic_url && <img
-                                    src={assembly.taxon.phylopic_url}
+                                assembly.taxon.phylopic && <img
+                                    src={`/taxon/${assembly.taxon_id}/icon?updated=${assembly.taxon.updated_at}`}
+                                    alt="Taxon Icon"
                                     style={{
                                         height: "30px",
-                                        filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)"
+                                        filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)",
                                     }}
                                 />
                             }
                         </Nav.Item>
-
-
                         <Nav.Item>
                             <h4 className="text-white">
                                 {" > "}
                                 {assembly?.label ? assembly.label : assembly.name}
                             </h4>
                         </Nav.Item>
-
                     </Nav>
                     <Nav className="m-1">
                         <Nav.Link>
@@ -157,7 +155,7 @@ export default function Assemblies({ assembly }) {
                                     <Card className="shadow m-1" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
-                                            src={`/taxon/${assembly.taxon_id}/image`}
+                                            src={`/taxon/${assembly.taxon_id}/image?updated=${assembly.taxon.updated_at}`}
                                             alt="Card image"
                                             style={{
                                                 height: '400px',

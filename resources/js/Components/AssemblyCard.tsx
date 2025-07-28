@@ -22,6 +22,7 @@ interface Props {
     maxBuscoScore: number;
     repeatmaskers: number;
     taxaminers: number;
+    taxon_updated_at: string;
 
 }
 
@@ -31,7 +32,7 @@ const AssemblyCard = (props: Props) => {
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
-                src={`/taxon/${props.ncbiID}/image`}
+                src={`/taxon/${props.ncbiID}/image?updated=${props.taxon_updated_at}`}
                 style={{
                     height: '200px',
                     objectFit: 'cover',

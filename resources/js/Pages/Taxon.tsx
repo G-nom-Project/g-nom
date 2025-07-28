@@ -23,6 +23,7 @@ export default function Taxon({ taxon }) {
 
     // Upload only
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [iconFile, setIconFile] = useState<File | null>(null);
     const [imageCredit, setImageCredit] = useState();
 
     const handleImageUpload = async () => {
@@ -35,6 +36,25 @@ export default function Taxon({ taxon }) {
 
         try {
             const response = await axios.post('/taxon/upload-image', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+        } catch (error) {
+            console.error('Upload failed:', error);
+        }
+    };
+
+    const handleIconUpload = async () => {
+        if (!iconFile) return;
+
+        const formData = new FormData();
+        formData.append('icon', iconFile);
+        formData.append('taxonID', taxon.ncbiTaxonID);
+
+        try {
+            const response = await axios.post('/taxon/upload-icon', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -108,7 +128,7 @@ export default function Taxon({ taxon }) {
                                     <Card className="shadow m-1" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
-                                            src={`/taxon/${taxon.ncbiTaxonID}/image`}
+                                            src={`/taxon/${taxon.ncbiTaxonID}/image?updated=${taxon.updated_at}`}
                                             alt="Card image"
                                             style={{
                                                 height: '400px',
@@ -198,8 +218,28 @@ export default function Taxon({ taxon }) {
                             <InputGroup.Text id="basic-addon1">Image Credit</InputGroup.Text>
                             <Form.Control type="text" onChange={(e) => setImageCredit(e.target.value)} value={imageCredit}></Form.Control>
                         </InputGroup>
+                        <hr/>
+                        <p>Upload a SVG Image to be shown in the top left navbar on all assembly pages with this Taxon ID.</p>
+                        {
+                            taxon.phylopic && <img
+                                src={`/taxon/${taxon.ncbiTaxonID}/icon?updated=${taxon.updated_at}`}
+                                alt="Taxon Icon"
+                                style={{
+                                    height: "80px",
+                                    filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)",
+                                    backgroundColor: "grey",
+                                    padding:"10px"
+                                }}
+                                className="m-1 rounded"
+                            />
+                        }
+                        <InputGroup>
+                            <Form.Control type="file" onChange={(e) => setIconFile(e.target?.files?.[0] ?? null)}/>
+                        </InputGroup>
+                        <hr/>
+                        <p>You may have to reload the page for changes to take effect.</p>
                         <Button className="mt-1" variant="danger" onClick={() => setEditImage(false)}>Cancel</Button>
-                        <Button className="ml-1 mt-1" variant="success" onClick={() => handleImageUpload().then(r => setEditImage(false))}>Save</Button>
+                        <Button className="ml-1 mt-1" variant="success" onClick={() => {handleImageUpload();handleIconUpload().then(r => setEditImage(false))}}>Save</Button>
 
                     </Modal.Body>
                 </Modal>

@@ -77,10 +77,14 @@ Route::get('/lineage/{ncbiTaxonID}', [TaxonController::class, 'getLineage'])->mi
 Route::get('/taxon-geo-data/{ncbiTaxonID}', [TaxonController::class, 'getGeoData'])->middleware(['auth']);
 Route::get('/taxon/infos/{ncbiTaxonID}', [TaxonController::class, 'getInfos'])->middleware(['auth']);
 
-// Taxa Images
+// Update Taxon
 Route::post('/taxon/upload-image', [TaxonController::class, 'uploadImage'])->middleware(['auth']);
+Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middleware(['auth']);
 Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);
+
+// Get additional Taxon information
 Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage']);
+Route::get('/taxon/{taxonID}/icon', [TaxonController::class, 'showIcon']);
 
 // UPLOADING DATA
 Route::post('/upload-assembly', [ImportController::class, 'uploadAssembly']);

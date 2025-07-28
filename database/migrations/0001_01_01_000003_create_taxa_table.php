@@ -17,9 +17,8 @@ return new class extends Migration
             $table->string('scientificName');
             $table->string('taxonRank');
             $table->string('commonName')->nullable();
-            $table->string('imagePath')->nullable();
             $table->string('imageCredit')->nullable();
-            $table->string('phylopic_url')->nullable();
+            $table->boolean('phylopic')->default(false);
             $table->timestamps();
         });
     }

@@ -77,13 +77,15 @@ class RebuildTaxonTable implements ShouldQueue
 
                     $parentTaxonID = (int)$nodeSplit[2];
                     $rank = str_replace("'", "", $nodeSplit[4] ?? '');
-
+                    $now = now();
                     $values[] = [
                         'ncbiTaxonID' => $currentTaxonID,
                         'parentNcbiTaxonID' => $parentTaxonID,
                         'scientificName' => $scientificName,
                         'taxonRank' => $rank,
                         'commonName' => $commonName,
+                        'created_at' => $now,
+                        'updated_at' => $now,
                     ];
 
                     $scientificName = '';
