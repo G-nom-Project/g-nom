@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Taxon extends Model
 {
     protected $table = 'taxa';
+    protected $primaryKey = 'ncbiTaxonID';
+    public $incrementing = false;
     //
     public function assemblies()
     {
@@ -15,7 +17,7 @@ class Taxon extends Model
 
     public function infos()
     {
-        return $this->hasMany(TaxonGeneralInfo::class, 'taxon_id', 'ncbiTaxonID');
+        return $this->hasMany(TaxonGeneralInfo::class, 'ncbiTaxonID', 'ncbiTaxonID');
     }
 
     public function geoData()

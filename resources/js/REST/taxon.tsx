@@ -29,20 +29,6 @@ export const getTaxonInfo = async (ncbiTaxonID: number) => {
 };
 
 /**
- * Retrieve the short info-text headline associated with the given NCBI ID
- * @param ncbiTaxonID NCBI Taxon ID
- */
-export const getTaxonHeadline = async (ncbiTaxonID: number) => {
-    try {
-        const response = await axios.get(`/taxon/headline/${ncbiTaxonID}`);
-        return response
-    } catch (error) {
-        console.error('Failed to geo data:', error);
-        throw error;
-    }
-};
-
-/**
  * Retrieve the lineage of a given NCBI ID
  * @param ncbiTaxonID
  */

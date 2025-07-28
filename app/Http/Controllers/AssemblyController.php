@@ -23,6 +23,7 @@ class AssemblyController extends Controller
             })
             ->withCount('mappings')
             ->withCount(['genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'taxaminerAnalyses'])
+            ->with('taxon.infos')
             ->paginate(12)
             ->withQueryString();
 

@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 
 type TaxMapProps = {
     isVisible: boolean;
+    geoDataMeta: any
 };
 
 
@@ -16,7 +17,6 @@ const TaxMap: React.FC<TaxMapProps> = ({ isVisible, geoDataMeta }) => {
     useEffect(() => {
         async function loadAllGeoJson() {
             if (!geoDataMeta || geoDataMeta.length === 0) return;
-            console.log(geoDataMeta)
 
             try {
                 const allData = await Promise.all(

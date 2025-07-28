@@ -58,7 +58,7 @@ Route::get('/import', function () {
 Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $request, $any = '') {
     $proxyUrl = "http://gdock.izn-ffm.intern:1234/{$any}";
 
-    $response = Http::withHeaders($request->headers->all()) // ✅ Fixed headers
+    $response = Http::withHeaders($request->headers->all())
     ->send($request->method(), $proxyUrl, [
         'query' => $request->query(),
         'body' => $request->getContent(),
@@ -68,12 +68,23 @@ Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $
         ->withHeaders($response->headers());
 })->where('any', '.*');
 
+// Taxon Page
+Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon');
+
 // Taxon Information
 Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies')->middleware(['auth']);
 Route::get('/lineage/{ncbiTaxonID}', [TaxonController::class, 'getLineage'])->middleware(['auth']);
 Route::get('/taxon-geo-data/{ncbiTaxonID}', [TaxonController::class, 'getGeoData'])->middleware(['auth']);
-Route::get('/taxon/headline/{ncbiTaxonID}', [TaxonController::class, 'getHeadline'])->middleware(['auth']);
 Route::get('/taxon/infos/{ncbiTaxonID}', [TaxonController::class, 'getInfos'])->middleware(['auth']);
+
+// Update Taxon
+Route::post('/taxon/upload-image', [TaxonController::class, 'uploadImage'])->middleware(['auth']);
+Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middleware(['auth']);
+Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);
+
+// Get additional Taxon information
+Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage']);
+Route::get('/taxon/{taxonID}/icon', [TaxonController::class, 'showIcon']);
 
 // UPLOADING DATA
 Route::post('/upload-assembly', [ImportController::class, 'uploadAssembly']);
