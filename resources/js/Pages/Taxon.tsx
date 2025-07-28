@@ -1,9 +1,8 @@
 import TopNavBar from "@/Components/TopNavBar";
 import NotificationListener from "@/Components/NotificationsListener";
 import {Button, Card, Col, Container, Form, ListGroup, Modal, Placeholder, Row, Tab, Tabs} from "react-bootstrap";
-import placeholder_image from "../../static/img/dnaPlaceholder.PNG";
 import TaxMap from "@/Components/AssemblyPage/TaxMap";
-import {getGeoData, getLineage, getTaxonHeadline, getTaxonInfo} from "@/REST/taxon";
+import {getGeoData, getLineage, getTaxonInfo} from "@/REST/taxon";
 import {useEffect, useState} from "react";
 import InputGroup from 'react-bootstrap/InputGroup';
 import axios from "axios";

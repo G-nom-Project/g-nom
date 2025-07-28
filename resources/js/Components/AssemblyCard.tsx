@@ -6,7 +6,6 @@ import {
     ListGroup,
     Button, Row, Col,
 } from 'react-bootstrap';
-import placeholder from '../../static/img/dnaPlaceholder.PNG';
 
 interface Props {
     assemblyName: string;

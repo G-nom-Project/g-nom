@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Spatie\Image\Image;
-use Spatie\Image\Enums\ImageFormat;
 
 class TaxonController extends Controller
 {
