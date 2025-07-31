@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assembly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -13,6 +14,14 @@ class VaultFileController extends Controller
         // Sanitize path
         if (str_contains($path, '..') || str_starts_with($path, '/')) {
             abort(403, 'Forbidden path');
+        }
+
+        /**
+         * All vault file requests must follow the pattern
+         * taxa/<tax_id>/<assembly_id>/<path_to_file>
+         */
+        if (preg_match("#taxa/[0-9]+/[0-9]+/#", $path) === false) {
+            abort(400, 'Malformed path');
         }
 
         // Only allow certain file extensions
@@ -29,6 +38,11 @@ class VaultFileController extends Controller
                 abort(403, 'Hidden files not allowed');
             }
         }
+
+        // Enforce access policy via associated assemblyID
+        $assemblyID = intval(explode('/', $path)[2]);
+        $assembly = Assembly::where('id', $assemblyID)->first();
+        $this->authorize('view', $assembly);
 
         // Find real path - or not
         $filePath = storage_path("app/vault/{$path}");
@@ -54,7 +68,6 @@ class VaultFileController extends Controller
         $position = strpos($path, '.');
         if ($position !== false) {
             $extension = substr($path, $position + 1);
-            Log::info($extension);
         } else {
             return response('', 416);
         }

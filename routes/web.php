@@ -41,18 +41,18 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies')->middleware(['auth']);
-Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show');
+Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show')->middleware(['auth']);
 
-Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser');
-Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser');
+Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser')->middleware(['auth']);
+Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser')->middleware(['auth']);
 
 Route::get('/tol', function () {
     return Inertia::render('TreeOfLife');
-}) ->name('tol');
+}) ->name('tol')->middleware(['auth']);
 
 Route::get('/import', function () {
     return Inertia::render('Import');
-}) ->name('import');
+}) ->name('import')->middleware('auth');
 
 
 Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $request, $any = '') {
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $
 })->where('any', '.*');
 
 // Taxon Page
-Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon');
+Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon')->middleware(['auth']);
 
 // Taxon Information
 Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies')->middleware(['auth']);
@@ -83,14 +83,14 @@ Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middl
 Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);
 
 // Get additional Taxon information
-Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage']);
-Route::get('/taxon/{taxonID}/icon', [TaxonController::class, 'showIcon']);
+Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage'])->middleware(['auth']);
+Route::get('/taxon/{taxonID}/icon', [TaxonController::class, 'showIcon'])->middleware(['auth']);
 
 // UPLOADING DATA
-Route::post('/upload-assembly', [ImportController::class, 'uploadAssembly']);
-Route::post('/upload-annotation', [ImportController::class, 'uploadAnnotation']);
-Route::post('/upload-mapping', [ImportController::class, 'uploadMapping']);
-Route::post('/upload-busco', [ImportController::class, 'uploadBusco']);
+Route::post('/upload-assembly', [AssemblyController::class, 'uploadAssembly'])->middleware(['auth']);
+Route::post('/upload-annotation', [AssemblyController::class, 'uploadAnnotation'])->middleware(['auth']);
+Route::post('/upload-mapping', [AssemblyController::class, 'uploadMapping'])->middleware(['auth']);
+Route::post('/upload-busco', [AssemblyController::class, 'uploadBusco'])->middleware(['auth']);
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
     ->where('path', '.*')->middleware(['auth']);

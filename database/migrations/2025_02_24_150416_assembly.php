@@ -32,6 +32,7 @@ return new class extends Migration
             $table->json('lengthDistributionString')->default('{}');
             $table->json('charCount')->default('{}');
             $table->string('label')->nullable();
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
     }

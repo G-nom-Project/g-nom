@@ -8,7 +8,21 @@ class Assembly extends Model
 {
     //
     protected $table = 'assemblies';
-    //protected $primaryKey = 'assembly_id';
+
+    /**
+     * Limit visibility to public assemblies or assemblies owned by a user
+     * @param $query
+     * @param $user User
+     * @return mixed
+     */
+    public function scopeVisibleTo($query, $user)
+    {
+        if ($user-> role === "admin") {
+            return $query;
+        } else {
+            return $query->where('owner', $user->id)->orWhere('public', true);
+        }
+    }
 
     public function mappings()
     {
@@ -42,5 +56,10 @@ class Assembly extends Model
     public function taxon()
     {
         return $this->belongsTo(Taxon::class, 'taxon_id', 'ncbiTaxonID');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

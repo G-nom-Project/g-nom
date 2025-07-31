@@ -25,12 +25,16 @@ class TaxonController extends Controller
         ]);
     }
 
-    public function assemblies($id): JsonResponse
+    public function assemblies(Request $request, $id): JsonResponse
     {
-        $taxon = Taxon::with(["assemblies"])->where("ncbiTaxonID", $id)->first();
+        $taxon = Taxon::with([
+            'assemblies' => function ($query) use ($request) {
+                $query->visibleTo($request->user());
+            }
+        ])->where('ncbiTaxonID', $id)->first();
 
         return response()->json([
-            "taxon" => $taxon,
+            'taxon' => $taxon,
         ]);
     }
 
@@ -75,12 +79,17 @@ class TaxonController extends Controller
             'credit' => 'required|string|max:255'
         ]);
 
+        // Enforce policy
+        $taxonID = $request->input('taxonID');
+        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
+        $this->authorize('update', $taxon);
+
         $file = $request->file('image');
         $originalExtension = $file->getClientOriginalExtension();
         $uniqueName = Str::random(20);
         $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
 
-        $taxonID = $request->input('taxonID');
+
         $credit = $request->input('credit');
         $user = Auth::user();
 
@@ -95,7 +104,6 @@ class TaxonController extends Controller
             ->save($webpFullPath);
 
         // Set Image credit
-        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
         $taxon->imageCredit = $credit;
         $taxon->updated_at = now();
         $taxon->update();
@@ -139,6 +147,8 @@ class TaxonController extends Controller
         ]);
 
         $taxonID = $request->input('taxonID');
+        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
+        $this->authorize('update', $taxon);
         $file = $request->file('icon');
 
         // Store file
@@ -181,7 +191,7 @@ class TaxonController extends Controller
     {
         $request->validate([
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID',
-            'headline' => 'required|string|max:255',
+            'headline' => 'required|string|max:512',
             'text' => 'required|string|max:2000'
         ]);
 
@@ -194,6 +204,7 @@ class TaxonController extends Controller
 
         $taxonID = $request->input('taxonID');
         $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
+        $this->authorize('update', $taxon);
         $taxon->updated_at = now();
         $taxon->update();
 
