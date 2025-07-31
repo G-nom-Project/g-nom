@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
-use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
@@ -13,14 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/', [AssemblyController::class, 'stats']);
 
 
 Route::middleware(['auth'])->group(function () {
@@ -94,5 +86,7 @@ Route::post('/upload-busco', [AssemblyController::class, 'uploadBusco'])->middle
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
     ->where('path', '.*')->middleware(['auth']);
+
+Route::get('/stats', [AssemblyController::class, 'stats']);
 
 require __DIR__.'/auth.php';

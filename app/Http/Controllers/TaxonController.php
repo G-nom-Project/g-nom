@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Models\TaxonGeneralInfo;
 use App\Notifications\UploadComplete;

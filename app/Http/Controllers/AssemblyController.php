@@ -7,9 +7,12 @@ use App\Jobs\ImportAssembly;
 use App\Jobs\ImportBusco;
 use App\Jobs\ImportMapping;
 use App\Models\Assembly;
+use App\Models\Taxon;
 use App\Notifications\UploadComplete;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -249,4 +252,22 @@ class AssemblyController extends Controller
         ]);
     }
 
+    public function stats(Request $request)
+    {
+        $totalAssemblies = Cache::remember('totalAssemblies', 604800, function () use ($request) {
+            return Assembly::count();
+        });
+
+        $taxaWithAssemblies = Cache::remember('taxaWithAssemblies', 604800, function () use ($request) {
+            return Taxon::whereHas('assemblies')->count();
+        });
+
+        $rootUpdate = Taxon::where('ncbiTaxonID', 1)->first()->updated_at->format('d.m.Y');
+
+        return Inertia::render('Welcome', [
+            'totalAssemblies' => $totalAssemblies,
+            'taxaWithAssemblies' => $taxaWithAssemblies,
+            'rootUpdate' => $rootUpdate,
+        ]);
+    }
 }
