@@ -19,8 +19,12 @@ return new class extends Migration
             $table->string('source_link');
             $table->string('data_link')->nullable();
             $table->json('data')->nullable(); // Nullable if hosted externally
-            $table->unsignedInteger('taxon_ncbiTaxonID');
-            $table->foreign('taxon_ncbiTaxonID')->references('ncbiTaxonID')->on('taxa')->onDelete('cascade');
+
+            // Link to Taxon
+            $table->unsignedInteger('taxonID');
+            $table->foreign('taxonID', 'taxon_geo_data_taxon_fk')
+                ->references('ncbiTaxonID')
+                ->on('taxa');
             $table->timestamps();
         });
     }

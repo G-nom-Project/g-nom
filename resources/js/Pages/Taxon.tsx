@@ -2,7 +2,7 @@ import TopNavBar from "@/Components/TopNavBar";
 import NotificationListener from "@/Components/NotificationsListener";
 import {Button, Card, Col, Container, Form, ListGroup, Modal, Placeholder, Row, Tab, Tabs} from "react-bootstrap";
 import TaxMap from "@/Components/AssemblyPage/TaxMap";
-import {getGeoData, getLineage, getTaxonInfo} from "@/REST/taxon";
+import {deleteGeoData, getGeoData, getLineage, getTaxonInfo, uploadGeoData} from "@/REST/taxon";
 import {useEffect, useState} from "react";
 import InputGroup from 'react-bootstrap/InputGroup';
 import axios from "axios";
@@ -19,11 +19,45 @@ export default function Taxon({ taxon }) {
     // Modals
     const [showEditImage, setEditImage] = useState<boolean>(false);
     const [showEditGeo, setEditGeo] = useState<boolean>(false);
+    const [showAddGeo, setAddGeo] = useState<boolean>(false);
 
     // Upload only
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [iconFile, setIconFile] = useState<File | null>(null);
     const [imageCredit, setImageCredit] = useState();
+
+    // GEO Data Upload Form
+    const [geoFormData, setGeoFormData] = useState({
+        name: '',
+        type: '',
+        description: '',
+        source_link: '',
+        data_link: '',
+        data: '',
+    });
+    const [geoValidated, setGeoValidated] = useState<boolean>(false);
+
+    const handleGeoChange = (e) => {
+        const { name, value } = e.target;
+        setGeoFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleGeoSubmit = (event) => {
+        const form = event.currentTarget;
+        if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+        } else {
+            event.preventDefault();
+            event.stopPropagation();
+            uploadGeoData(taxon.ncbiTaxonID, geoFormData);
+        }
+        setGeoValidated(true);
+        window.location.reload();
+    };
 
     const handleImageUpload = async () => {
         if (!imageFile) return;
@@ -239,13 +273,12 @@ export default function Taxon({ taxon }) {
                         <p>You may have to reload the page for changes to take effect.</p>
                         <Button className="mt-1" variant="danger" onClick={() => setEditImage(false)}>Cancel</Button>
                         <Button className="ml-1 mt-1" variant="success" onClick={() => {handleImageUpload();handleIconUpload().then(r => setEditImage(false))}}>Save</Button>
-
                     </Modal.Body>
                 </Modal>
                 <Modal show={showEditGeo}>
                     <Modal.Body>
                         <Modal.Title>
-                            Edit Taxon Image
+                            Edit Taxon Geodata
                         </Modal.Title>
                         <table>
                             <thead>
@@ -259,18 +292,94 @@ export default function Taxon({ taxon }) {
                                 geoData.map((each) => {
                                     return <tr>
                                         <th className="table-cells">{each.name}</th>
-                                        <th className="table-cells" style={{textAlign: "center"}}><Button size="sm" variant="danger"><i className="bi bi-trash-fill"></i></Button></th>
+                                        <th className="table-cells" style={{textAlign: "center"}}><Button size="sm" variant="danger" onClick={() => {deleteGeoData(each.id, taxon.ncbiTaxonID); window.location.reload()}}><i className="bi bi-trash-fill"></i></Button></th>
                                     </tr>
                                 })
                             }
                             <tr>
-                                <th className="table-cells" style={{textAlign: "center"}}><Button size="sm">Add new</Button></th>
+                                <th className="table-cells" style={{textAlign: "center"}}><Button size="sm" onClick={() => setAddGeo(true)} disabled={showAddGeo}>Add new</Button></th>
                                 <th className="table-cells" style={{textAlign: "center"}}><Button size="sm" disabled={true} variant="danger"><i className="bi bi-trash-fill"></i></Button></th>
                             </tr>
                             </tbody>
                         </table>
+
+                        <hr/>
+
+                        {showAddGeo &&
+                            <>
+                                <h5>Metadata</h5>
+                                <Form noValidate validated={geoValidated} onSubmit={handleGeoSubmit}>
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Name</Form.Label>
+                                        <Form.Control
+                                            name="name"
+                                            value={geoFormData.name}
+                                            onChange={handleGeoChange}
+                                            required
+                                        />
+                                        <Form.Control.Feedback type="invalid">Name is a required field</Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Type</Form.Label>
+                                        <Form.Control
+                                            name="type"
+                                            value={geoFormData.type}
+                                            onChange={handleGeoChange}
+                                            required
+                                        />
+                                        <Form.Control.Feedback type="invalid">Type is a required field</Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Description</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            name="description"
+                                            value={geoFormData.description}
+                                            onChange={handleGeoChange}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Source link</Form.Label>
+                                        <Form.Control
+                                            name="source_link"
+                                            value={geoFormData.source_link}
+                                            onChange={handleGeoChange}
+                                            required
+                                        />
+                                        <Form.Control.Feedback type="invalid">Cite sources for Geo Data</Form.Control.Feedback>
+                                    </Form.Group>
+                                    <h5>Data</h5>
+                                    <p>Provide GeoJSON data either as a URL pointing to valid GeoJSON or copy and paste your data in the field below. G-nom will not validate GeoJSON data by itself.</p>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Data link</Form.Label>
+                                        <Form.Control
+                                            name="data_link"
+                                            value={geoFormData.data_link}
+                                            onChange={handleGeoChange}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Raw data</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            name="data"
+                                            value={geoFormData.data}
+                                            onChange={handleGeoChange}
+                                        />
+                                    </Form.Group>
+                                    <Button type="submit">Submit Geo Data</Button>
+                                </Form>
+                            </>
+                        }
                         <br/>
-                        <Button className="ml-1" onClick={() => setEditGeo(false)}>Close</Button>
+                        <Button>Close</Button>
                     </Modal.Body>
                 </Modal>
             </Container>

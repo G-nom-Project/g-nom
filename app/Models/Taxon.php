@@ -22,7 +22,7 @@ class Taxon extends Model
 
     public function geoData()
     {
-        return $this->hasMany(TaxonGeoData::class, 'taxon_ncbiTaxonID', 'ncbiTaxonID');
+        return $this->hasMany(TaxonGeoData::class, 'taxonID', 'ncbiTaxonID');
     }
 
 

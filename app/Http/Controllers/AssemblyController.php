@@ -31,11 +31,21 @@ class AssemblyController extends Controller
                 if (is_numeric($search)) {
                     return $query->where('taxon_id', (int)$search);
                 } else {
-                    return $query->where('name', 'LIKE', '%' . $search . '%');
+                    return $query
+                        ->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhereHas('taxon', function ($q) use ($search) {
+                            $q->where('commonName', 'LIKE', '%' . $search . '%')
+                                ->orWhere('scientificName', 'LIKE', '%' . $search . '%');
+                        });
                 }
             })
             ->withCount('mappings')
-            ->withCount(['genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'taxaminerAnalyses'])
+            ->withCount([
+                'genomicAnnotations',
+                'buscoAnalyses',
+                'repeatmaskerAnalyses',
+                'taxaminerAnalyses'
+            ])
             ->with('taxon.infos')
             ->paginate(12)
             ->withQueryString();

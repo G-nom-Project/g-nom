@@ -83,7 +83,6 @@ const AssemblyCard = (props: Props) => {
                             taXaminer: {(props.taxaminers === 0 && <b className="text-danger">0 available</b>) || <b className="text-success">{props.taxaminers} available</b>}
                         </Col>
                     </Row>
-
                 </ListGroup.Item>
             </ListGroup>
         </Card>

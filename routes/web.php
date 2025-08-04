@@ -73,6 +73,8 @@ Route::get('/taxon/infos/{ncbiTaxonID}', [TaxonController::class, 'getInfos'])->
 Route::post('/taxon/upload-image', [TaxonController::class, 'uploadImage'])->middleware(['auth']);
 Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middleware(['auth']);
 Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);
+Route::post('/taxon/{taxonID}/geodata', [TaxonController::class, 'uploadGeoData'])->middleware(['auth']);
+Route::delete('/taxon/{taxonID}/geodata/{id}', [TaxonController::class, 'deleteGeoData'])->middleware(['auth']);
 
 // Get additional Taxon information
 Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage'])->middleware(['auth']);

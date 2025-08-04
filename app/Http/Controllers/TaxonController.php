@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Models\TaxonGeneralInfo;
+use App\Models\TaxonGeoData;
 use App\Notifications\UploadComplete;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,6 +63,54 @@ class TaxonController extends Controller
         $taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->with(["geoData"])->first();
         return response()->json($taxon);
     }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function uploadGeoData($taxonID, Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'source_link' => 'required|string|max:512',
+            'data_link' => 'nullable|string|max:512',
+            'data' => 'nullable|json',
+        ]);
+
+        $now = now();
+
+        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->firstOrFail();
+        $this->authorize('update', $taxon);
+
+        $geoData = new TaxonGeoData();
+        $geoData->name = $validated['name'];
+        $geoData->type = $validated['type'];
+        $geoData->description = $validated['description'] ?? null;
+        $geoData->source_link = $validated['source_link'];
+        $geoData->data_link = $validated['data_link'] ?? null;
+        $geoData->data = $validated['data'] ?? null;
+        $geoData->taxonID = $taxonID;
+        $geoData->created_at = $now;
+        $geoData->updated_at = $now;
+        $geoData->save();
+
+        return response()->json(['message' => 'GeoData uploaded successfully']);
+    }
+
+    public function deleteGeoData($taxonID, $id): JsonResponse
+    {
+
+        $geoData = TaxonGeoData::where('id', $id)->firstOrFail();
+        Log::info("Received request to delete GeoData for taxon {$taxonID} with ID {$id}");
+        // Deleting GeoData is under update Taxon policy
+        $taxon = Taxon::where('ncbiTaxonID', $geoData->taxonID)->firstOrFail();
+        $this->authorize('update', $taxon);
+        Log::info("Authorized request tp delete GeoData for taxon {$taxonID} with ID {$id}");
+        $geoData->delete();
+        return response()->json(['message' => 'GeoData deleted']);
+    }
+
 
     public function getInfos(int $ncbiTaxonID): JsonResponse
     {

@@ -52,7 +52,7 @@ export default function Assemblies({
                                         <Form.Control
                                             type="text"
                                             value={data.search}
-                                            placeholder={"Enter a assembly name or NCBI Taxon ID"}
+                                            placeholder={"Enter an assembly name, taxon name or NCBI Taxon ID"}
                                             // @ts-expect-error Type mismatch to TFrom, simply not inferred correctly
                                             onChange={(e) => setData('search', e.target.value)}
                                         />
@@ -68,6 +68,7 @@ export default function Assemblies({
                         </Nav>
                     </Container>
                 </Navbar>
+                <Container fluid>
                 <Row className="row-cols-1 row-cols-md-4">
                     {assemblies.data.map((each: any) => (
                         <Col key={each.id} className="d-flex align-items-stretch mb-3">
@@ -90,11 +91,12 @@ export default function Assemblies({
                         </Col>
                     ))}
                 </Row>
-                <Row className="justify-content-center mt-4">
+                <Row className="justify-content-center">
                     <Col xs="auto">
                         <Pagination links={assemblies.links} />
                     </Col>
                 </Row>
+                </Container>
         </>
     );
 }

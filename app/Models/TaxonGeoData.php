@@ -11,6 +11,6 @@ class TaxonGeoData extends Model
 
     public function taxon()
     {
-        return $this->belongsTo(Taxon::class, 'taxon_ncbiTaxonID', 'ncbiTaxonID');
+        return $this->belongsTo(Taxon::class, 'taxonID', 'ncbiTaxonID');
     }
 }

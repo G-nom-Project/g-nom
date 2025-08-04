@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('taxon_general_infos', function (Blueprint $table) {
-            $table->integer('ncbiTaxonID')->primary();;
+            $table->integer('ncbiTaxonID')->primary();
             $table->string('headline')->nullable();
             $table->text('text')->nullable();
             $table->timestamps();
