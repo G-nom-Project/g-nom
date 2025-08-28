@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\BuscoAnalysis;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -111,5 +112,12 @@ class ImportBusco implements ShouldQueue
         }
         Log::info($output);
         return $output;
+    }
+
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping("status:{$this->assemblyID}"))->shared(),
+        ];
     }
 }

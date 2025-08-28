@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\genomicAnnotation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -75,7 +76,8 @@ class ImportAnnotation implements ShouldQueue
         $vault = Storage::disk('vault');
 
         // Sort GFF file
-        $result = Process::run("gt gff3 -sortlines -tidy -retainids -o " . escapeshellarg($vault->path($path . ".sorted.gff3")) . " " . escapeshellarg($vault->path($path)));
+        $script = base_path('resources/scripts/gff3sort/gff3sort.pl');
+        $result = Process::run("$script " . escapeshellarg($vault->path($path)) . " > " .escapeshellarg($vault->path($path . ".sorted.gff3")));
         if ($result->failed()) {
             Log::critical("genometools failed: " . $result->errorOutput());
             $this->fail("Failed while sorting file!");
@@ -97,5 +99,12 @@ class ImportAnnotation implements ShouldQueue
             $this->fail("Failed while generating Index!");
         }
 
+    }
+
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping("status:{$this->assemblyID}"))->shared(),
+        ];
     }
 }

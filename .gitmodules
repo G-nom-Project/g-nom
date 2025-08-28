@@ -1,0 +1,3 @@
+[submodule "resources/scripts/gff3sort"]
+	path = resources/scripts/gff3sort
+	url = https://github.com/G-nom-Project/gff3sort.git
