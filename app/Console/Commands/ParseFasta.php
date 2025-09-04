@@ -28,8 +28,9 @@ class ParseFasta extends Command
     {
         $path = $this->argument('path');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $this->error("File not found: $path");
+
             return 1;
         }
 
@@ -37,18 +38,21 @@ class ParseFasta extends Command
         $result = Process::run("$script \"$path\"");
 
         if ($result->failed()) {
-            $this->error("Error running script:\n" . $result->errorOutput());
+            $this->error("Error running script:\n".$result->errorOutput());
+
             return 1;
         }
 
         $output = json_decode($result->output(), true);
-        if (!$output) {
-            $this->error("Failed to parse JSON. Raw output:");
+        if (! $output) {
+            $this->error('Failed to parse JSON. Raw output:');
             $this->line($result->output());  // 👈 Print the raw output from the script
+
             return 1;
         }
-        $this->info("Sequence type: " . $output['sequenceType']);
-        $this->info("Total length: " . $output['cumulativeSequenceLength']);
+        $this->info('Sequence type: '.$output['sequenceType']);
+        $this->info('Total length: '.$output['cumulativeSequenceLength']);
+
         return 0;
     }
 }

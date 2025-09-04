@@ -5,22 +5,18 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-
 Route::get('/', [AssemblyController::class, 'stats']);
-
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('bookmarks', BookmarkController::class);
 });
 
 Route::get('/bookmarks', [BookmarkController::class, 'bookmarkedAssemblies'])->name('bookmarks')->middleware(['auth']);
-
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -40,21 +36,20 @@ Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assem
 
 Route::get('/tol', function () {
     return Inertia::render('TreeOfLife');
-}) ->name('tol')->middleware(['auth']);
+})->name('tol')->middleware(['auth']);
 
 Route::get('/import', function () {
     return Inertia::render('Import');
-}) ->name('import')->middleware('auth');
-
+})->name('import')->middleware('auth');
 
 Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $request, $any = '') {
     $proxyUrl = "http://gdock.izn-ffm.intern:1234/{$any}";
 
     $response = Http::withHeaders($request->headers->all())
-    ->send($request->method(), $proxyUrl, [
-        'query' => $request->query(),
-        'body' => $request->getContent(),
-    ]);
+        ->send($request->method(), $proxyUrl, [
+            'query' => $request->query(),
+            'body' => $request->getContent(),
+        ]);
 
     return response($response->body(), $response->status())
         ->withHeaders($response->headers());

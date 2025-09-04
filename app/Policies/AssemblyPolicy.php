@@ -4,8 +4,6 @@ namespace App\Policies;
 
 use App\Models\Assembly;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Log;
 
 class AssemblyPolicy
 {
@@ -64,5 +62,4 @@ class AssemblyPolicy
     {
         return false;
     }
-
 }

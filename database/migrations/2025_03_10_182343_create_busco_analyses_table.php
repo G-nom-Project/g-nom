@@ -14,19 +14,19 @@ return new class extends Migration
         Schema::create('busco_analyses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('assembly_id')->constrained()->cascadeOnDelete();
-            $table->string("name");
-            $table->integer("completeSingle");
-            $table->integer("completeDuplicated");
-            $table->integer("fragmented");
-            $table->integer("missing");
-            $table->integer("total");
-            $table->float("completeSinglePercent");
-            $table->float("completeDuplicatedPercent");
-            $table->float("fragmentedPercent");
-            $table->float("missingPercent");
-            $table->string("dataset")->nullable();
-            $table->string("buscoMode")->nullable();
-            $table->text("targetFile")->nullable();
+            $table->string('name');
+            $table->integer('completeSingle');
+            $table->integer('completeDuplicated');
+            $table->integer('fragmented');
+            $table->integer('missing');
+            $table->integer('total');
+            $table->float('completeSinglePercent');
+            $table->float('completeDuplicatedPercent');
+            $table->float('fragmentedPercent');
+            $table->float('missingPercent');
+            $table->string('dataset')->nullable();
+            $table->string('buscoMode')->nullable();
+            $table->text('targetFile')->nullable();
             $table->timestamps();
         });
     }

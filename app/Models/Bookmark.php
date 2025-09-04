@@ -20,6 +20,6 @@ class Bookmark extends Model
 
     public function assembly(): BelongsTo
     {
-        return $this->belongsTo(Assembly::class, "assembly_id", "id");
+        return $this->belongsTo(Assembly::class, 'assembly_id', 'id');
     }
 }

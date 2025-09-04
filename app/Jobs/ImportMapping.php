@@ -15,10 +15,15 @@ class ImportMapping implements ShouldQueue
     use Queueable;
 
     protected string $filepath;
+
     protected string $type;
+
     protected int $assemblyID;
+
     protected int $taxonID;
+
     protected string $name;
+
     protected $user;
 
     /**
@@ -43,11 +48,11 @@ class ImportMapping implements ShouldQueue
     public function handle(): void
     {
         //
-        $mapping = new genomicMapping();
+        $mapping = new genomicMapping;
         $mapping->assembly_id = $this->assemblyID;
         $mapping->name = $this->name;
         $mapping->user_id = $this->user->getAuthIdentifier();
-        $mapping->path = "";
+        $mapping->path = '';
 
         $mapping->save();
         $mappingID = $mapping->id;
@@ -60,7 +65,7 @@ class ImportMapping implements ShouldQueue
 
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);
-            if (!$vault->exists($targetDir)) {
+            if (! $vault->exists($targetDir)) {
                 $vault->makeDirectory($targetDir);
             }
 
@@ -73,34 +78,33 @@ class ImportMapping implements ShouldQueue
     }
 
     public function prepareJBrowse(string $path): void
-
     {
         $vault = Storage::disk('vault');
 
         // Convert to BAM
-        if (!$this->type == "bam") {
-            $result = Process::run("samtools view -bS -o " . escapeshellarg($vault->path($path . "bam")) . " " . escapeshellarg($vault->path($path)));
+        if (! $this->type == 'bam') {
+            $result = Process::run('samtools view -bS -o '.escapeshellarg($vault->path($path.'bam')).' '.escapeshellarg($vault->path($path)));
             if ($result->failed()) {
-                Log::critical("samtools failed while compressing: " . $result->errorOutput());
-                $this->fail("Failed while compressing file!");
+                Log::critical('samtools failed while compressing: '.$result->errorOutput());
+                $this->fail('Failed while compressing file!');
             }
         } else {
-            Log::info("Skipping samtools view, file is already BAM");
-            $result = Process::run("cp " . escapeshellarg($vault->path($path)) . " " . escapeshellarg($vault->path($path . "bam")));
+            Log::info('Skipping samtools view, file is already BAM');
+            $result = Process::run('cp '.escapeshellarg($vault->path($path)).' '.escapeshellarg($vault->path($path.'bam')));
             if ($result->failed()) {
-                Log::critical("Failed to copy BAM " . $result->errorOutput());
-                $this->fail("Failed while compressing file!");
+                Log::critical('Failed to copy BAM '.$result->errorOutput());
+                $this->fail('Failed while compressing file!');
             }
         }
 
         // Now we're at BAM
-        $this->filepath = $path . ".bam";
+        $this->filepath = $path.'.bam';
 
         // Index compressed file
-        $result = Process::run("samtools index" . escapeshellarg($vault->path($this->filepath)));
+        $result = Process::run('samtools index'.escapeshellarg($vault->path($this->filepath)));
         if ($result->failed()) {
-            Log::critical("samtools failed while indexing: " . $result->errorOutput());
-            $this->fail("Failed while compressing file!");
+            Log::critical('samtools failed while indexing: '.$result->errorOutput());
+            $this->fail('Failed while compressing file!');
         }
     }
 

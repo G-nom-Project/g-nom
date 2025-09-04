@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class UploadComplete extends Notification
@@ -30,7 +28,7 @@ class UploadComplete extends Notification
             'variant' => 'success',
             'message' => 'File uploaded successfully.',
             'path' => $this->filePath,
-            'icon' => 'bi bi-cloud-check'
+            'icon' => 'bi bi-cloud-check',
         ];
     }
 }

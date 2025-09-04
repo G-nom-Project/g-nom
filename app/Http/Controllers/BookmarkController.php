@@ -25,14 +25,13 @@ class BookmarkController extends Controller
                     'genomicAnnotations',
                     'buscoAnalyses',
                     'repeatmaskerAnalyses',
-                    'taxaminerAnalyses'
+                    'taxaminerAnalyses',
                 ]);
             }])
             ->paginate(10);
 
-
         // Transform paginated results to extract assemblies while preserving pagination structure
-        $assemblies = $bookmarks->through(fn($bookmark) => $bookmark->assembly);
+        $assemblies = $bookmarks->through(fn ($bookmark) => $bookmark->assembly);
 
         return Inertia::render('Bookmarks', [
             'assemblies' => $assemblies,
@@ -47,10 +46,10 @@ class BookmarkController extends Controller
         ]);
     }
 
-
     public function index()
     {
         $bookmarks = Bookmark::where('user_id', Auth::id())->with('assembly')->get();
+
         return response()->json($bookmarks);
     }
 

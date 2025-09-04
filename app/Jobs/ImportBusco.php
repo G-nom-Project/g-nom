@@ -15,10 +15,15 @@ class ImportBusco implements ShouldQueue
     use Queueable;
 
     protected string $filepath;
+
     protected string $type;
+
     protected int $assemblyID;
+
     protected int $taxonID;
+
     protected string $name;
+
     protected $user;
 
     /**
@@ -39,10 +44,10 @@ class ImportBusco implements ShouldQueue
     public function handle(): void
     {
         // Create stub analysis
-        $analysis = new BuscoAnalysis();
+        $analysis = new BuscoAnalysis;
         $analysis->assembly_id = $this->assemblyID;
         // $analysis->name = $this->name;
-        //$analysis->user_id = $this->user->getAuthIdentifier();
+        // $analysis->user_id = $this->user->getAuthIdentifier();
         // Obtain ID
         $analysis->save();
         $analysisID = $analysis->id;
@@ -56,7 +61,7 @@ class ImportBusco implements ShouldQueue
         // Move file
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);
-            if (!$vault->exists($targetDir)) {
+            if (! $vault->exists($targetDir)) {
                 $vault->makeDirectory($targetDir);
             }
 
@@ -66,15 +71,15 @@ class ImportBusco implements ShouldQueue
 
         $stats = $this->parseBusco($targetPath);
         if (isset($stats['error'])) {
-            Log::error("Error: " . $stats['error']);
-            $this->fail("Failed while assessing assembly stats");
+            Log::error('Error: '.$stats['error']);
+            $this->fail('Failed while assessing assembly stats');
         }
 
         // Store stats in database
         $analysis->completeSingle = $stats['completeSingle'];
         $analysis->completeDuplicated = $stats['completeDuplicated'];
         $analysis->fragmented = $stats['fragmented'];
-        $analysis->missing= $stats['missing'];
+        $analysis->missing = $stats['missing'];
         $analysis->total = $stats['total'];
         $analysis->completeSinglePercent = $stats['completeSinglePercent'];
         $analysis->completeDuplicatedPercent = $stats['completeDuplicatedPercent'];
@@ -92,8 +97,8 @@ class ImportBusco implements ShouldQueue
         $vault = Storage::disk('vault');
         $filePath = $vault->path($filePath);
 
-        if (!file_exists($filePath)) {
-            return ['error' => 'File not found ' . $filePath];
+        if (! file_exists($filePath)) {
+            return ['error' => 'File not found '.$filePath];
         }
 
         $script = base_path('resources/scripts/parse_busco.pl');
@@ -105,12 +110,14 @@ class ImportBusco implements ShouldQueue
         }
 
         $output = json_decode($result->output(), true);
-        if (!$output) {
-            Log::error("Failed to parse JSON. Raw output:");
+        if (! $output) {
+            Log::error('Failed to parse JSON. Raw output:');
             Log::info($result->output());
+
             return ['error' => 'Failed to parse JSON'];
         }
         Log::info($output);
+
         return $output;
     }
 

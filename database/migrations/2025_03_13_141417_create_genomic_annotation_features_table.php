@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('attributes');
             $table->text('source');
             $table->float('score');
-            $table->string('strand')    ;
+            $table->string('strand');
             $table->smallInteger('phase')->nullable();
             $table->timestamps();
         });

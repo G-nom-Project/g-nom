@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class TaxonGeneralInfo extends Model
 {
     protected $table = 'taxon_general_infos';
+
     protected $primaryKey = 'ncbiTaxonID';
+
     //
     public function taxon()
     {

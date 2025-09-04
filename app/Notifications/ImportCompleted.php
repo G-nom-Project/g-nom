@@ -3,13 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ImportCompleted extends Notification
 {
     use Queueable;
+
     protected int $assemblyID;
 
     /**
@@ -37,9 +37,9 @@ class ImportCompleted extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -54,7 +54,7 @@ class ImportCompleted extends Notification
             'variant' => 'success',
             'message' => "Successfully imported data for assembly ID {$this->assemblyID}",
             'assemblyID' => $this->assemblyID,
-            'icon' => 'bi bi-file-earmark-check'
+            'icon' => 'bi bi-file-earmark-check',
         ];
     }
 }

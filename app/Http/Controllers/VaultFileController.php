@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VaultFileController extends Controller
@@ -20,7 +19,7 @@ class VaultFileController extends Controller
          * All vault file requests must follow the pattern
          * taxa/<tax_id>/<assembly_id>/<path_to_file>
          */
-        if (preg_match("#taxa/[0-9]+/[0-9]+/#", $path) === false) {
+        if (preg_match('#taxa/[0-9]+/[0-9]+/#', $path) === false) {
             abort(400, 'Malformed path');
         }
 
@@ -28,7 +27,7 @@ class VaultFileController extends Controller
         $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi'];
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-        if (!in_array($extension, $allowedExtensions)) {
+        if (! in_array($extension, $allowedExtensions)) {
             abort(403, 'File type not allowed');
         }
 
@@ -46,24 +45,23 @@ class VaultFileController extends Controller
 
         // Find real path - or not
         $filePath = storage_path("app/vault/{$path}");
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             abort(404, 'File not found');
         }
 
         $fileSize = filesize($filePath);
         $mimeTypes = [
-            'gz'   => 'application/x-gzip',
-            'gzi'  => 'application/octet-stream', // Index file, not gzip
-            'fai'  => 'text/plain',
+            'gz' => 'application/x-gzip',
+            'gzi' => 'application/octet-stream', // Index file, not gzip
+            'fai' => 'text/plain',
             'sorted.gff3' => 'text/plain',
             'sorted.gff3.gz' => 'application/x-gzip',
             'sorted.gff3.gz.tbi' => 'application/x-gzip',
-            'fa'   => 'text/plain',
+            'fa' => 'text/plain',
             'fa.gz' => 'application/x-gzip',
             'fasta' => 'text/plain',
             'fasta.gz' => 'application/x-gzip',
         ];
-
 
         $position = strpos($path, '.');
         if ($position !== false) {
@@ -106,6 +104,7 @@ class VaultFileController extends Controller
 
         // Fallback: Serve full file
         $headers['Content-Length'] = $fileSize;
+
         return response()->stream(function () use ($filePath) {
             readfile($filePath);
         }, 200, $headers);

@@ -6,17 +6,20 @@ use App\Models\Assembly;
 use App\Notifications\ImportCompleted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Storage;
 
 class ImportAssembly implements ShouldQueue
 {
     use Queueable;
 
     protected string $filepath;
+
     protected int $taxonID;
+
     protected string $name;
+
     protected $user;
 
     public function __construct(string $filepath, int $taxonID, string $name, $user)
@@ -29,7 +32,7 @@ class ImportAssembly implements ShouldQueue
 
     public function handle(): void
     {
-        $assembly = new Assembly();
+        $assembly = new Assembly;
         $assembly->name = $this->name;
         $assembly->infoText = null;
         $assembly->taxon_id = $this->taxonID;
@@ -48,14 +51,14 @@ class ImportAssembly implements ShouldQueue
 
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);
-            if (!$vault->exists($targetDir)) {
+            if (! $vault->exists($targetDir)) {
                 $vault->makeDirectory($targetDir);
             }
 
             $sourceFile = fopen($local->path($sourcePath), 'rb');
             $targetFile = fopen($vault->path($targetPath), 'wb');
 
-            while (!feof($sourceFile)) {
+            while (! feof($sourceFile)) {
                 $buffer = fread($sourceFile, 1024);
                 fwrite($targetFile, $buffer);
             }
@@ -68,8 +71,8 @@ class ImportAssembly implements ShouldQueue
 
         $stats = $this->parseFasta($targetPath);
         if (isset($stats['error'])) {
-            Log::error("Error: " . $stats['error']);
-            $this->fail("Failed while assessing assembly stats");
+            Log::error('Error: '.$stats['error']);
+            $this->fail('Failed while assessing assembly stats');
         }
 
         $assembly->numberOfSequences = $stats['numberOfSequences'];
@@ -94,27 +97,27 @@ class ImportAssembly implements ShouldQueue
     {
         $vault = Storage::disk('vault');
 
-        $gzippedFile = $path . 'assembly.fa.gz';
+        $gzippedFile = $path.'assembly.fa.gz';
         Log::info("Preparing jBrowse for $gzippedFile");
 
-        $result = Process::run("bgzip " . escapeshellarg($vault->path($path . "assembly.fa")));
+        $result = Process::run('bgzip '.escapeshellarg($vault->path($path.'assembly.fa')));
         if ($result->failed()) {
-            Log::critical("bgzip failed: " . $result->errorOutput());
-            $this->fail("Failed while compressing file!");
+            Log::critical('bgzip failed: '.$result->errorOutput());
+            $this->fail('Failed while compressing file!');
         }
 
         $this->filepath = $gzippedFile;
 
-        $result = Process::run("samtools faidx " . escapeshellarg($vault->path($gzippedFile)));
+        $result = Process::run('samtools faidx '.escapeshellarg($vault->path($gzippedFile)));
         if ($result->failed()) {
-            Log::critical("samtools faidx failed: " . $result->errorOutput());
-            $this->fail("Failed while generating FASTA index!");
+            Log::critical('samtools faidx failed: '.$result->errorOutput());
+            $this->fail('Failed while generating FASTA index!');
         }
 
-        $result = Process::run("jbrowse add-assembly " . escapeshellarg($vault->path($gzippedFile)) . " --name " . escapeshellarg($this->name) . " --load inPlace" . " --target " . $vault->path($path . "config.json"));
+        $result = Process::run('jbrowse add-assembly '.escapeshellarg($vault->path($gzippedFile)).' --name '.escapeshellarg($this->name).' --load inPlace'.' --target '.$vault->path($path.'config.json'));
         if ($result->failed()) {
-            Log::critical("JBrowse Import failed: " . $result->errorOutput());
-            $this->fail("Failed while generating JBrowse track config!");
+            Log::critical('JBrowse Import failed: '.$result->errorOutput());
+            $this->fail('Failed while generating JBrowse track config!');
         }
     }
 
@@ -123,10 +126,9 @@ class ImportAssembly implements ShouldQueue
         $vault = Storage::disk('vault');
         $filePath = $vault->path($filePath);
 
-        if (!file_exists($filePath)) {
-            return ['error' => 'File not found ' . $filePath];
+        if (! file_exists($filePath)) {
+            return ['error' => 'File not found '.$filePath];
         }
-
 
         $script = base_path('resources/scripts/fasta_parser.pl');
         Log::info("$script \"$filePath\"");
@@ -137,9 +139,10 @@ class ImportAssembly implements ShouldQueue
         }
 
         $output = json_decode($result->output(), true);
-        if (!$output) {
-            Log::error("Failed to parse JSON. Raw output:");
+        if (! $output) {
+            Log::error('Failed to parse JSON. Raw output:');
             Log::info($result->output());
+
             return ['error' => 'Failed to parse JSON'];
         }
 

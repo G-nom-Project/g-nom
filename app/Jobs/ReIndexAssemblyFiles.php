@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class ReIndexAssemblyFiles implements ShouldQueue
 {
     use Queueable;
+
     protected string $path;
 
     /**
@@ -28,12 +29,12 @@ class ReIndexAssemblyFiles implements ShouldQueue
     public function handle(): void
     {
         // Remove the old indices
-        Storage::deleteDirectory($this->path . "/trix");
+        Storage::deleteDirectory($this->path.'/trix');
         // Generate new indices
-        $result = Process::run("jbrowse text-index --force" . " --target " . Storage::path($this->path) . "/config.json --out " . Storage::path($this->path) . "/trix");
+        $result = Process::run('jbrowse text-index --force'.' --target '.Storage::path($this->path).'/config.json --out '.Storage::path($this->path).'/trix');
         if ($result->failed()) {
-            Log::critical("JBrowse Index failed!" . $result->errorOutput());
-            $this->fail("Failed while generating JBrowse Indices");
+            Log::critical('JBrowse Index failed!'.$result->errorOutput());
+            $this->fail('Failed while generating JBrowse Indices');
         }
     }
 }

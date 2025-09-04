@@ -10,13 +10,12 @@ use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Notifications\UploadComplete;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use Inertia\Response;
 
 class AssemblyController extends Controller
@@ -29,13 +28,13 @@ class AssemblyController extends Controller
             ->visibleTo($request->user())
             ->when($search, function ($query) use ($search) {
                 if (is_numeric($search)) {
-                    return $query->where('taxon_id', (int)$search);
+                    return $query->where('taxon_id', (int) $search);
                 } else {
                     return $query
-                        ->where('name', 'LIKE', '%' . $search . '%')
+                        ->where('name', 'LIKE', '%'.$search.'%')
                         ->orWhereHas('taxon', function ($q) use ($search) {
-                            $q->where('commonName', 'LIKE', '%' . $search . '%')
-                                ->orWhere('scientificName', 'LIKE', '%' . $search . '%');
+                            $q->where('commonName', 'LIKE', '%'.$search.'%')
+                                ->orWhere('scientificName', 'LIKE', '%'.$search.'%');
                         });
                 }
             })
@@ -44,7 +43,7 @@ class AssemblyController extends Controller
                 'genomicAnnotations',
                 'buscoAnalyses',
                 'repeatmaskerAnalyses',
-                'taxaminerAnalyses'
+                'taxaminerAnalyses',
             ])
             ->with('taxon.infos')
             ->paginate(12)
@@ -65,36 +64,35 @@ class AssemblyController extends Controller
 
         // Pass the data to the Inertia component
         return Inertia::render('BrowserSelection', [
-            'assemblies' => $assemblies
+            'assemblies' => $assemblies,
         ]);
     }
 
     /**
-     * @param $id
-     * @return Response
      * @throws AuthorizationException
      */
     public function show($id): Response
     {
-        $assembly = Assembly::with(["mappings", "genomicAnnotations", "buscoAnalyses", "repeatmaskerAnalyses", "fcatAnalyses", 'taxaminerAnalyses', "taxon"])->findOrFail($id);
+        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'fcatAnalyses', 'taxaminerAnalyses', 'taxon'])->findOrFail($id);
         $this->authorize('view', $assembly);
+
         return Inertia::render('Assembly', [
-            'assembly' => $assembly
+            'assembly' => $assembly,
         ]);
     }
 
     public function browser($id): Response
     {
-        $assembly = Assembly::with(["mappings", "genomicAnnotations"])->findOrFail($id);
+        $assembly = Assembly::with(['mappings', 'genomicAnnotations'])->findOrFail($id);
 
         return Inertia::render('GenomeBrowser', [
-            'assembly' => $assembly
+            'assembly' => $assembly,
         ]);
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws AuthorizationException
      */
     public function uploadAssembly(Request $request)
@@ -113,7 +111,7 @@ class AssemblyController extends Controller
         $uniqueName = Str::random(20);  // Generate a random string for uniqueness
 
         // Store the file with a unique name and the original extension
-        $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
         $taxonID = $request->input('taxonID');
         $name = $request->input('name');
         $user = Auth::user();
@@ -125,18 +123,17 @@ class AssemblyController extends Controller
         // Handle files and database entry
         ImportAssembly::dispatch($path, $taxonID, $name, $user);
 
-
         return response()->json([
             'message' => 'Assembly imported successfully.',
             'path' => $path,
         ]);
     }
 
-
     /**
      * Annotations are always associated with an assembly and thus stored here.
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws AuthorizationException
      */
     public function uploadAnnotation(Request $request)
@@ -145,7 +142,7 @@ class AssemblyController extends Controller
             'annotation' => 'required|file|mimetypes:text/plain,text/x-gff',
             'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
         ]);
 
         // Enforce assembly policy an annotations
@@ -159,7 +156,7 @@ class AssemblyController extends Controller
         $uniqueName = Str::random(20);  // Generate a random string for uniqueness
 
         // Store the file with a unique name and the original extension
-        $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
 
         $taxonID = $request->input('taxonID');
         $name = $request->input('name');
@@ -169,10 +166,9 @@ class AssemblyController extends Controller
             $user->notify(new UploadComplete($path));
         }
 
-        Log::info("Dispatching Annotation Import Job now");
+        Log::info('Dispatching Annotation Import Job now');
         // Handle files and database entry
         ImportAnnotation::dispatch($path, $assemblyID, $taxonID, $name, $user);
-
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
@@ -186,7 +182,7 @@ class AssemblyController extends Controller
             'mapping' => 'required|file',
             'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
         ]);
 
         // Enforce assembly policy an mappings
@@ -200,7 +196,7 @@ class AssemblyController extends Controller
         $uniqueName = Str::random(20);  // Generate a random string for uniqueness
 
         // Store the file with a unique name and the original extension
-        $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
         $taxonID = $request->input('taxonID');
         $name = $request->input('name');
         $user = Auth::user();
@@ -209,10 +205,9 @@ class AssemblyController extends Controller
             $user->notify(new UploadComplete($path));
         }
 
-        Log::info("Dispatching Mapping Import Job");
+        Log::info('Dispatching Mapping Import Job');
         // Handle files and database entry
         ImportMapping::dispatch($path, $originalExtension, $assemblyID, $taxonID, $name, $user);
-
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
@@ -220,14 +215,13 @@ class AssemblyController extends Controller
         ]);
     }
 
-
     public function uploadBusco(Request $request)
     {
         $request->validate([
             'summary' => 'required|file',
             'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
         ]);
 
         // Enforce assembly policy on BUSCO imports
@@ -241,7 +235,7 @@ class AssemblyController extends Controller
         $uniqueName = Str::random(20);  // Generate a random string for uniqueness
 
         // Store the file with a unique name and the original extension
-        $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
         $assemblyID = $request->input('assemblyID');
         $taxonID = $request->input('taxonID');
         $name = $request->input('name');
@@ -251,10 +245,9 @@ class AssemblyController extends Controller
             $user->notify(new UploadComplete($path));
         }
 
-        Log::info("Dispatching BUSCO Import Job");
+        Log::info('Dispatching BUSCO Import Job');
         // Handle files and database entry
         ImportBusco::dispatch($path, $assemblyID, $taxonID, $name, $user);
-
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
@@ -264,11 +257,11 @@ class AssemblyController extends Controller
 
     public function stats(Request $request)
     {
-        $totalAssemblies = Cache::remember('totalAssemblies', 604800, function () use ($request) {
+        $totalAssemblies = Cache::remember('totalAssemblies', 604800, function () {
             return Assembly::count();
         });
 
-        $taxaWithAssemblies = Cache::remember('taxaWithAssemblies', 604800, function () use ($request) {
+        $taxaWithAssemblies = Cache::remember('taxaWithAssemblies', 604800, function () {
             return Taxon::whereHas('assemblies')->count();
         });
 

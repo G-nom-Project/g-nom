@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Taxon;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TaxonPolicy
 {
@@ -37,7 +36,7 @@ class TaxonPolicy
      */
     public function update(User $user, Taxon $taxon): bool
     {
-        return $user->role === "admin" || $user->role === "editor";
+        return $user->role === 'admin' || $user->role === 'editor';
     }
 
     /**

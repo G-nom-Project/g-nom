@@ -13,11 +13,17 @@ use Illuminate\Support\Facades\Storage;
 class ImportAnnotation implements ShouldQueue
 {
     use Queueable;
+
     protected string $filepath;
+
     protected int $assemblyID;
+
     protected int $taxonID;
+
     protected string $name;
+
     protected $user;
+
     /**
      * Create a new job instance.
      */
@@ -37,11 +43,11 @@ class ImportAnnotation implements ShouldQueue
     public function handle(): void
     {
         //
-        $annotation = new genomicAnnotation();
+        $annotation = new genomicAnnotation;
         $annotation->assembly_id = $this->assemblyID;
         $annotation->name = $this->name;
         $annotation->user_id = $this->user->getAuthIdentifier();
-        $annotation->path = "";
+        $annotation->path = '';
         $annotation->featureCount = 0;
 
         // Write to DB and obtain new ID
@@ -52,13 +58,12 @@ class ImportAnnotation implements ShouldQueue
         $vault = Storage::disk('vault');
         $local = Storage::disk('local');
 
-
         $sourcePath = $this->filepath;
         $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/annotations/{$annotationID}";
 
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);
-            if (!$vault->exists($targetDir)) {
+            if (! $vault->exists($targetDir)) {
                 $vault->makeDirectory($targetDir);
             }
 
@@ -71,32 +76,31 @@ class ImportAnnotation implements ShouldQueue
     }
 
     public function prepareJBrowse(string $path): void
-
     {
         $vault = Storage::disk('vault');
 
         // Sort GFF file
         $script = base_path('resources/scripts/gff3sort/gff3sort.pl');
-        $result = Process::run("$script " . escapeshellarg($vault->path($path)) . " > " .escapeshellarg($vault->path($path . ".sorted.gff3")));
+        $result = Process::run("$script ".escapeshellarg($vault->path($path)).' > '.escapeshellarg($vault->path($path.'.sorted.gff3')));
         if ($result->failed()) {
-            Log::critical("genometools failed: " . $result->errorOutput());
-            $this->fail("Failed while sorting file!");
+            Log::critical('genometools failed: '.$result->errorOutput());
+            $this->fail('Failed while sorting file!');
         }
-        $this->filepath = $path . ".sorted.gff3";
+        $this->filepath = $path.'.sorted.gff3';
 
         // Compress sorted GFF file
-        $result = Process::run("bgzip --force " . escapeshellarg($vault->path($this->filepath)));
+        $result = Process::run('bgzip --force '.escapeshellarg($vault->path($this->filepath)));
         if ($result->failed()) {
-            Log::critical("bgzip failed: " . $result->errorOutput());
-            $this->fail("Failed while compressing file!");
+            Log::critical('bgzip failed: '.$result->errorOutput());
+            $this->fail('Failed while compressing file!');
         }
-        $this->filepath = $this->filepath . ".gz";
+        $this->filepath = $this->filepath.'.gz';
 
         // Generate Tabix
-        $result = Process::run("tabix -p gff " . escapeshellarg($vault->path($this->filepath)));
+        $result = Process::run('tabix -p gff '.escapeshellarg($vault->path($this->filepath)));
         if ($result->failed()) {
-            Log::critical("tabix failed: " . $result->errorOutput());
-            $this->fail("Failed while generating Index!");
+            Log::critical('tabix failed: '.$result->errorOutput());
+            $this->fail('Failed while generating Index!');
         }
 
     }

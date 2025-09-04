@@ -11,13 +11,13 @@ class Assembly extends Model
 
     /**
      * Limit visibility to public assemblies or assemblies owned by a user
-     * @param $query
-     * @param $user User
+     *
+     * @param  $user  User
      * @return mixed
      */
     public function scopeVisibleTo($query, $user)
     {
-        if ($user-> role === "admin") {
+        if ($user->role === 'admin') {
             return $query;
         } else {
             return $query->where('owner', $user->id)->orWhere('public', true);
@@ -43,6 +43,7 @@ class Assembly extends Model
     {
         return $this->hasMany(RepeatmaskerAnalysis::class);
     }
+
     public function fcatAnalyses()
     {
         return $this->hasMany(FcatAnalysis::class);

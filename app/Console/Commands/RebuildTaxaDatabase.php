@@ -27,6 +27,7 @@ class RebuildTaxaDatabase extends Command implements Isolatable
 
     /**
      * Execute the console command.
+     *
      * @throws \Throwable
      */
     public function handle()
@@ -34,27 +35,27 @@ class RebuildTaxaDatabase extends Command implements Isolatable
         // Use Local Disk here
         $local = Storage::disk('local');
 
-        //Download new taxdump
-        $this->info("Downloading...");
-        $result = file_put_contents($local->path("/uploads/taxdump.tar.gz"), file_get_contents($this->argument('taxdmp-url')));
-        if (!$result) {
-            $this->fail("Failed to write taxdmp.tar.gz file.");
+        // Download new taxdump
+        $this->info('Downloading...');
+        $result = file_put_contents($local->path('/uploads/taxdump.tar.gz'), file_get_contents($this->argument('taxdmp-url')));
+        if (! $result) {
+            $this->fail('Failed to write taxdmp.tar.gz file.');
         } else {
             $this->info("Downloaded {$result} Bytes");
         }
 
         // Unpack taxdump
-        $this->info("Unpacking taxdump...");
+        $this->info('Unpacking taxdump...');
         try {
-            $phar = new PharData($local->path("/uploads/taxdump.tar.gz"));
-            $phar->extractTo($local->path("/uploads/taxdump"), overwrite: true);
+            $phar = new PharData($local->path('/uploads/taxdump.tar.gz'));
+            $phar->extractTo($local->path('/uploads/taxdump'), overwrite: true);
         } catch (Exception $e) {
             $this->fail("Failed to unpack taxdmp.tar.gz file: {$e}");
         }
 
         // Dispatch database import job
-        $this->info("Dispatching Import job...");
+        $this->info('Dispatching Import job...');
         RebuildTaxonTable::dispatch(1);
-        $this->info("Dispatched import job, database will be imported asynchronously. This may up to 5 minutes.");
+        $this->info('Dispatched import job, database will be imported asynchronously. This may up to 5 minutes.');
     }
 }

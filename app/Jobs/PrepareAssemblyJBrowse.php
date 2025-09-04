@@ -2,16 +2,17 @@
 
 namespace App\Jobs;
 
-
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
-use \Illuminate\Support\Facades\Log;
 
 class PrepareAssemblyJBrowse implements ShouldQueue
 {
     use Queueable;
+
     protected string $filepath;
+
     protected string $name;
 
     /**
@@ -30,14 +31,14 @@ class PrepareAssemblyJBrowse implements ShouldQueue
     public function handle(): void
     {
 
-        $gzippedFile = $this->filepath . '.gz';
+        $gzippedFile = $this->filepath.'.gz';
         Log::warning("File is: $gzippedFile");
 
         // Gzip the file if it's not already gzipped
-        if (!str_ends_with($this->filepath, '.gz')) {
+        if (! str_ends_with($this->filepath, '.gz')) {
 
             // Run gzip command
-            Process::run("bgzip -c " . escapeshellarg($this->filepath) . " > " . escapeshellarg($gzippedFile));
+            Process::run('bgzip -c '.escapeshellarg($this->filepath).' > '.escapeshellarg($gzippedFile));
 
             // Replace filepath with gzipped version
             $this->filepath = $gzippedFile;
@@ -46,9 +47,9 @@ class PrepareAssemblyJBrowse implements ShouldQueue
         }
 
         // Generate FASTA Index
-        Process::run("samtools faidx " . escapeshellarg($gzippedFile));
+        Process::run('samtools faidx '.escapeshellarg($gzippedFile));
 
         // Use JBrowse utils to add config
-        Process::run("jbrowse add-assembly " . escapeshellarg($gzippedFile) . " --name Test " . escapeshellarg($this->name) . " --load inPlace" );
+        Process::run('jbrowse add-assembly '.escapeshellarg($gzippedFile).' --name Test '.escapeshellarg($this->name).' --load inPlace');
     }
 }

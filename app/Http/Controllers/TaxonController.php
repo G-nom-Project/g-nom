@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Models\TaxonGeneralInfo;
 use App\Models\TaxonGeoData;
@@ -22,9 +21,10 @@ class TaxonController extends Controller
 {
     public function index($id)
     {
-        $taxon = Taxon::with(["assemblies"])->where("ncbiTaxonID", $id)->first();
+        $taxon = Taxon::with(['assemblies'])->where('ncbiTaxonID', $id)->first();
+
         return Inertia::render('Taxon', [
-            'taxon' => $taxon
+            'taxon' => $taxon,
         ]);
     }
 
@@ -33,7 +33,7 @@ class TaxonController extends Controller
         $taxon = Taxon::with([
             'assemblies' => function ($query) use ($request) {
                 $query->visibleTo($request->user());
-            }
+            },
         ])->where('ncbiTaxonID', $id)->first();
 
         return response()->json([
@@ -44,7 +44,7 @@ class TaxonController extends Controller
     public function getLineage(int $ncbiTaxonID): JsonResponse
     {
         // Retrieving lineages may be time-intensive -> cache for one week
-        $value = Cache::remember('lineage-' . $ncbiTaxonID, 604800, function () use ($ncbiTaxonID) {
+        $value = Cache::remember('lineage-'.$ncbiTaxonID, 604800, function () use ($ncbiTaxonID) {
             $lineage = [];
             while ($taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->first()) {
                 $lineage[] = $taxon;
@@ -53,14 +53,17 @@ class TaxonController extends Controller
                 }
                 $ncbiTaxonID = $taxon->parentNcbiTaxonID;
             }
+
             return $lineage;
         });
+
         return response()->json(array_reverse($value));
     }
 
     public function getGeoData(int $ncbiTaxonID): JsonResponse
     {
-        $taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->with(["geoData"])->first();
+        $taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->with(['geoData'])->first();
+
         return response()->json($taxon);
     }
 
@@ -83,7 +86,7 @@ class TaxonController extends Controller
         $taxon = Taxon::where('ncbiTaxonID', $taxonID)->firstOrFail();
         $this->authorize('update', $taxon);
 
-        $geoData = new TaxonGeoData();
+        $geoData = new TaxonGeoData;
         $geoData->name = $validated['name'];
         $geoData->type = $validated['type'];
         $geoData->description = $validated['description'] ?? null;
@@ -108,9 +111,9 @@ class TaxonController extends Controller
         $this->authorize('update', $taxon);
         Log::info("Authorized request tp delete GeoData for taxon {$taxonID} with ID {$id}");
         $geoData->delete();
+
         return response()->json(['message' => 'GeoData deleted']);
     }
-
 
     public function getInfos(int $ncbiTaxonID): JsonResponse
     {
@@ -121,13 +124,12 @@ class TaxonController extends Controller
         return response()->json($taxon);
     }
 
-
     public function uploadImage(Request $request)
     {
         $request->validate([
             'image' => 'required|file|image',
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID',
-            'credit' => 'required|string|max:255'
+            'credit' => 'required|string|max:255',
         ]);
 
         // Enforce policy
@@ -138,8 +140,7 @@ class TaxonController extends Controller
         $file = $request->file('image');
         $originalExtension = $file->getClientOriginalExtension();
         $uniqueName = Str::random(20);
-        $path = $file->storeAs('uploads', $uniqueName . '.' . $originalExtension);
-
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
 
         $credit = $request->input('credit');
         $user = Auth::user();
@@ -159,7 +160,6 @@ class TaxonController extends Controller
         $taxon->updated_at = now();
         $taxon->update();
 
-
         if ($user) {
             $user->notify(new UploadComplete($path));
         }
@@ -176,7 +176,7 @@ class TaxonController extends Controller
         $imagePath = "taxa/{$taxonID}/image.webp";
 
         if (! $vault->exists($imagePath)) {
-            $imageContents = $public->get("placeholder.PNG");
+            $imageContents = $public->get('placeholder.PNG');
         } else {
             $imageContents = $vault->get($imagePath);
         }
@@ -187,7 +187,6 @@ class TaxonController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return JsonResponse
      */
     public function uploadIcon(Request $request)
@@ -204,7 +203,7 @@ class TaxonController extends Controller
 
         // Store file
         $path = $file->storeAs("taxa/{$taxonID}", 'icon.svg', 'vault');
-        Log::info("Stored icon at: " . $path);
+        Log::info('Stored icon at: '.$path);
 
         // Update Taxon Icon flag
         $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
@@ -218,7 +217,6 @@ class TaxonController extends Controller
     }
 
     /**
-     * @param $taxonID
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|object
      */
     public function showIcon($taxonID)
@@ -243,7 +241,7 @@ class TaxonController extends Controller
         $request->validate([
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID',
             'headline' => 'required|string|max:512',
-            'text' => 'required|string|max:2000'
+            'text' => 'required|string|max:2000',
         ]);
 
         TaxonGeneralInfo::upsert([
@@ -251,7 +249,6 @@ class TaxonController extends Controller
             'headline' => $request->input('headline'),
             'text' => $request->input('text'),
         ], uniqueBy: ['ncbiTaxonID'], update: ['headline', 'text']);
-
 
         $taxonID = $request->input('taxonID');
         $taxon = Taxon::where('ncbiTaxonID', $taxonID)->first();
