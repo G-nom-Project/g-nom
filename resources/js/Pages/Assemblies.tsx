@@ -2,11 +2,12 @@ import { useForm } from '@inertiajs/react';
 import AssemblyCard from '@/Components/AssemblyCard';
 import Pagination from '@/Components/Pagination';
 import TopNavBar from '@/Components/TopNavBar';
-import { FormEvent } from 'react';
+import React, { FormEvent } from 'react';
 import {Col, Container, Row, Form, Button, Navbar, Nav, InputGroup} from 'react-bootstrap';
+import {AggregatedAssembly} from "@/types/data";
 
 interface PaginatedAssemblies {
-    data: any[];
+    data: AggregatedAssembly[];
     current_page: number;
     last_page: number;
     per_page: number;
@@ -54,7 +55,7 @@ export default function Assemblies({
                                             value={data.search}
                                             placeholder={"Enter an assembly name, taxon name or NCBI Taxon ID"}
                                             // @ts-expect-error Type mismatch to TFrom, simply not inferred correctly
-                                            onChange={(e) => setData('search', e.target.value)}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('search', e.target.value as string)}
                                         />
                                     </Form>
                                 </InputGroup>
@@ -70,7 +71,7 @@ export default function Assemblies({
                 </Navbar>
                 <Container fluid>
                 <Row className="row-cols-1 row-cols-md-4">
-                    {assemblies.data.map((each: any) => (
+                    {assemblies.data.map((each: AggregatedAssembly) => (
                         <Col key={each.id} className="d-flex align-items-stretch mb-3">
                             <AssemblyCard
                                 assemblyName={each.name}

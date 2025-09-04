@@ -6,9 +6,10 @@ import {deleteGeoData, getGeoData, getLineage, getTaxonInfo, uploadGeoData} from
 import {useEffect, useState} from "react";
 import InputGroup from 'react-bootstrap/InputGroup';
 import axios from "axios";
+import {TaxonData} from "@/types/data";
 
 export default function Taxon({ taxon }) {
-    const [lineage, setLineage] = useState<any[] | null>(null);
+    const [lineage, setLineage] = useState<TaxonData[] | null>(null);
     const [geoData, setGeoData] = useState([]);
     const [activeTab, setActiveTab] = useState("image");
 
@@ -272,7 +273,7 @@ export default function Taxon({ taxon }) {
                         <hr/>
                         <p>You may have to reload the page for changes to take effect.</p>
                         <Button className="mt-1" variant="danger" onClick={() => setEditImage(false)}>Cancel</Button>
-                        <Button className="ml-1 mt-1" variant="success" onClick={() => {handleImageUpload();handleIconUpload().then(r => setEditImage(false))}}>Save</Button>
+                        <Button className="ml-1 mt-1" variant="success" onClick={() => {handleImageUpload();handleIconUpload().then(() => setEditImage(false))}}>Save</Button>
                     </Modal.Body>
                 </Modal>
                 <Modal show={showEditGeo}>

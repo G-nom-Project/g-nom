@@ -5,12 +5,12 @@ import 'leaflet/dist/leaflet.css';
 
 type TaxMapProps = {
     isVisible: boolean;
-    geoDataMeta: any
+    geoDataMeta: object
 };
 
 
 const TaxMap: React.FC<TaxMapProps> = ({ isVisible, geoDataMeta }) => {
-    const [geoData, setGeoData] = useState<any>(null);
+    const [geoData, setGeoData] = useState(null);
     const mapRef = useRef<L.Map | null>(null);
 
     // Load GeoJSON on mount

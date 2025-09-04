@@ -17,7 +17,7 @@ import AssemblyStatistics from "@/Components/AssemblyPage/AssemblyStatistics";
 import BuscoViewer from "@/Components/AssemblyPage/BuscoViewer";
 import FcatViewer from "@/Components/AssemblyPage/FCatViewer";
 import RepeatMaskerViewer from "@/Components/AssemblyPage/RepeatMaskerViewer";
-import {Annotation} from "@/types/data";
+import {Annotation, TaxonData} from "@/types/data";
 import JBrowseView from "@/Components/AssemblyPage/JBrowseView";
 import {TaxaminerDashboard} from "@/Components/AssemblyPage/TaxonomicAssignmentDashboard/dashboard";
 import TaxMap from "@/Components/AssemblyPage/TaxMap";
@@ -28,8 +28,7 @@ export default function Assemblies({ assembly }) {
     const [renderCompleteness, setRenderCompleteness] = useState<boolean>(false);
     const [renderRepeats, setRenderRepeats] = useState<boolean>(false);
     const [location, setLocation] = useState<string>("");
-    const [scroll, setScroll] = useState<boolean>(false);
-    const [lineage, setLineage] = useState<any[] | null>(null);
+    const [lineage, setLineage] = useState<TaxonData[] | null>(null);
     const [geoData, setGeoData] = useState([]);
     const [activeTab, setActiveTab] = useState("image");
 
@@ -475,7 +474,7 @@ export default function Assemblies({ assembly }) {
                             <Accordion.Body>
                                 {assembly &&
                                     <TaxaminerDashboard assembly_id={assembly.id} analyses={assembly.taxaminer_analyses}
-                                                        setLocation={setLocation} setAutoScroll={setScroll}
+                                                        setLocation={setLocation} setAutoScroll={null}
                                                         userID={2}/>}
                             </Accordion.Body>
                         </Accordion.Item>

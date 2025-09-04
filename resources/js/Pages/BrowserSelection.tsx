@@ -1,9 +1,10 @@
 import TopNavBar from '@/Components/TopNavBar';
 import { Button, Card, Col, Form, Row, Container } from 'react-bootstrap';
-import { useState } from "react";
+import React, { useState } from "react";
+import {Assembly} from "@/types/data";
 
 export default function BrowserSelection({ assemblies }) {
-    const [assemblyID, SetAssemblyID] = useState<any>();
+    const [assemblyID, SetAssemblyID] = useState<number>();
 
     return (
         <>
@@ -15,12 +16,12 @@ export default function BrowserSelection({ assemblies }) {
                             <Card.Body>
                                 <Card.Title>Select assembly</Card.Title>
                                 <Form.Select
-                                    onChange={(e: any) => SetAssemblyID(e.target.value)}
+                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => SetAssemblyID(e.target.value as number)}
                                     value={assemblyID}
                                 >
                                     <option>Select assembly</option>
                                     {assemblies &&
-                                        assemblies.map((assembly: any) => (
+                                        assemblies.map((assembly: Assembly) => (
                                             <option key={assembly.id} value={assembly.id}>
                                                 {assembly.name}
                                             </option>

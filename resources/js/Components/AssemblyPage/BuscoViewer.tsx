@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Row, Col, Card, ListGroup, Button } from "react-bootstrap";
 import Plot from 'react-plotly.js';
+import {BuscoAnalysis} from "@/types/data";
 
-const BuscoViewer = ({ busco }:{busco: any}) => {
-    const [data, setData] = useState<any>({});
+const BuscoViewer = ({ busco }:{busco: object}) => {
+    const [data, setData] = useState<object>({});
     const [layout, setLayout] = useState({});
 
     useEffect(() => {
@@ -16,19 +17,20 @@ const BuscoViewer = ({ busco }:{busco: any}) => {
         const colors = ["#009E73", "#56B4E9", "#E69F00", "#0072B2", "#D55E00"];
 
 
-        let tracks = [];
-        let complete: any[] = [];
-        let complete_absolute: any[] = [];
-        let duplicated: any[] = [];
-        let duplicated_absolute: any[] = [];
-        let fragmented: any[] = [];
-        let fragmented_absolute: any[] = [];
-        let missing: any[] = [];
-        let missing_absolute: any[] = [];
-        let names: string[] = [];
+        const tracks = [];
+        const complete: number[] = [];
+        const complete_absolute: string[] = [];
+        const duplicated: number[] = [];
+        const duplicated_absolute: string[] = [];
+        const fragmented: number[] = [];
+        const fragmented_absolute: string[] = [];
+        const missing: number[] = [];
+        const missing_absolute: string[] = [];
+        const names: string[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         busco.length > 0 &&
-        busco.forEach((analysis: any, index: any) => {
-            let total =
+        busco.forEach((analysis: BuscoAnalysis, index: string) => {
+            const total =
                 analysis.completeSingle +
                 analysis.completeDuplicated +
                 analysis.fragmented +

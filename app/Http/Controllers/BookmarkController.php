@@ -19,8 +19,17 @@ class BookmarkController extends Controller
     {
         $bookmarks = Auth::user()
             ->bookmarks()
-            ->with('assembly')
-            ->paginate(10); // ✅ Adjust number per page as needed
+            ->with(['assembly' => function ($query) {
+                $query->withCount([
+                    'mappings',
+                    'genomicAnnotations',
+                    'buscoAnalyses',
+                    'repeatmaskerAnalyses',
+                    'taxaminerAnalyses'
+                ]);
+            }])
+            ->paginate(10);
+
 
         // Transform paginated results to extract assemblies while preserving pagination structure
         $assemblies = $bookmarks->through(fn($bookmark) => $bookmark->assembly);

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import Plot from 'react-plotly.js';
 
-const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
+const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
     const [data1, setData1] = useState({});
     const [layout1, setLayout1] = useState({});
     const [data2, setData2] = useState({});
@@ -18,27 +18,28 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
 
     const getElementsData = () => {
         const tracks = [];
-        const sines_lengths: any[] = [];
-        const sines_numbers: any[] = [];
-        const lines_lengths: any[] = [];
-        const lines_numbers: any[] = [];
-        const ltr_elements_lengths: any[] = [];
-        const ltr_elements_numbers: any[] = [];
-        const dna_elements_lengths: any[] = [];
-        const dna_elements_numbers: any[] = [];
-        const rolling_circles_lengths: any[] = [];
-        const rolling_circles_numbers: any[] = [];
-        const unclassified_lengths: any[] = [];
-        const unclassified_numbers: any[] = [];
-        const small_rna_lengths: any[] = [];
-        const small_rna_numbers: any[] = [];
-        const satellites_lengths: any[] = [];
-        const satellites_numbers: any[] = [];
-        const simple_repeats_lengths: any[] = [];
-        const simple_repeats_numbers: any[] = [];
-        const low_complexity_lengths: any[] = [];
-        const low_complexity_numbers: any[] = [];
+        const sines_lengths: string[] = [];
+        const sines_numbers: string[] = [];
+        const lines_lengths: string[] = [];
+        const lines_numbers: string[] = [];
+        const ltr_elements_lengths: string[] = [];
+        const ltr_elements_numbers: string[] = [];
+        const dna_elements_lengths: string[] = [];
+        const dna_elements_numbers: string[] = [];
+        const rolling_circles_lengths: string[] = [];
+        const rolling_circles_numbers: string[] = [];
+        const unclassified_lengths: string[] = [];
+        const unclassified_numbers: string[] = [];
+        const small_rna_lengths: string[] = [];
+        const small_rna_numbers: string[] = [];
+        const satellites_lengths: string[] = [];
+        const satellites_numbers: string[] = [];
+        const simple_repeats_lengths: string[] = [];
+        const simple_repeats_numbers: string[] = [];
+        const low_complexity_lengths: string[] = [];
+        const low_complexity_numbers: string[] = [];
         const names: string[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         repeatmasker.length > 0 &&
             repeatmasker.forEach(
                 (
@@ -55,58 +56,58 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
                     } else {
                         names.push(index + 1 + '. ' + analysis.name);
                     }
-                    sines_lengths.push(analysis['sines_length']);
+                    sines_lengths.push(analysis['sines_length'] as string);
                     sines_numbers.push(
                         analysis['sines']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
-                    lines_lengths.push(analysis['lines_length']);
+                    lines_lengths.push(analysis['lines_length'] as string);
                     lines_numbers.push(
                         analysis['lines']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
-                    ltr_elements_lengths.push(analysis['ltr_elements_length']);
+                    ltr_elements_lengths.push(analysis['ltr_elements_length'] as string);
                     ltr_elements_numbers.push(
                         analysis['ltr_elements']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
-                    dna_elements_lengths.push(analysis['dna_elements_length']);
+                    dna_elements_lengths.push(analysis['dna_elements_length'] as string);
                     dna_elements_numbers.push(
                         analysis['dna_elements']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
                     rolling_circles_lengths.push(
-                        analysis['rolling_circles_length'],
+                        analysis['rolling_circles_length'] as string,
                     );
                     rolling_circles_numbers.push(
                         analysis['rolling_circles']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
-                    unclassified_lengths.push(analysis['unclassified_length']);
+                    unclassified_lengths.push(analysis['unclassified_length'] as string);
                     unclassified_numbers.push(
                         analysis['unclassified']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
-                    small_rna_lengths.push(analysis['small_rna_length']);
+                    small_rna_lengths.push(analysis['small_rna_length'] as string);
                     small_rna_numbers.push(
                         analysis['small_rna']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
-                    satellites_lengths.push(analysis['satellites_length']);
+                    satellites_lengths.push(analysis['satellites_length'] as string);
                     satellites_numbers.push(
                         analysis['satellites']
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
                     simple_repeats_lengths.push(
-                        analysis['simple_repeats_length'],
+                        analysis['simple_repeats_length'] as string,
                     );
                     simple_repeats_numbers.push(
                         analysis['simple_repeats']
@@ -114,7 +115,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
                     );
                     low_complexity_lengths.push(
-                        analysis['low_complexity_length'],
+                        analysis['low_complexity_length'] as string,
                     );
                     low_complexity_numbers.push(
                         analysis['low_complexity']
@@ -390,17 +391,18 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
     const getRepetitivenessData = () => {
         const tracks = [];
         const total_repetitive_length: number[] = [];
-        const total_repetitive_length_absolute: any[] = [];
+        const total_repetitive_length_absolute: number[] = [];
         const total_non_repetitive_length: number[] = [];
-        const total_non_repetitive_length_absolute: any[] = [];
+        const total_non_repetitive_length_absolute: number[] = [];
         const names: string[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         repeatmasker.length > 0 &&
             repeatmasker.forEach(
                 (
                     analysis: {
                         [x: string]: { toString: () => string };
-                        total_repetitive_length: any;
-                        total_non_repetitive_length: any;
+                        total_repetitive_length: number;
+                        total_non_repetitive_length: number;
                         label: string;
                         name: string;
                     },
@@ -418,17 +420,17 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
                         (analysis['total_repetitive_length'] * 100) / total,
                     );
                     total_repetitive_length_absolute.push(
-                        analysis['total_repetitive_length']
+                        Number(analysis['total_repetitive_length']
                             .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')),
                     );
                     total_non_repetitive_length.push(
                         (analysis['total_non_repetitive_length'] * 100) / total,
                     );
                     total_non_repetitive_length_absolute.push(
-                        analysis['total_non_repetitive_length']
+                        Number(analysis['total_non_repetitive_length']
                             .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')),
                     );
                 },
             );
@@ -521,7 +523,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
         <Row>
             <Col>
                 <Plot
-                    data={data1 as any}
+                    data={data1 as Plotly.Data[]}
                     layout={layout1}
                     useResizeHandler={true}
                     style={{ width: '100%' }}
@@ -529,7 +531,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: any }) => {
             </Col>
             <Col>
                 <Plot
-                    data={data2 as any}
+                    data={data2 as Plotly.Data[]}
                     layout={layout2}
                     useResizeHandler={true}
                     style={{ width: '100%' }}

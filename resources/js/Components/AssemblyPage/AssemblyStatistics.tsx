@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
+import {Assembly, SeqLengthMarker} from "@/types/data";
 
-const AssemblyStatistics = ({assembly} : {assembly: any}) => {
-    const [data, setData] = useState<any>();
-    const [layout, setLayout] = useState<any>();
+const AssemblyStatistics = ({assembly} : {assembly: Assembly}) => {
+    const [data, setData] = useState<SeqLengthMarker[]>([]);
+    const [layout, setLayout] = useState({});
+    console.log(assembly)
 
     useEffect(() => {
         getData();
@@ -15,9 +17,9 @@ const AssemblyStatistics = ({assembly} : {assembly: any}) => {
         const length_distribution = JSON.parse(assembly.lengthDistributionString);
         const sequence_length = length_distribution[0]["l"];
 
-        let cumulativeLengths: any[] = [];
-        let x1: any[] = [];
-        let y1: any[] = [];
+        let cumulativeLengths: {x: number, y:number}[] = [];
+        const x1: string[] = [];
+        const y1: number[] = [];
         Object.keys(length_distribution).forEach((key) => {
             cumulativeLengths.push({
                 y: parseInt(length_distribution[key]["l"]),
@@ -49,9 +51,9 @@ const AssemblyStatistics = ({assembly} : {assembly: any}) => {
             y1.push(cumulative);
         });
 
-        let numbersequences: any[] = [];
-        let x2: any[] = [];
-        let y2: any[] = [];
+        let numbersequences: {y: string, x: number}[] = [];
+        const x2: string[] = [];
+        const y2: number[] = [];
         Object.keys(length_distribution).forEach((key) => {
             numbersequences.push({
                 y: length_distribution[key]["n"],
@@ -75,7 +77,9 @@ const AssemblyStatistics = ({assembly} : {assembly: any}) => {
             y2.push(element.y);
         });
 
-        let data = [
+        console.log(y1, y2)
+
+        const data = [
             {
                 x: x1,
                 y: y1,
@@ -96,12 +100,12 @@ const AssemblyStatistics = ({assembly} : {assembly: any}) => {
                 marker: { color: "orange" },
             },
         ];
-
+        console.log(data)
         setData(data);
     };
 
     const getLayout = () => {
-        let layout = {
+        const layout = {
             showlegend: true,
             legend: {
                 x: 0.1,

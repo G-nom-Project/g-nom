@@ -1,16 +1,17 @@
 
 import { createViewState, JBrowseLinearGenomeView } from '@jbrowse/react-linear-genome-view';
 import { useEffect, useState } from 'react';
+import {Assembly} from "@jbrowse/core/assemblyManager/assembly";
 
-const JBrowseView = ({my_assembly, annotations, mappings, location = ""}: {my_assembly: any, annotations: any, mappings: any, location: string}) => {
+const JBrowseView = ({my_assembly, annotations, mappings, location = ""}: {my_assembly: Assembly, annotations: object, mappings: object, location: string}) => {
 
-    const [assembly, setAssembly] = useState<any>()
-    const [tracks, setTracks] = useState<any[]>();
-    const [defaultSession, setDefaultSession] = useState<any>();
-    const [configuration, setConfiguration] = useState<any>();
-    const [aggregateTextSearchAdapters, setAggregateTextSearchAdapters] = useState<any[]>();
+    const [assembly, setAssembly] = useState<Assembly>()
+    const [tracks, setTracks] = useState<object[]>();
+    const [defaultSession, setDefaultSession] = useState<object>();
+    const [configuration, setConfiguration] = useState<object>();
+    const [aggregateTextSearchAdapters, setAggregateTextSearchAdapters] = useState<object[]>();
     const [locationState, setLocationState] = useState<string>();
-    const [defaultViewState, setDefaultViewState] = useState<any>();
+    const [defaultViewState, setDefaultViewState] = useState<object>();
 
     console.log(my_assembly)
 
@@ -59,8 +60,7 @@ const JBrowseView = ({my_assembly, annotations, mappings, location = ""}: {my_as
     }, [my_assembly]);
 
     useEffect(() => {
-        const annotationsTracks = annotations.map((annotation, index) => {
-            const fileBasename = annotation.path.split("/").reverse()[0];
+        const annotationsTracks = annotations.map((annotation) => {
             return {
                 type: "FeatureTrack",
                 trackId: "track_annotation_" + annotation.id,
@@ -83,7 +83,7 @@ const JBrowseView = ({my_assembly, annotations, mappings, location = ""}: {my_as
                 },
             };
         });
-        const mappingTracks = mappings.map((mapping, index) => {
+        const mappingTracks = mappings.map((mapping) => {
             const fileBasename = mapping.path.split("/").reverse()[0];
             return {
                 type: "AlignmentsTrack",
@@ -205,7 +205,7 @@ const JBrowseView = ({my_assembly, annotations, mappings, location = ""}: {my_as
                 }
             }
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [my_assembly]);
 
 
@@ -229,14 +229,14 @@ const JBrowseView = ({my_assembly, annotations, mappings, location = ""}: {my_as
                 assemblyNames: [my_assembly.name],
             },
         ]);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [my_assembly.name]);
 
 
 
     return(
         <>
-            {assembly?.name && <JBrowseLinearGenomeView viewState={defaultViewState} />}
+            {assembly?.name && <JBrowseLinearGenomeView viewState={defaultViewState as object} />}
         </>
     )
 }

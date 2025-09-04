@@ -21,10 +21,41 @@ export interface Assembly {
     label: string | null
     created_at: string
     updated_at: string
+    mappings_count?: number
 }
 
 
-export interface Taxon {
+export interface AggregatedAssembly {
+    id: number
+    name: string
+    infoText: string | null
+    taxon_id: number
+    taxon: TaxonData
+    addedBy: number
+    public: boolean
+    numberOfSequences: number
+    cumulativeSequenceLength: number
+    n50: number
+    n90: number
+    shortestSequence: number
+    longestSequence: number
+    medianSequence: number
+    meanSequence: number
+    gcPercent: number
+    gcPercentMasked: number
+    lengthDistributionString: string
+    charCount: string
+    label: string | null
+    created_at: string
+    updated_at: string
+    mappings_count: number
+    genomic_annotations_count: number
+    busco_analyses_count: number
+    repeatmasker_analyses_count: number
+    taxaminer_analyses_count: number
+}
+
+export interface TaxonData {
     assemblies: Assembly[]
     commonName: string | null
     created_at: string
@@ -60,4 +91,27 @@ export interface Mapping {
     path: string;
     username: string;
     label?: string;
+}
+
+
+export interface SeqLengthMarker {
+    x: string[],
+    y: number[],
+    mode: string,
+    type: string,
+    yaxis: string,
+    opacity: number,
+    name: string,
+    marker: { color: string }
+}
+
+
+export interface BuscoAnalysis {
+    label: string,
+    name: string,
+    dataset: string,
+    completeSingle: number,
+    completeDuplicated: number,
+    fragmented: number,
+    missing: number
 }

@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { Button, Toast, ToastContainer } from 'react-bootstrap';
+import { Toast, ToastContainer } from 'react-bootstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 type Notification = {

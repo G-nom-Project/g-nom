@@ -3,9 +3,10 @@ import Pagination from '@/Components/Pagination';
 import TopNavBar from '@/Components/TopNavBar';
 import { useEffect } from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { AggregatedAssembly } from "@/types/data";
 
 interface PaginatedAssemblies {
-    data: any[];
+    data: AggregatedAssembly[];
     current_page: number;
     last_page: number;
     per_page: number;
@@ -27,17 +28,17 @@ export default function Bookmarks({
         <>
             <TopNavBar />
             <Row md={4} className="g-4 m-1">
-                {assemblies.data.map((each: any) => {
+                {assemblies.data.map((each: AggregatedAssembly) => {
                     return (
                         <Col className="d-flex align-items-stretch mb-3">
                             <AssemblyCard
                                 assemblyName={each.name}
-                                assemblyID={each.assembly_id}
-                                ncbiID={each.taxonID}
-                                info_text={each.infoText}
+                                assemblyID={each.id}
+                                ncbiID={each.taxon_id}
+                                info_text={each.infoText || "No info text"}
                                 last_update={'NEver'}
                                 public={true}
-                                mappings={each.mappings_count}
+                                mappings={each.mappings_count as number}
                                 annotations={each.genomic_annotations_count}
                                 buscos={each.busco_analyses_count}
                                 n50={each.n50}

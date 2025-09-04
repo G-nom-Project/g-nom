@@ -2,7 +2,7 @@ import NotificationListener from '@/Components/NotificationsListener';
 import TaxonCard from '@/Components/TaxonCard';
 import TopNavBar from '@/Components/TopNavBar';
 import axios from 'axios';
-import { SyntheticEvent, useState } from 'react';
+import React, { useState } from 'react';
 import {
     Accordion,
     Alert,
@@ -14,7 +14,7 @@ import {
     InputGroup,
     Row,
 } from 'react-bootstrap';
-import {Assembly, Taxon} from "@/types/data";
+import {Assembly, TaxonData} from "@/types/data";
 
 const default_taxon = {
     assemblies: [],
@@ -38,8 +38,8 @@ export default function Import() {
     // Taxon Infos
     const [taxonID, setTaxonID] = useState<number>(-1);
     const [selectedTaxonID, setSelectedTaxonID] = useState<number>(-1);
-    const [taxon, setTaxon] = useState<Taxon | typeof default_taxon>(default_taxon);
-    const [assemblies, setAssemblies] = useState<any>();
+    const [taxon, setTaxon] = useState<TaxonData | typeof default_taxon>(default_taxon);
+    const [assemblies, setAssemblies] = useState<Assembly[]>();
     const [invalidID, setInvalidID] = useState(true);
 
     // Assembly Imports
@@ -202,9 +202,9 @@ export default function Import() {
                                                 <Form.Control
                                                     aria-label="NCBI taxonomy ID"
                                                     onChange={(
-                                                        e: SyntheticEvent,
+                                                        e: React.ChangeEvent<HTMLInputElement>,
                                                     ) => {
-                                                        setTaxonID(e.target.value);
+                                                        setTaxonID(e.target.value as number);
                                                     }}
                                                 />
                                             </InputGroup>
@@ -227,7 +227,7 @@ export default function Import() {
                                     <Col>
                                         <Form.Label>Selected Taxon</Form.Label>
                                         <TaxonCard
-                                           taxon={taxon as Taxon}
+                                           taxon={taxon as TaxonData}
                                            withAssemblySelection={false}
                                         />
                                     </Col>
@@ -250,7 +250,7 @@ export default function Import() {
                                             type="checkbox"
                                             id="assembly-import"
                                             label="Import a new assembly"
-                                            onClick={(e: SyntheticEvent) =>
+                                            onClick={() =>
                                                 setImportAssembly(
                                                     !import_assembly,
                                                 )
@@ -274,13 +274,13 @@ export default function Import() {
                                         </Form.Label>
                                         <Form.Control
                                             placeholder="Enter a custom name for this assembly"
-                                            onChange={(e: any) => {setAssemblyName(e.target.value)}}/>
+                                            onChange={(e) => {setAssemblyName(e.target.value)}}/>
                                         <br />
                                         <Form.Check // prettier-ignore
                                             type="checkbox"
                                             id="assembly-import"
                                             label="This is a reference assembly"
-                                            onClick={(e: SyntheticEvent) =>
+                                            onClick={() =>
                                                 setRefAssembly(!ref_assembly)
                                             }
                                         />
@@ -296,7 +296,7 @@ export default function Import() {
                                             taxon
                                         </Form.Label>
                                         <Form.Select
-                                        onChange={(e: any) => {setAssemblyID(e.target.value)}}
+                                        onChange={(e) => {setAssemblyID(e.target.value)}}
                                         >
                                             <option default>Select an assembly</option>
                                             {assemblies?.map((assembly) => {
@@ -339,7 +339,7 @@ export default function Import() {
                                                 </Form.Label>
                                                 <Form.Control
                                                     placeholder="Enter a custom name for this annotation"
-                                                    onChange={(e: any) => {setAnnotationName(e.target.value)}}/>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setAnnotationName(e.target.value)}}/>
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -354,7 +354,7 @@ export default function Import() {
                                                 <Form.Control
                                                     type="file"
                                                     accept=".sam,.bam"
-                                                    onChange={(e) =>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                         setMappingFile(
                                                             e.target.files?.[0] ?? null,
                                                         )
@@ -366,7 +366,7 @@ export default function Import() {
                                                 </Form.Label>
                                                 <Form.Control
                                                     placeholder="Enter a custom name for this annotation"
-                                                    onChange={(e: any) => {setMappingName(e.target.value)}}/>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setMappingName(e.target.value)}}/>
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -381,7 +381,7 @@ export default function Import() {
                                                 <Form.Control
                                                     type="file"
                                                     accept=".txt"
-                                                    onChange={(e) =>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                         setBuscoSummary(
                                                             e.target.files?.[0] ?? null,
                                                         )
@@ -393,7 +393,7 @@ export default function Import() {
                                                 </Form.Label>
                                                 <Form.Control
                                                     placeholder="Enter a custom name for this annotation"
-                                                    onChange={(e: any) => {setBuscoName(e.target.value)}}/>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setBuscoName(e.target.value)}}/>
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>

@@ -1,13 +1,9 @@
 import { Head } from '@inertiajs/react';
 import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 import TopBar from "@/Components/TopNavBar";
-import {useEffect} from "react";
 
 
 export default function Welcome({totalAssemblies, taxaWithAssemblies, rootUpdate}) {
-    useEffect(() => {
-        console.log(rootUpdate)
-    }, []);
     return (
         <>
             <Head title="Home" />

@@ -5,11 +5,11 @@ import {
     Form,
 } from 'react-bootstrap';
 import placeholder from '../../static/img/dnaPlaceholder.PNG';
-import {useState} from "react";
-import {Taxon} from "@/types/data";
+import React, {useState} from "react";
+import {TaxonData} from "@/types/data";
 
 interface Props {
-    taxon: Taxon
+    taxon: TaxonData
     withAssemblySelection: boolean;
 }
 
@@ -47,7 +47,7 @@ const TaxonCard = (props: Props) => {
                                 Select an existing assembly for this taxon
                             </Form.Label>
                             <Form.Select
-                                onChange={(e: any) => {setAssemblyID(e.target.value)}}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {setAssemblyID(e.target.value as number)}}
                             >
                                 <option default>Select an assembly</option>
                                 {props.taxon.assemblies.map((assembly) => {

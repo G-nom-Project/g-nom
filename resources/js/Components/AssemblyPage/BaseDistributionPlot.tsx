@@ -1,9 +1,20 @@
 import { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
+import { Assembly } from "@/types/data";
 
-const BaseDistributionPlot = ({ assembly}:{assembly: any}) => {
-    const [data, setData] = useState<any>();
-    const [layout, setLayout] = useState<any>();
+
+interface BaseData {
+    values: number[],
+    labels: string[],
+    type: string,
+    textinfo: string,
+    hoverinfo: string,
+    marker: { colors: string[]},
+}
+
+const BaseDistributionPlot = ({ assembly}:{assembly: Assembly}) => {
+    const [data, setData] = useState<BaseData[]>();
+    const [layout, setLayout] = useState<>({});
 
     useEffect(() => {
         getData();
@@ -14,8 +25,8 @@ const BaseDistributionPlot = ({ assembly}:{assembly: any}) => {
     const getData = () => {
         const charCount = JSON.parse(assembly.charCountString);
 
-        let values: number[] = [];
-        let labels: string[] = [];
+        const values: number[] = [];
+        const labels: string[] = [];
         Object.keys(charCount).forEach((char) => {
             labels.push(char);
             values.push(charCount[char]);

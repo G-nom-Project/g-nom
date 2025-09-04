@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import propTypes from "prop-types";
 import { Button, Card, Col, ListGroup, Row, Form } from "react-bootstrap";
-import Plot from "react-plotly.js";
+import Plot from 'react-plotly.js';
+import {Assembly} from "@/types/data";
 
-const FcatViewer = ({ fcat }: {taxon: any, assembly: any, fcat: any}) => {
+
+// TODO: Formalize FCat data interface
+const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object}) => {
     const [mode, setMode] = useState(1);
     const [data, setData] = useState({});
     const [layout, setLayout] = useState({});
@@ -18,22 +20,23 @@ const FcatViewer = ({ fcat }: {taxon: any, assembly: any, fcat: any}) => {
     const getFcatData = () => {
         const colors = ["#009E73", "#56B4E9", "#E69F00", "#0072B2", "#D55E00"];
 
-        let activeMode = mode;
-        let tracks = [];
-        let similar: number[] = [];
-        let similar_absolute: string[] = [];
-        let duplicated: number[] = [];
-        let duplicated_absolute: string[] = [];
-        let dissimilar: number[] = [];
-        let dissimilar_absolute: string[] = [];
-        let missing: number[] = [];
-        let missing_absolute: string[] = [];
-        let ignored: number[] = [];
-        let ignored_absolute: string[] = [];
-        let names: string[] = [];
+        const activeMode = mode;
+        const tracks = [];
+        const similar: number[] = [];
+        const similar_absolute: string[] = [];
+        const duplicated: number[] = [];
+        const duplicated_absolute: string[] = [];
+        const dissimilar: number[] = [];
+        const dissimilar_absolute: string[] = [];
+        const missing: number[] = [];
+        const missing_absolute: string[] = [];
+        const ignored: number[] = [];
+        const ignored_absolute: string[] = [];
+        const names: string[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         fcat.length > 0 &&
         fcat.forEach((analysis: { [x: string]: string; label: string; name: string; }, index: number) => {
-            let total = parseInt(
+            const total = parseInt(
                 analysis["m" + activeMode + "_similar"] +
                 analysis["m" + activeMode + "_duplicated"] +
                 analysis["m" + activeMode + "_dissimilar"] +
@@ -202,7 +205,7 @@ const FcatViewer = ({ fcat }: {taxon: any, assembly: any, fcat: any}) => {
             <Col xs={8}>
                 <Plot
                     layout={layout}
-                    data={data as any}
+                    data={data as Plotly.Data[]}
                     useResizeHandler={true}
                     style={{width: "100%"}}/>
             </Col>
@@ -215,7 +218,7 @@ const FcatViewer = ({ fcat }: {taxon: any, assembly: any, fcat: any}) => {
                     <ListGroup className="list-group-flush">
                         <ListGroup.Item>
                             <b>fCat Mode:</b>
-                            <Form.Select value={mode} onChange={(e: any) => setMode(e.target.value)}>
+                            <Form.Select value={mode} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMode(e.target.value as number)}>
                                 <option value={1}>Mode 1</option>
                                 <option value={2}>Mode 2</option>
                                 <option value={3}>Mode 3</option>
@@ -240,10 +243,3 @@ const FcatViewer = ({ fcat }: {taxon: any, assembly: any, fcat: any}) => {
 };
 
 export default FcatViewer;
-
-FcatViewer.defaultProps = { busco: [], fcat: [] };
-
-FcatViewer.propTypes = {
-    busco: propTypes.array,
-    fcat: propTypes.array,
-};

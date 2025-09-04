@@ -91,7 +91,7 @@ const custom_color_generator = (item_pos: number, max_item_number: number, color
 	} else if(color_descriptor == "colorblind") {
 		// Map to a flat color scale
 		// Color are defined by https://colorbrewer2.org , the chose scale is coloblind-friendly
-		let my_scale = chroma.brewer.RdYlBu
+		const my_scale = chroma.brewer.RdYlBu
 		// Organically sourced randome numbers (TM)
 		const pseudo_random = [0,9,5,3,6,2,10,7,4,1,8]
 		return my_scale[pseudo_random[item_pos % 11]]
@@ -848,7 +848,7 @@ class Scatter3D extends Component<Props, State> {
 			scene: {camera: this.state.camera},
 		}
 		const new_config = {scrollZoom: true, doubleClickDelay: 2000}
-		// eslint-disable-next-line no-restricted-globals
+		 
 		this.setState({figure: {data: new_data[0], layout: new_layout, config: new_config}, g_search_len: this.props.g_searched.length, color_dict: new_data[1]})
 		return true
 	}
