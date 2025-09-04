@@ -1,36 +1,34 @@
-import React from "react";
-import { Accordion } from "react-bootstrap";
-import "./style.css";
-import { fetchTaxaminerMetadata } from "../../api";
-
+import React from 'react';
+import { Accordion } from 'react-bootstrap';
+import { fetchTaxaminerMetadata } from '../../api';
+import './style.css';
 
 interface Props {
-    dataset_id: number
-    userID: number
-    token: string
-    assemblyID: number
-    metadata: any
+    dataset_id: number;
+    userID: number;
+    token: string;
+    assemblyID: number;
+    metadata: any;
 }
 
 interface State {
-    metadata: string
+    metadata: string;
 }
 
-
 class DataSetMeta extends React.Component<Props, State> {
-    constructor(props: Props){
-		super(props);
-		this.state ={
-            metadata: "Loading..."
-        }
-	}
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            metadata: 'Loading...',
+        };
+    }
 
     /**
      * Format the metadata
      */
     convertMetadata(my_data: string): void {
-        const data_string = my_data
-        this.setState({metadata: data_string})
+        const data_string = my_data;
+        this.setState({ metadata: data_string });
     }
 
     /**
@@ -41,10 +39,9 @@ class DataSetMeta extends React.Component<Props, State> {
      */
     componentDidUpdate(prevProps: Readonly<Props>): void {
         if (prevProps.dataset_id !== this.props.dataset_id) {
-            fetchTaxaminerMetadata(this.props.assemblyID, this.props.dataset_id)
-            .then(data => {
-                this.convertMetadata(data)
-            })
+            fetchTaxaminerMetadata(this.props.assemblyID, this.props.dataset_id).then((data) => {
+                this.convertMetadata(data);
+            });
         }
     }
 
@@ -54,12 +51,14 @@ class DataSetMeta extends React.Component<Props, State> {
                 <Accordion.Item eventKey="0">
                     <Accordion.Header>Metadata</Accordion.Header>
                     <Accordion.Body>
-                        <span className="text-secondary" style={{whiteSpace: "pre-wrap"}}>{JSON.stringify(this.state.metadata)}</span>
-                     </Accordion.Body>
-                 </Accordion.Item>
+                        <span className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
+                            {JSON.stringify(this.state.metadata)}
+                        </span>
+                    </Accordion.Body>
+                </Accordion.Item>
             </Accordion>
         );
     }
 }
 
-export { DataSetMeta }
+export { DataSetMeta };

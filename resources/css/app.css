@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,7 +42,7 @@ div {
     background-color: gray;
 }
 .line::before {
-    content: "";
+    content: '';
     height: 12px;
     width: 12px;
     border-radius: 50%;
@@ -59,7 +58,7 @@ div {
 }
 
 .line::after {
-    content: "";
+    content: '';
     height: 12px;
     width: 12px;
     border-radius: 50%;
@@ -130,7 +129,9 @@ div {
 .toast.fade-enter-active {
     opacity: 1;
     transform: translateY(0);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
 }
 
 .toast.fade-exit {
@@ -141,7 +142,9 @@ div {
 .toast.fade-exit-active {
     opacity: 0;
     transform: translateY(-10px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
 }
 
 .assembly-card {
@@ -156,11 +159,12 @@ div {
 .capitalize {
     text-transform: capitalize;
 }
-#map { height: 180px; }
+#map {
+    height: 180px;
+}
 
 .table-cells {
     border: 2px solid;
-    border-color: #96D4D4;
+    border-color: #96d4d4;
     padding: 2px 2px 2px;
 }
-

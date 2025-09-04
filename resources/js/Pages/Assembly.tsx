@@ -1,8 +1,20 @@
+import AssemblyStatistics from '@/Components/AssemblyPage/AssemblyStatistics';
+import BuscoViewer from '@/Components/AssemblyPage/BuscoViewer';
+import FcatViewer from '@/Components/AssemblyPage/FCatViewer';
+import JBrowseView from '@/Components/AssemblyPage/JBrowseView';
+import RepeatMaskerViewer from '@/Components/AssemblyPage/RepeatMaskerViewer';
+import TaxMap from '@/Components/AssemblyPage/TaxMap';
+import { TaxaminerDashboard } from '@/Components/AssemblyPage/TaxonomicAssignmentDashboard/dashboard';
 import TopNavBar from '@/Components/TopNavBar';
-import {useEffect, useState} from 'react';
+import { getLineage, getTaxonInfo } from '@/REST/taxon';
+import { Annotation, TaxonData } from '@/types/data';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import {
     Accordion,
-    Button, ButtonGroup, ButtonToolbar,
+    Button,
+    ButtonGroup,
+    ButtonToolbar,
     Card,
     Col,
     Container,
@@ -10,47 +22,36 @@ import {
     InputGroup,
     ListGroup,
     Nav,
-    Navbar, Placeholder,
-    Row, Tab, Tabs,
+    Navbar,
+    Placeholder,
+    Row,
+    Tab,
+    Tabs,
 } from 'react-bootstrap';
-import AssemblyStatistics from "@/Components/AssemblyPage/AssemblyStatistics";
-import BuscoViewer from "@/Components/AssemblyPage/BuscoViewer";
-import FcatViewer from "@/Components/AssemblyPage/FCatViewer";
-import RepeatMaskerViewer from "@/Components/AssemblyPage/RepeatMaskerViewer";
-import {Annotation, TaxonData} from "@/types/data";
-import JBrowseView from "@/Components/AssemblyPage/JBrowseView";
-import {TaxaminerDashboard} from "@/Components/AssemblyPage/TaxonomicAssignmentDashboard/dashboard";
-import TaxMap from "@/Components/AssemblyPage/TaxMap";
-import {getLineage, getTaxonInfo} from "@/REST/taxon";
-import axios from "axios";
 
 export default function Assemblies({ assembly }) {
     const [renderCompleteness, setRenderCompleteness] = useState<boolean>(false);
     const [renderRepeats, setRenderRepeats] = useState<boolean>(false);
-    const [location, setLocation] = useState<string>("");
+    const [location, setLocation] = useState<string>('');
     const [lineage, setLineage] = useState<TaxonData[] | null>(null);
     const [geoData, setGeoData] = useState([]);
-    const [activeTab, setActiveTab] = useState("image");
+    const [activeTab, setActiveTab] = useState('image');
 
     // Taxon Information
     const [taxonHeadline, setTaxonHeadline] = useState<string>(null);
     const [taxonInfo, setTaxonInfo] = useState<string>(null);
 
-
     useEffect(() => {
         const fetchTaxonData = async () => {
             try {
-
-
                 const info_response = await getTaxonInfo(assembly.taxon_id);
                 if (info_response.data.infos[0]) {
-                    setTaxonInfo(info_response.data.infos[0]?.text)
-                    setTaxonHeadline(info_response.data.infos[0]?.headline)
+                    setTaxonInfo(info_response.data.infos[0]?.text);
+                    setTaxonHeadline(info_response.data.infos[0]?.headline);
                 } else {
-                    setTaxonHeadline("No Taxon headline available")
-                    setTaxonInfo("No Taxon infos provided")
+                    setTaxonHeadline('No Taxon headline available');
+                    setTaxonInfo('No Taxon infos provided');
                 }
-
 
                 // Taxon Geo Data
                 const data = await getGeoData(assembly.taxon_id);
@@ -59,11 +60,10 @@ export default function Assemblies({ assembly }) {
                 // NCBI Lineage
                 const new_lineage = await getLineage(assembly.taxon_id);
                 setLineage(new_lineage);
-
             } catch (error) {
                 console.error('Error fetching Taxon data:', error);
             }
-        }
+        };
 
         if (assembly?.taxon_id) {
             fetchTaxonData();
@@ -101,7 +101,7 @@ export default function Assemblies({ assembly }) {
                     crossOrigin=""
                 ></script>
             </head>
-            <TopNavBar/>
+            <TopNavBar />
             <Navbar bg="secondary" expand="lg">
                 <Container fluid>
                     <Nav className="m-1">
@@ -111,20 +111,20 @@ export default function Assemblies({ assembly }) {
                             </h4>
                         </Nav.Item>
                         <Nav.Item>
-                            {
-                                assembly.taxon.phylopic && <img
+                            {assembly.taxon.phylopic && (
+                                <img
                                     src={`/taxon/${assembly.taxon_id}/icon?updated=${assembly.taxon.updated_at}`}
                                     alt="Taxon Icon"
                                     style={{
-                                        height: "30px",
-                                        filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)",
+                                        height: '30px',
+                                        filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
                                     }}
                                 />
-                            }
+                            )}
                         </Nav.Item>
                         <Nav.Item>
                             <h4 className="text-white">
-                                {" > "}
+                                {' > '}
                                 {assembly?.label ? assembly.label : assembly.name}
                             </h4>
                         </Nav.Item>
@@ -133,11 +133,23 @@ export default function Assemblies({ assembly }) {
                         <Nav.Link>
                             <ButtonToolbar aria-label="Toolbar with button groups">
                                 <ButtonGroup className="me-2">
-                                    <Button size="lg"><i className="bi bi-wrench"></i></Button>
-                                    <Button size="lg" target="_blank" href={`/taxon/${assembly.taxon_id}`} onClick={() => window.location.href=`/taxon/${assembly.taxon_id}`}> <i className="bi bi-diagram-2"></i></Button>
+                                    <Button size="lg">
+                                        <i className="bi bi-wrench"></i>
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        target="_blank"
+                                        href={`/taxon/${assembly.taxon_id}`}
+                                        onClick={() => (window.location.href = `/taxon/${assembly.taxon_id}`)}
+                                    >
+                                        {' '}
+                                        <i className="bi bi-diagram-2"></i>
+                                    </Button>
                                 </ButtonGroup>
                                 <ButtonGroup>
-                                    <Button size="lg"><i className="bi bi-bookmark-plus"></i></Button>
+                                    <Button size="lg">
+                                        <i className="bi bi-bookmark-plus"></i>
+                                    </Button>
                                 </ButtonGroup>
                             </ButtonToolbar>
                         </Nav.Link>
@@ -147,11 +159,11 @@ export default function Assemblies({ assembly }) {
             <Container fluid>
                 <Row className="mt-2">
                     {/* Left Column: Tabs (Image / Map) */}
-                    <Col xs={12} md={5} className="mb-3 mb-md-0">
+                    <Col xs={12} md={5} className="mb-md-0 mb-3">
                         <Card className="h-100">
                             <Tabs defaultActiveKey="image" className="mb-3" onSelect={(k) => setActiveTab(k)}>
                                 <Tab title="Image" eventKey="image">
-                                    <Card className="shadow m-1" style={{ minHeight: '300px' }}>
+                                    <Card className="m-1 shadow" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
                                             src={`/taxon/${assembly.taxon_id}/image?updated=${assembly.taxon.updated_at}`}
@@ -162,17 +174,14 @@ export default function Assemblies({ assembly }) {
                                                 backgroundColor: '#D1D5DB',
                                             }}
                                         />
-                                        <Card.Body>
-                                            Image Credit: {assembly.taxon.imageCredit}
-                                        </Card.Body>
+                                        <Card.Body>Image Credit: {assembly.taxon.imageCredit}</Card.Body>
                                     </Card>
                                 </Tab>
                                 <Tab title="Map" eventKey="overview-map">
-                                    {activeTab === "overview-map" && (
-                                        <Card className="m-1 shadow" style={{ height: "450px" }}>
-                                            <TaxMap isVisible={true} geoDataMeta={geoData}/>
+                                    {activeTab === 'overview-map' && (
+                                        <Card className="m-1 shadow" style={{ height: '450px' }}>
+                                            <TaxMap isVisible={true} geoDataMeta={geoData} />
                                         </Card>
-
                                     )}
                                 </Tab>
                             </Tabs>
@@ -181,16 +190,18 @@ export default function Assemblies({ assembly }) {
 
                     {/* Right Column: Taxon Info */}
                     <Col xs={12} md={7}>
-                        <Card className="shadow h-100">
+                        <Card className="h-100 shadow">
                             <Card.Body>
-                                <Card.Title className="capitalize">
-                                    {assembly.taxon.commonName || assembly.taxon.scientificName}
-                                </Card.Title>
+                                <Card.Title className="capitalize">{assembly.taxon.commonName || assembly.taxon.scientificName}</Card.Title>
                                 <Card.Text>
-                                    {taxonHeadline ||  <Placeholder as="p" animation="glow"><Placeholder xs={12} /><Placeholder xs={5} /></Placeholder>}
-                                    <hr/>
-                                    {
-                                        (taxonInfo &&
+                                    {taxonHeadline || (
+                                        <Placeholder as="p" animation="glow">
+                                            <Placeholder xs={12} />
+                                            <Placeholder xs={5} />
+                                        </Placeholder>
+                                    )}
+                                    <hr />
+                                    {(taxonInfo && (
                                         <Form>
                                             <Form.Group className="mb-3">
                                                 <Form.Control
@@ -204,12 +215,18 @@ export default function Assemblies({ assembly }) {
                                                         resize: 'none',
                                                         overflowY: 'auto',
                                                         padding: 0,
-                                                        boxShadow: 'none'
+                                                        boxShadow: 'none',
                                                     }}
                                                 />
                                             </Form.Group>
-                                        </Form>) || <><Placeholder xs={10} /><Placeholder xs={12} /><Placeholder xs={8} /></>
-                                    }
+                                        </Form>
+                                    )) || (
+                                        <>
+                                            <Placeholder xs={10} />
+                                            <Placeholder xs={12} />
+                                            <Placeholder xs={8} />
+                                        </>
+                                    )}
                                 </Card.Text>
                             </Card.Body>
                             <ListGroup className="list-group-flush">
@@ -220,11 +237,17 @@ export default function Assemblies({ assembly }) {
                                                 each.scientificName === 'root' ? (
                                                     <i key={index} className="bi bi-diamond-half me-1" />
                                                 ) : (
-                                                    <span key={index}><i className="bi bi-arrow-right mx-1" /><a href={`https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${each.ncbiTaxonID}`} target="_blank" rel="noopener noreferrer">
-                                                          {each.scientificName}
+                                                    <span key={index}>
+                                                        <i className="bi bi-arrow-right mx-1" />
+                                                        <a
+                                                            href={`https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${each.ncbiTaxonID}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            {each.scientificName}
                                                         </a>
-                                                        </span>
-                                                )
+                                                    </span>
+                                                ),
                                             )}
                                             {` (${assembly.taxon_id})`}
                                         </>
@@ -242,11 +265,7 @@ export default function Assemblies({ assembly }) {
                     </Col>
                 </Row>
                 <Row>
-                    <Accordion
-                        className="mt-2"
-                        defaultActiveKey={['0']}
-                        alwaysOpen
-                    >
+                    <Accordion className="mt-2" defaultActiveKey={['0']} alwaysOpen>
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>
                                 <h4>Assembly Information</h4>
@@ -255,170 +274,112 @@ export default function Assemblies({ assembly }) {
                                 <Row>
                                     <Col>
                                         <Card className="shadow">
-                                            <Card.Header>
-                                                Contig size statistics
-                                            </Card.Header>
-                                            <Card.Body><AssemblyStatistics assembly={assembly}/></Card.Body>
+                                            <Card.Header>Contig size statistics</Card.Header>
+                                            <Card.Body>
+                                                <AssemblyStatistics assembly={assembly} />
+                                            </Card.Body>
                                         </Card>
                                     </Col>
                                     <Col>
                                         <Card className="shadow">
-                                            <Card.Header>
-                                                Assembly statistics
-                                            </Card.Header>
+                                            <Card.Header>Assembly statistics</Card.Header>
                                             <Card.Body>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-database-id">
-                                                        Database ID
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-database-id">Database ID</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.id
-                                                        }
+                                                        value={assembly && assembly.id}
                                                         readOnly={true}
                                                     />
                                                     <Button>
-                                                        <span className="bi bi-clipboard2"/>
+                                                        <span className="bi bi-clipboard2" />
                                                     </Button>
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-label">
-                                                        Label
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-label">Label</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.name
-                                                        }
+                                                        value={assembly && assembly.name}
                                                         readOnly={true}
                                                     />
                                                     <Button>
-                                                        <span className="bi bi-clipboard2"/>
+                                                        <span className="bi bi-clipboard2" />
                                                     </Button>
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">
-                                                        Label
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-number-seqs">Label</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.label
-                                                        }
+                                                        value={assembly && assembly.label}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">
-                                                        Cumulative sequence
-                                                        length
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-number-seqs">Cumulative sequence length</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.cumulativeSequenceLength
-                                                        }
+                                                        value={assembly && assembly.cumulativeSequenceLength}
                                                         readOnly={true}
                                                     />
-                                                    <InputGroup.Text id="info-number-seqs">
-                                                        Type
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-number-seqs">Type</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="DNA"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.sequenceType
-                                                        }
+                                                        value={assembly && assembly.sequenceType}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-longest-seqs">
-                                                        Longest
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-longest-seqs">Longest</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.largestSequence
-                                                        }
+                                                        value={assembly && assembly.largestSequence}
                                                         readOnly={true}
                                                     />
-                                                    <InputGroup.Text id="info-shortest-seqs">
-                                                        Shortest
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-shortest-seqs">Shortest</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.shortestSequence
-                                                        }
+                                                        value={assembly && assembly.shortestSequence}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">
-                                                        Median
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-number-seqs">Median</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.medianSequence
-                                                        }
+                                                        value={assembly && assembly.medianSequence}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-longest-seqs">
-                                                        N50
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-longest-seqs">N50</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.n50
-                                                        }
+                                                        value={assembly && assembly.n50}
                                                         readOnly={true}
                                                     />
-                                                    <InputGroup.Text id="info-shortest-seqs">
-                                                        N90
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-shortest-seqs">N90</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.n90
-                                                        }
+                                                        value={assembly && assembly.n90}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">
-                                                        %GC content
-                                                    </InputGroup.Text>
+                                                    <InputGroup.Text id="info-number-seqs">%GC content</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={
-                                                            assembly &&
-                                                            assembly.gcPercent
-                                                        }
+                                                        value={assembly && assembly.gcPercent}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
@@ -426,44 +387,41 @@ export default function Assemblies({ assembly }) {
                                         </Card>
                                     </Col>
                                 </Row>
-                                <hr/>
-                                <Row className="mt-4 mb-4">
+                                <hr />
+                                <Row className="mb-4 mt-4">
                                     <Col xs={6}>
-                                        <Card className="shadow" style={{height: "50vh"}}>
+                                        <Card className="shadow" style={{ height: '50vh' }}>
                                             <Card.Header>TaxSun Placeholder</Card.Header>
-                                            <Card.Body>
-                                            </Card.Body>
+                                            <Card.Body></Card.Body>
                                         </Card>
                                     </Col>
                                     <Col>
-                                        <Card className="shadow" style={{height: "50vh"}}>
-                                            <Card.Header>
-                                                Assembly Headers Placeholder
-                                            </Card.Header>
+                                        <Card className="shadow" style={{ height: '50vh' }}>
+                                            <Card.Header>Assembly Headers Placeholder</Card.Header>
                                         </Card>
                                     </Col>
                                 </Row>
                             </Accordion.Body>
                         </Accordion.Item>
                         <Accordion.Item eventKey="1">
-                            <Accordion.Header><h4>Annotation completeness</h4></Accordion.Header>
+                            <Accordion.Header>
+                                <h4>Annotation completeness</h4>
+                            </Accordion.Header>
                             <Accordion.Body onEntered={() => setRenderCompleteness(true)}>
                                 {/* Only render the BUSCO Plot after the Accordion item has expanded => forces plotly to size plot correctly */}
-                                {(renderCompleteness && assembly.busco_analyses.length > 0) &&
-                                    <BuscoViewer busco={assembly.busco_analyses}/>}
-                                {(renderCompleteness && assembly.fcat_analyses.length > 0) &&
-                                    <FcatViewer assembly={assembly} taxon={""} fcat={assembly.fcat_analyses}/>}
-
+                                {renderCompleteness && assembly.busco_analyses.length > 0 && <BuscoViewer busco={assembly.busco_analyses} />}
+                                {renderCompleteness && assembly.fcat_analyses.length > 0 && (
+                                    <FcatViewer assembly={assembly} taxon={''} fcat={assembly.fcat_analyses} />
+                                )}
                             </Accordion.Body>
                         </Accordion.Item>
-                        {(assembly.repeatmasker_analyses.length > 0) && (
+                        {assembly.repeatmasker_analyses.length > 0 && (
                             <Accordion.Item eventKey="3">
                                 <Accordion.Header>
                                     <h4>Repeatmasker</h4>
                                 </Accordion.Header>
                                 <Accordion.Body onEntered={() => setRenderRepeats(true)}>
-                                    {(renderRepeats) &&
-                                        <RepeatMaskerViewer repeatmasker={assembly.repeatmasker_analyses}/>}
+                                    {renderRepeats && <RepeatMaskerViewer repeatmasker={assembly.repeatmasker_analyses} />}
                                 </Accordion.Body>
                             </Accordion.Item>
                         )}
@@ -472,53 +430,62 @@ export default function Assemblies({ assembly }) {
                                 <h4>Taxonomic Assignment</h4>
                             </Accordion.Header>
                             <Accordion.Body>
-                                {assembly &&
-                                    <TaxaminerDashboard assembly_id={assembly.id} analyses={assembly.taxaminer_analyses}
-                                                        setLocation={setLocation} setAutoScroll={null}
-                                                        userID={2}/>}
+                                {assembly && (
+                                    <TaxaminerDashboard
+                                        assembly_id={assembly.id}
+                                        analyses={assembly.taxaminer_analyses}
+                                        setLocation={setLocation}
+                                        setAutoScroll={null}
+                                        userID={2}
+                                    />
+                                )}
                             </Accordion.Body>
                         </Accordion.Item>
                         <Accordion.Item eventKey="2" onClick={() => window.dispatchEvent(new Event('resize'))}>
-                            <Accordion.Header><h4>Genome Browser</h4></Accordion.Header>
+                            <Accordion.Header>
+                                <h4>Genome Browser</h4>
+                            </Accordion.Header>
                             <Accordion.Body>
                                 <Row>
                                     <Col xs={2}>
                                         <Card className="shadow">
                                             <Card.Header>Available Annotations </Card.Header>
                                             <Card.Body>
-                                                <Card.Text>A total
-                                                    of <b>{assembly.genomic_annotations.length}</b> annotations are
-                                                    available for this assembly. Use the JBrowse controls <i
-                                                        className="bi bi-list-task"/> to toggle tracks once the browser
-                                                    has loaded.</Card.Text>
-                                                <Button href={`/browser/${assembly.id}`}>Launch fullscreen Browser <i
-                                                    className="bi bi-box-arrow-up-right"/></Button><br/>
+                                                <Card.Text>
+                                                    A total of <b>{assembly.genomic_annotations.length}</b> annotations are available for this
+                                                    assembly. Use the JBrowse controls <i className="bi bi-list-task" /> to toggle tracks once the
+                                                    browser has loaded.
+                                                </Card.Text>
+                                                <Button href={`/browser/${assembly.id}`}>
+                                                    Launch fullscreen Browser <i className="bi bi-box-arrow-up-right" />
+                                                </Button>
+                                                <br />
                                             </Card.Body>
                                             <ListGroup variant="flush">
-                                                <ListGroup.Item className="text-muted"><i
-                                                    className="bi bi-database"></i> Reference sequence</ListGroup.Item>
-                                                {assembly.genomic_annotations.length > 0 && (
+                                                <ListGroup.Item className="text-muted">
+                                                    <i className="bi bi-database"></i> Reference sequence
+                                                </ListGroup.Item>
+                                                {assembly.genomic_annotations.length > 0 &&
                                                     assembly.genomic_annotations.map((annotation: Annotation) => {
-                                                        return <ListGroup.Item className="text-muted"><i
-                                                            className="bi bi-align-center"></i> {annotation.label || annotation.name}
-                                                        </ListGroup.Item>
-                                                    })
-                                                )}
+                                                        return (
+                                                            <ListGroup.Item className="text-muted">
+                                                                <i className="bi bi-align-center"></i> {annotation.label || annotation.name}
+                                                            </ListGroup.Item>
+                                                        );
+                                                    })}
                                             </ListGroup>
                                         </Card>
                                     </Col>
                                     <Col>
-                                        <div style={{minHeight: "500px"}}>
-                                            {assembly &&
+                                        <div style={{ minHeight: '500px' }}>
+                                            {assembly && (
                                                 <JBrowseView
                                                     my_assembly={assembly}
-                                                    annotations={
-                                                        assembly.genomic_annotations
-                                                    }
+                                                    annotations={assembly.genomic_annotations}
                                                     mappings={assembly.mappings}
                                                     location={location}
                                                 ></JBrowseView>
-                                            }
+                                            )}
                                         </div>
                                     </Col>
                                 </Row>

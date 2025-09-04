@@ -1,18 +1,18 @@
-import TopNavBar from "@/Components/TopNavBar";
-import {useEffect, useState} from "react";
-import { createViewState, JBrowseApp } from '@jbrowse/react-app2'
-import '@fontsource/roboto'
-import generateConfig from "@/Components/GenomeBrowser/configGenerator";
+import generateConfig from '@/Components/GenomeBrowser/configGenerator';
+import TopNavBar from '@/Components/TopNavBar';
+import '@fontsource/roboto';
+import { createViewState, JBrowseApp } from '@jbrowse/react-app2';
+import { useEffect, useState } from 'react';
 
 // For Jbrowse
-type ViewModel = ReturnType<typeof createViewState>
+type ViewModel = ReturnType<typeof createViewState>;
 
 export default function GenomeBrowser({ assembly }) {
     const [viewState, setViewState] = useState<ViewModel>();
 
     useEffect(() => {
         const my_config = generateConfig(assembly);
-        const state = createViewState({config: my_config});
+        const state = createViewState({ config: my_config });
         setViewState(state);
     }, []);
 
@@ -20,9 +20,9 @@ export default function GenomeBrowser({ assembly }) {
         return null;
     }
 
-    return(
+    return (
         <>
-            <TopNavBar/>
+            <TopNavBar />
             {viewState && <JBrowseApp viewState={viewState} />}
         </>
     );

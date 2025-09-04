@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {GeoJSON, MapContainer, Popup, TileLayer} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useRef, useState } from 'react';
+import { GeoJSON, MapContainer, Popup, TileLayer } from 'react-leaflet';
 
 type TaxMapProps = {
     isVisible: boolean;
-    geoDataMeta: object
+    geoDataMeta: object;
 };
-
 
 const TaxMap: React.FC<TaxMapProps> = ({ isVisible, geoDataMeta }) => {
     const [geoData, setGeoData] = useState(null);
@@ -26,19 +25,18 @@ const TaxMap: React.FC<TaxMapProps> = ({ isVisible, geoDataMeta }) => {
                             const res = await fetch(each.data_link);
                             each['data'] = await res.json();
                         } else {
-                            console.log(each.data)
-                            if (typeof each.data == "string") {
-                                each['data'] = JSON.parse(each['data'])
+                            console.log(each.data);
+                            if (typeof each.data == 'string') {
+                                each['data'] = JSON.parse(each['data']);
                             }
-
                         }
-                        console.log(each.data)
-                        return each
-                    })
+                        console.log(each.data);
+                        return each;
+                    }),
                 );
                 setGeoData(allData);
-                const center = L.geoJson(allData[0].data)
-                console.log(center)
+                const center = L.geoJson(allData[0].data);
+                console.log(center);
                 // mapRef.fitBounds(center)
             } catch (err) {
                 console.error('Failed to load one or more GeoJSON files:', err);
@@ -56,7 +54,6 @@ const TaxMap: React.FC<TaxMapProps> = ({ isVisible, geoDataMeta }) => {
             }, 200);
         }
     }, [isVisible]);
-
 
     // When GeoData has been loaded, fit the make to it's bounds automatically
     useEffect(() => {
@@ -80,16 +77,23 @@ const TaxMap: React.FC<TaxMapProps> = ({ isVisible, geoDataMeta }) => {
                 mapRef.current = map.target;
             }}
         >
-            <TileLayer
-                attribution='&copy; OpenStreetMap contributors'
-                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            />
-            {geoData && geoData.map(each => {
-                return <GeoJSON data={each.data}>
-                    <Popup><b>{each.name}</b>{each.description && <><br/>{each.description}</>}</Popup>
-                </GeoJSON>
-                })
-            }
+            <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {geoData &&
+                geoData.map((each) => {
+                    return (
+                        <GeoJSON data={each.data}>
+                            <Popup>
+                                <b>{each.name}</b>
+                                {each.description && (
+                                    <>
+                                        <br />
+                                        {each.description}
+                                    </>
+                                )}
+                            </Popup>
+                        </GeoJSON>
+                    );
+                })}
         </MapContainer>
     );
 };

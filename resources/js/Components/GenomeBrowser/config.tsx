@@ -67,8 +67,7 @@ const config = {
         },
         {
             type: 'VariantTrack',
-            trackId:
-                'ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf',
+            trackId: 'ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf',
             name: '1000 Genomes Variant Calls',
             assemblyNames: ['hg38'],
             category: ['1000 Genomes', 'Variants'],
@@ -120,6 +119,6 @@ const config = {
             },
         ],
     },
-}
+};
 
-export default config
+export default config;

@@ -21,11 +21,7 @@ const Pagination = ({ links }: PaginationProps) => {
 
                     return (
                         <li key={index} className={`page-item ${link.active ? 'active' : ''}`}>
-                            <button
-                                className="page-link"
-                                onClick={() => router.visit(link.url!)}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                            />
+                            <button className="page-link" onClick={() => router.visit(link.url!)} dangerouslySetInnerHTML={{ __html: link.label }} />
                         </li>
                     );
                 })}

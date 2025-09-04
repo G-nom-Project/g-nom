@@ -1,15 +1,10 @@
-import {
-    Card,
-    ListGroup,
-    Button,
-    Form,
-} from 'react-bootstrap';
+import { TaxonData } from '@/types/data';
+import React, { useState } from 'react';
+import { Button, Card, Form, ListGroup } from 'react-bootstrap';
 import placeholder from '../../static/img/dnaPlaceholder.PNG';
-import React, {useState} from "react";
-import {TaxonData} from "@/types/data";
 
 interface Props {
-    taxon: TaxonData
+    taxon: TaxonData;
     withAssemblySelection: boolean;
 }
 
@@ -29,10 +24,10 @@ const TaxonCard = (props: Props) => {
                 }}
             />
             <Card.Body>
-                <Card.Title>
-                    {props.taxon.scientificName}
-                </Card.Title>
-                <Card.Subtitle className="text-muted mb-2">NCBI ID: {props.taxon.ncbiTaxonID} | {props.taxon.ncbiTaxonRank}</Card.Subtitle>
+                <Card.Title>{props.taxon.scientificName}</Card.Title>
+                <Card.Subtitle className="text-muted mb-2">
+                    NCBI ID: {props.taxon.ncbiTaxonID} | {props.taxon.ncbiTaxonRank}
+                </Card.Subtitle>
                 <Card.Text>
                     {
                         // TODO: Taxon Info Text
@@ -40,31 +35,33 @@ const TaxonCard = (props: Props) => {
                 </Card.Text>
             </Card.Body>
             <ListGroup className="list-group-flush">
-                {(props.withAssemblySelection && props.taxon.assemblies.length > 0) && (
+                {props.withAssemblySelection && props.taxon.assemblies.length > 0 && (
                     <ListGroup.Item>
                         <Form.Group>
-                            <Form.Label>
-                                Select an existing assembly for this taxon
-                            </Form.Label>
+                            <Form.Label>Select an existing assembly for this taxon</Form.Label>
                             <Form.Select
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {setAssemblyID(e.target.value as number)}}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                                    setAssemblyID(e.target.value as number);
+                                }}
                             >
                                 <option default>Select an assembly</option>
                                 {props.taxon.assemblies.map((assembly) => {
-                                    return <option value={assembly.id}>{assembly.name} {assembly.label && "|" + assembly.label} | {assembly.id}</option>
+                                    return (
+                                        <option value={assembly.id}>
+                                            {assembly.name} {assembly.label && '|' + assembly.label} | {assembly.id}
+                                        </option>
+                                    );
                                 })}
                             </Form.Select>
-                            <br/>
-                            <Button  href={`/assemblies/${assemblyID}`} disabled={assemblyID == -1}><i className="bi bi-arrow-right"></i> Go to Assembly</Button>
+                            <br />
+                            <Button href={`/assemblies/${assemblyID}`} disabled={assemblyID == -1}>
+                                <i className="bi bi-arrow-right"></i> Go to Assembly
+                            </Button>
                         </Form.Group>
                     </ListGroup.Item>
                 )}
-                <ListGroup.Item>
-                    Common Name: {props.taxon.commonName || "No common name provided"}
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    Assemblies: {props.taxon.assemblies.length}
-                </ListGroup.Item>
+                <ListGroup.Item>Common Name: {props.taxon.commonName || 'No common name provided'}</ListGroup.Item>
+                <ListGroup.Item>Assemblies: {props.taxon.assemblies.length}</ListGroup.Item>
             </ListGroup>
         </Card>
     );

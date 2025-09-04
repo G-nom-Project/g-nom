@@ -1,7 +1,7 @@
 import TopNavBar from '@/Components/TopNavBar';
-import { Button, Card, Col, Form, Row, Container } from 'react-bootstrap';
-import React, { useState } from "react";
-import {Assembly} from "@/types/data";
+import { Assembly } from '@/types/data';
+import React, { useState } from 'react';
+import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 
 export default function BrowserSelection({ assemblies }) {
     const [assemblyID, SetAssemblyID] = useState<number>();
@@ -12,7 +12,7 @@ export default function BrowserSelection({ assemblies }) {
             <Container className="d-flex justify-content-center align-items-center vh-100">
                 <Row>
                     <Col>
-                        <Card className="text-center" style={{minWidth: "50vh"}}>
+                        <Card className="text-center" style={{ minWidth: '50vh' }}>
                             <Card.Body>
                                 <Card.Title>Select assembly</Card.Title>
                                 <Form.Select

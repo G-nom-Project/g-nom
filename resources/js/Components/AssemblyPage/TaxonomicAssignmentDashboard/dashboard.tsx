@@ -13,12 +13,7 @@ import ScatterMatrix from './sidebar/ScatterMatrix/ScatterMatrix';
 import SelectionView from './sidebar/selection/selection';
 
 // Stylesheet
-import {
-    fetchTaxaminerScatterplot,
-    fetchTaxaminerSeq,
-    fetchTaxaminerSettings,
-    updateTaxaminerSettings,
-} from './api';
+import { fetchTaxaminerScatterplot, fetchTaxaminerSeq, fetchTaxaminerSettings, updateTaxaminerSettings } from './api';
 import { TableView } from './tableview';
 
 interface State {
@@ -121,8 +116,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
         this.resetSelection = this.resetSelection.bind(this);
         this.setHighlightedGenes = this.setHighlightedGenes.bind(this);
         this.setHighlightMode = this.setHighlightMode.bind(this);
-        this.setGenomeBrowserInteraction =
-            this.setGenomeBrowserInteraction.bind(this);
+        this.setGenomeBrowserInteraction = this.setGenomeBrowserInteraction.bind(this);
     }
 
     /**
@@ -132,12 +126,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
     setDataset(id: number) {
         this.setState({ is_loading: true });
         this.setState({ dataset_id: id }, () => {
-            fetchTaxaminerScatterplot(
-                this.props.assembly_id,
-                id,
-                this.state.userID,
-                this.state.token,
-            )
+            fetchTaxaminerScatterplot(this.props.assembly_id, id, this.state.userID, this.state.token)
                 .then((data) => {
                     const main_data = {};
                     this.setState({ scatterPoints: data }, () => {
@@ -151,51 +140,22 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                         }
                         this.setState({
                             data: main_data,
-                            gene_order_supported:
-                                Object.prototype.hasOwnProperty.call(
-                                    final_row,
-                                    'upstream_gene',
-                                ),
-                            gene_pos_supported:
-                                Object.prototype.hasOwnProperty.call(
-                                    final_row,
-                                    'end',
-                                ),
+                            gene_order_supported: Object.prototype.hasOwnProperty.call(final_row, 'upstream_gene'),
+                            gene_pos_supported: Object.prototype.hasOwnProperty.call(final_row, 'end'),
                         });
 
                         // Make backwards compatible
-                        if (
-                            Object.prototype.hasOwnProperty.call(
-                                final_row,
-                                'Dim.1',
-                            ) &&
-                            this.state.dim_string === 'PC_'
-                        ) {
+                        if (Object.prototype.hasOwnProperty.call(final_row, 'Dim.1') && this.state.dim_string === 'PC_') {
                             this.setState({ dim_string: 'Dim.' });
-                        } else if (
-                            Object.prototype.hasOwnProperty.call(
-                                final_row,
-                                'PC_1',
-                            ) &&
-                            this.state.dim_string === 'Dim.'
-                        ) {
+                        } else if (Object.prototype.hasOwnProperty.call(final_row, 'PC_1') && this.state.dim_string === 'Dim.') {
                             this.setState({ dim_string: 'PC_' });
                         }
 
-                        if (
-                            Object.prototype.hasOwnProperty.call(
-                                final_row,
-                                'protID',
-                            )
-                        ) {
+                        if (Object.prototype.hasOwnProperty.call(final_row, 'protID')) {
                             this.setState({ fasta_col: 'protID' });
                         }
 
-                        fetchTaxaminerSettings(
-                            this.props.assembly_id,
-                            this.state.dataset_id,
-
-                        ).then((settings) => {
+                        fetchTaxaminerSettings(this.props.assembly_id, this.state.dataset_id).then((settings) => {
                             const selection_array = settings['selection'];
                             // @ts-ignore
                             this.setState({
@@ -205,16 +165,12 @@ class TaxaminerDashboard extends React.Component<Props, State> {
 
                         // Infer fields from first row
                         if (main_data) {
-                            const proto_row = (main_data as any)[
-                                Object.keys(main_data)[0]
-                            ];
+                            const proto_row = (main_data as any)[Object.keys(main_data)[0]];
                             this.setState({ fields: Object.keys(proto_row) });
                         }
 
                         //const gene_options: { label: string; value: string; }[] = []
-                        const gene_options: string[] = Object.keys(
-                            main_data,
-                        ).map((item: string) => {
+                        const gene_options: string[] = Object.keys(main_data).map((item: string) => {
                             return item;
                         });
 
@@ -223,16 +179,13 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                          */
                         const contigs = new Set();
                         for (const key of Object.keys(main_data)) {
-                            const item =
-                                main_data[key as keyof typeof main_data];
+                            const item = main_data[key as keyof typeof main_data];
                             contigs.add(item['c_name']);
                         }
 
                         // convert set to list
                         const contig_options: Option[] = [];
-                        contigs.forEach((each: any) =>
-                            contig_options.push({ label: each, value: each }),
-                        );
+                        contigs.forEach((each: any) => contig_options.push({ label: each, value: each }));
 
                         this.setState({
                             contigs: contig_options,
@@ -258,10 +211,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
             this.setState({ selected_row: this.state.data[keys[0]] });
 
             // format coordinates for JBrowse
-            if (
-                this.state.gene_pos_supported &&
-                this.state.genomeBrowserInteraction
-            ) {
+            if (this.state.gene_pos_supported && this.state.genomeBrowserInteraction) {
                 const coords = `${new_row.c_name}:${new_row.start}..${new_row.end}`;
                 console.log(coords);
                 this.props.setLocation(coords);
@@ -295,21 +245,12 @@ class TaxaminerDashboard extends React.Component<Props, State> {
             }
         }
 
-        fetchTaxaminerSeq(
-            this.props.assembly_id,
-            this.state.dataset_id,
-            this.state.data[keys[0]][this.state.fasta_col],
-        ).then((data) => {
+        fetchTaxaminerSeq(this.props.assembly_id, this.state.dataset_id, this.state.data[keys[0]][this.state.fasta_col]).then((data) => {
             this.setState({ aa_seq: data as unknown as string });
         });
 
         if (this.state.select_mode !== 'neutral') {
-            updateTaxaminerSettings(
-                this.props.assembly_id,
-                this.state.dataset_id,
-                this.state.customFields,
-                Array.from(this.state.selected_data),
-            );
+            updateTaxaminerSettings(this.props.assembly_id, this.state.dataset_id, this.state.customFields, Array.from(this.state.selected_data));
         }
     }
 
@@ -349,12 +290,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
     setCustomFields = (values: any) => {
         this.setState({ customFields: values });
         if (!this.state.is_loading) {
-            updateTaxaminerSettings(
-                this.props.assembly_id,
-                this.state.dataset_id,
-                values,
-                Array.from(this.state.selected_data)
-            );
+            updateTaxaminerSettings(this.props.assembly_id, this.state.dataset_id, values, Array.from(this.state.selected_data));
         }
     };
 
@@ -448,9 +384,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                             c_searched={this.state.filters.c_searched}
                             scatter_data={this.state.scatterPoints}
                             scatterPoints={this.state.scatterPoints}
-                            gene_order_supported={
-                                this.state.gene_order_supported
-                            }
+                            gene_order_supported={this.state.gene_order_supported}
                             main_data={this.state.data}
                             selected_row={this.state.selected_row}
                             dim_string={this.state.dim_string}
@@ -463,35 +397,16 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                     <Card.Body>
                                         <Card.Title>Dataset</Card.Title>
                                         <Tabs>
-                                            <Tab
-                                                title="Load Dataset"
-                                                eventKey="dataset-loader"
-                                            >
-                                                <DataSetSelector
-                                                    dataset_changed={
-                                                        this.setDataset
-                                                    }
-                                                    analyses={
-                                                        this.props.analyses
-                                                    }
-                                                />
+                                            <Tab title="Load Dataset" eventKey="dataset-loader">
+                                                <DataSetSelector dataset_changed={this.setDataset} analyses={this.props.analyses} />
                                             </Tab>
-                                            <Tab
-                                                title="Metadata"
-                                                eventKey="dataset-meta"
-                                            >
+                                            <Tab title="Metadata" eventKey="dataset-meta">
                                                 <DataSetMeta
-                                                    assemblyID={
-                                                        this.props.assembly_id
-                                                    }
-                                                    dataset_id={
-                                                        this.state.dataset_id
-                                                    }
+                                                    assemblyID={this.props.assembly_id}
+                                                    dataset_id={this.state.dataset_id}
                                                     userID={this.state.userID}
                                                     token={this.state.token}
-                                                    metadata={
-                                                        this.state.analysis
-                                                    }
+                                                    metadata={this.state.analysis}
                                                 />
                                             </Tab>
                                         </Tabs>
@@ -507,12 +422,8 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                     userID={this.state.userID}
                                     token={this.state.token}
                                     passCustomFields={this.setCustomFields}
-                                    setAutoScroll={
-                                        this.setGenomeBrowserInteraction
-                                    }
-                                    gene_pos_supported={
-                                        this.state.gene_pos_supported
-                                    }
+                                    setAutoScroll={this.setGenomeBrowserInteraction}
+                                    gene_pos_supported={this.state.gene_pos_supported}
                                 />
                             </Tab>
                             <Tab eventKey="Filter" title="Filters">
@@ -522,12 +433,8 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                     sendClick={this.handleDataClick}
                                     contig_options={this.state.contigs}
                                     global_selection={this.state.selected_data}
-                                    highlightedGenes={
-                                        this.state.highlightedGenes
-                                    }
-                                    passNewHighlightedGenes={
-                                        this.setHighlightedGenes
-                                    }
+                                    highlightedGenes={this.state.highlightedGenes}
+                                    passNewHighlightedGenes={this.setHighlightedGenes}
                                     highlightMode={this.state.highlightMode}
                                     setHighlightMode={this.setHighlightMode}
                                 />
@@ -545,16 +452,11 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                     </Col>
                                 </Row>
                             </Tab>
-                            <Tab
-                                eventKey="scatter_matrix"
-                                title="Scatter Matrix"
-                            >
+                            <Tab eventKey="scatter_matrix" title="Scatter Matrix">
                                 <ScatterMatrix
                                     sendClick={this.handleDataClick}
                                     e_value={this.state.filters.e_value}
-                                    show_unassigned={
-                                        this.state.filters.show_unassinged
-                                    }
+                                    show_unassigned={this.state.filters.show_unassinged}
                                     scatter_data={this.state.scatter_data}
                                     scatterPoints={this.state.scatterPoints}
                                     g_searched={this.state.filters.g_searched}

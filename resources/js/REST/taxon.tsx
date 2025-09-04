@@ -1,12 +1,12 @@
-import axios from "axios";
+import axios from 'axios';
 
 export interface GeoJSONImport {
-    name: string
-    type: string
-    description: string | null
-    source_link: string
-    data_link: string
-    data: string
+    name: string;
+    type: string;
+    description: string | null;
+    source_link: string;
+    data_link: string;
+    data: string;
 }
 
 /**
@@ -30,7 +30,7 @@ export const getGeoData = async (ncbiTaxonID: number) => {
 export const getTaxonInfo = async (ncbiTaxonID: number) => {
     try {
         const response = await axios.get(`/taxon/infos/${ncbiTaxonID}`);
-        return response
+        return response;
     } catch (error) {
         console.error('Failed to geo data:', error);
         throw error;
@@ -70,7 +70,6 @@ export const uploadGeoData = async (taxonID: number, data: GeoJSONImport) => {
     }
 };
 
-
 export const deleteGeoData = async (id: number, taxonID: number) => {
     try {
         const response = await axios.delete(`/taxon/${taxonID}/geodata/${id}/`);
@@ -79,4 +78,4 @@ export const deleteGeoData = async (id: number, taxonID: number) => {
         console.error('Failed to upload GeoData:', error);
         throw error;
     }
-}
+};

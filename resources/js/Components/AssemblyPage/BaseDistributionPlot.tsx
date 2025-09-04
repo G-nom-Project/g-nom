@@ -1,18 +1,17 @@
+import { Assembly } from '@/types/data';
 import { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
-import { Assembly } from "@/types/data";
-
 
 interface BaseData {
-    values: number[],
-    labels: string[],
-    type: string,
-    textinfo: string,
-    hoverinfo: string,
-    marker: { colors: string[]},
+    values: number[];
+    labels: string[];
+    type: string;
+    textinfo: string;
+    hoverinfo: string;
+    marker: { colors: string[] };
 }
 
-const BaseDistributionPlot = ({ assembly}:{assembly: Assembly}) => {
+const BaseDistributionPlot = ({ assembly }: { assembly: Assembly }) => {
     const [data, setData] = useState<BaseData[]>();
     const [layout, setLayout] = useState<>({});
 
@@ -36,11 +35,11 @@ const BaseDistributionPlot = ({ assembly}:{assembly: Assembly}) => {
             {
                 values: values,
                 labels: labels,
-                type: "pie",
-                textinfo: "label+percent",
-                hoverinfo: "label+value",
+                type: 'pie',
+                textinfo: 'label+percent',
+                hoverinfo: 'label+value',
                 marker: {
-                    colors: ["#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00"],
+                    colors: ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00'],
                 },
             },
         ]);
@@ -54,15 +53,13 @@ const BaseDistributionPlot = ({ assembly}:{assembly: Assembly}) => {
             legend: {
                 x: 1,
                 y: 1,
-                xanchor: "center",
-                orientation: "v",
+                xanchor: 'center',
+                orientation: 'v',
             },
         });
     };
 
-    return (
-        <Plot data={data} layout={layout} useResizeHandler={true} style={{width: "100%"}}/>
-    );
+    return <Plot data={data} layout={layout} useResizeHandler={true} style={{ width: '100%' }} />;
 };
 
 export default BaseDistributionPlot;

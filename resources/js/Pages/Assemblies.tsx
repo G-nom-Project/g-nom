@@ -1,10 +1,10 @@
-import { useForm } from '@inertiajs/react';
 import AssemblyCard from '@/Components/AssemblyCard';
 import Pagination from '@/Components/Pagination';
 import TopNavBar from '@/Components/TopNavBar';
+import { AggregatedAssembly } from '@/types/data';
+import { useForm } from '@inertiajs/react';
 import React, { FormEvent } from 'react';
-import {Col, Container, Row, Form, Button, Navbar, Nav, InputGroup} from 'react-bootstrap';
-import {AggregatedAssembly} from "@/types/data";
+import { Button, Col, Container, Form, InputGroup, Nav, Navbar, Row } from 'react-bootstrap';
 
 interface PaginatedAssemblies {
     data: AggregatedAssembly[];
@@ -19,14 +19,7 @@ interface Filters {
     search: string;
 }
 
-export default function Assemblies({
-                                       assemblies,
-                                       filters
-}: {
-    assemblies: PaginatedAssemblies;
-    filters: Filters;
-}) {
-
+export default function Assemblies({ assemblies, filters }: { assemblies: PaginatedAssemblies; filters: Filters }) {
     // Handle filters
     const { data, setData, get } = useForm<{ search: string }>({
         search: filters.search || '',
@@ -41,35 +34,41 @@ export default function Assemblies({
     return (
         <>
             <TopNavBar />
-                <Navbar bg="secondary" expand="lg">
-                    <Container fluid>
-                        <Nav className="m-1">
-                            <Nav.Item><h4 className="text-white">Search assemblies</h4></Nav.Item>
-                        </Nav>
-                        <Nav className="m-1" style={{width: "50%"}}>
-                            <Nav.Link style={{width: "100%"}}>
-                                <InputGroup>
-                                    <Form onSubmit={submit} style={{width: "100%"}}>
-                                        <Form.Control
-                                            type="text"
-                                            value={data.search}
-                                            placeholder={"Enter an assembly name, taxon name or NCBI Taxon ID"}
-                                            // @ts-expect-error Type mismatch to TFrom, simply not inferred correctly
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('search', e.target.value as string)}
-                                        />
-                                    </Form>
-                                </InputGroup>
-                            </Nav.Link>
-                            <Nav.Link>
-                                <Button onClick={submit}><i className="bi bi-search"></i></Button>
-                            </Nav.Link>
-                        </Nav>
-                        <Nav>
-                            <Nav.Link><Button>Advanced filters</Button></Nav.Link>
-                        </Nav>
-                    </Container>
-                </Navbar>
+            <Navbar bg="secondary" expand="lg">
                 <Container fluid>
+                    <Nav className="m-1">
+                        <Nav.Item>
+                            <h4 className="text-white">Search assemblies</h4>
+                        </Nav.Item>
+                    </Nav>
+                    <Nav className="m-1" style={{ width: '50%' }}>
+                        <Nav.Link style={{ width: '100%' }}>
+                            <InputGroup>
+                                <Form onSubmit={submit} style={{ width: '100%' }}>
+                                    <Form.Control
+                                        type="text"
+                                        value={data.search}
+                                        placeholder={'Enter an assembly name, taxon name or NCBI Taxon ID'}
+                                        // @ts-expect-error Type mismatch to TFrom, simply not inferred correctly
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('search', e.target.value as string)}
+                                    />
+                                </Form>
+                            </InputGroup>
+                        </Nav.Link>
+                        <Nav.Link>
+                            <Button onClick={submit}>
+                                <i className="bi bi-search"></i>
+                            </Button>
+                        </Nav.Link>
+                    </Nav>
+                    <Nav>
+                        <Nav.Link>
+                            <Button>Advanced filters</Button>
+                        </Nav.Link>
+                    </Nav>
+                </Container>
+            </Navbar>
+            <Container fluid>
                 <Row className="row-cols-1 row-cols-md-4">
                     {assemblies.data.map((each: AggregatedAssembly) => (
                         <Col key={each.id} className="d-flex align-items-stretch mb-3">
@@ -97,7 +96,7 @@ export default function Assemblies({
                         <Pagination links={assemblies.links} />
                     </Col>
                 </Row>
-                </Container>
+            </Container>
         </>
     );
 }

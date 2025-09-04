@@ -24,11 +24,9 @@ const NotificationToasts = () => {
         }
 
         // @ts-expect-error Echo is attached to window elsewhere
-        window.Echo.private(`App.Models.User.${user.id}`).notification(
-            (notification: Notification) => {
-                setNotifications((prev) => [...prev, notification]);
-            },
-        );
+        window.Echo.private(`App.Models.User.${user.id}`).notification((notification: Notification) => {
+            setNotifications((prev) => [...prev, notification]);
+        });
 
         return () => {
             // @ts-expect-error Echo is attached to window elsewhere
@@ -44,37 +42,18 @@ const NotificationToasts = () => {
         <ToastContainer position="top-end" className="p-3">
             <TransitionGroup>
                 {notifications.map((notification) => (
-                    <CSSTransition
-                        key={notification.id}
-                        timeout={500}
-                        classNames="toast fade"
-                    >
-                        <Toast
-                            className="mt-1"
-                            onClose={() => removeToast(notification.id)}
-                            delay={15000}
-                            autohide
-                        >
+                    <CSSTransition key={notification.id} timeout={500} classNames="toast fade">
+                        <Toast className="mt-1" onClose={() => removeToast(notification.id)} delay={15000} autohide>
                             <Toast.Header>
                                 <strong className="me-auto">
-                                    {notification.icon && (
-                                        <i className={notification.icon}></i>
-                                    )}{' '}
-                                    {notification.title}
+                                    {notification.icon && <i className={notification.icon}></i>} {notification.title}
                                 </strong>
                             </Toast.Header>
                             <Toast.Body>
                                 {notification.message}
                                 {notification.assemblyID && (
                                     <div className="border-top mt-1 pt-1">
-                                        <a
-                                            href={
-                                                'assemblies/' +
-                                                notification.assemblyID
-                                            }
-                                        >
-                                            View assembly
-                                        </a>
+                                        <a href={'assemblies/' + notification.assemblyID}>View assembly</a>
                                     </div>
                                 )}
                             </Toast.Body>

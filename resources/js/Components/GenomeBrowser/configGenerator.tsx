@@ -1,8 +1,8 @@
 const generateConfig = (assembly) => {
     // Convert Annotations into JBrowse Tracks
-    console.log(assembly)
+    console.log(assembly);
     const annotations = assembly.genomic_annotations.map((annotation) => {
-        const fileBasename = "sorted.gff3.gz";
+        const fileBasename = 'sorted.gff3.gz';
         return {
             type: 'FeatureTrack',
             trackId: 'track_annotation_' + annotation.id,
@@ -82,15 +82,15 @@ const generateConfig = (assembly) => {
                         type: 'BgzipFastaAdapter',
                         fastaLocation: {
                             uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/assembly.fa.gz`,
-                            locationType: "UriLocation"
+                            locationType: 'UriLocation',
                         },
                         faiLocation: {
                             uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/assembly.fa.gz.fai`,
-                            locationType: "UriLocation"
+                            locationType: 'UriLocation',
                         },
                         gziLocation: {
                             uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/assembly.fa.gz.gzi`,
-                            locationType: "UriLocation"
+                            locationType: 'UriLocation',
                         },
                     },
                 },

@@ -1,9 +1,9 @@
 import AssemblyCard from '@/Components/AssemblyCard';
 import Pagination from '@/Components/Pagination';
 import TopNavBar from '@/Components/TopNavBar';
+import { AggregatedAssembly } from '@/types/data';
 import { useEffect } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { AggregatedAssembly } from "@/types/data";
 
 interface PaginatedAssemblies {
     data: AggregatedAssembly[];
@@ -14,11 +14,7 @@ interface PaginatedAssemblies {
     links: { url: string | null; label: string; active: boolean }[];
 }
 
-export default function Bookmarks({
-    assemblies,
-}: {
-    assemblies: PaginatedAssemblies;
-}) {
+export default function Bookmarks({ assemblies }: { assemblies: PaginatedAssemblies }) {
     useEffect(() => {
         // Print the assemblies data to the console
         console.log('Assemblies:', assemblies);
@@ -35,7 +31,7 @@ export default function Bookmarks({
                                 assemblyName={each.name}
                                 assemblyID={each.id}
                                 ncbiID={each.taxon_id}
-                                info_text={each.infoText || "No info text"}
+                                info_text={each.infoText || 'No info text'}
                                 last_update={'NEver'}
                                 public={true}
                                 mappings={each.mappings_count as number}

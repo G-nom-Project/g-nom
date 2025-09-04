@@ -10,12 +10,7 @@ const TopBar = () => {
             <Container fluid>
                 <a href={'/'}>
                     <Navbar.Brand>
-                        <img
-                            src={gnom_logo}
-                            width={'60vw'}
-                            className="logo-gnom d-inline-block align-bottom"
-                            alt="G-nom Logo"
-                        />
+                        <img src={gnom_logo} width={'60vw'} className="logo-gnom d-inline-block align-bottom" alt="G-nom Logo" />
                         <div className="d-inline-block mx-2 align-top">
                             <div
                                 className="vr"
@@ -27,32 +22,22 @@ const TopBar = () => {
                                 }}
                             ></div>
                         </div>
-                        <img
-                            src={tbg_logo}
-                            width={'200vw'}
-                            className="logo d-inline-block pb-2 align-bottom"
-                            alt="AplBio Logo"
-                        />
+                        <img src={tbg_logo} width={'200vw'} className="logo d-inline-block pb-2 align-bottom" alt="AplBio Logo" />
                     </Navbar.Brand>
                 </a>
 
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse>
                     <Nav className="me-auto">
-                        <Nav.Link href={route('assemblies')}>
-                            Assemblies
-                        </Nav.Link>
+                        <Nav.Link href={route('assemblies')}>Assemblies</Nav.Link>
                         <Nav.Link href={route('dashboard')}>Dashboard</Nav.Link>
-                        <Nav.Link href={route('browser')}>
-                            Genome Browser
-                        </Nav.Link>
+                        <Nav.Link href={route('browser')}>Genome Browser</Nav.Link>
                         <Nav.Link href={route('tol')}>Tree of life</Nav.Link>
                     </Nav>
                     <Nav>
                         <Nav.Link>
                             <Button>
-                                <i className="bi bi-person-circle" />{' '}
-                                {(user && user.name) || 'Not logged in'}
+                                <i className="bi bi-person-circle" /> {(user && user.name) || 'Not logged in'}
                             </Button>
                         </Nav.Link>
                     </Nav>

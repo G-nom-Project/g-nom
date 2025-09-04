@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
-import { Button, Card, Col, ListGroup, Row, Form } from "react-bootstrap";
+import { Assembly } from '@/types/data';
+import { useEffect, useState } from 'react';
+import { Button, Card, Col, Form, ListGroup, Row } from 'react-bootstrap';
 import Plot from 'react-plotly.js';
-import {Assembly} from "@/types/data";
-
 
 // TODO: Formalize FCat data interface
-const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object}) => {
+const FcatViewer = ({ fcat }: { taxon: string; assembly: Assembly; fcat: object }) => {
     const [mode, setMode] = useState(1);
     const [data, setData] = useState({});
     const [layout, setLayout] = useState({});
-
 
     useEffect(() => {
         getFcatData();
@@ -18,7 +16,7 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
     }, [mode]);
 
     const getFcatData = () => {
-        const colors = ["#009E73", "#56B4E9", "#E69F00", "#0072B2", "#D55E00"];
+        const colors = ['#009E73', '#56B4E9', '#E69F00', '#0072B2', '#D55E00'];
 
         const activeMode = mode;
         const tracks = [];
@@ -35,29 +33,30 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
         const names: string[] = [];
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         fcat.length > 0 &&
-        fcat.forEach((analysis: { [x: string]: string; label: string; name: string; }, index: number) => {
-            const total = parseInt(
-                analysis["m" + activeMode + "_similar"] +
-                analysis["m" + activeMode + "_duplicated"] +
-                analysis["m" + activeMode + "_dissimilar"] +
-                analysis["m" + activeMode + "_missing"] +
-                analysis["m" + activeMode + "_ignored"]);
-            if (analysis.label) {
-                names.push(index + 1 + ". " + analysis.label);
-            } else {
-                names.push(index + 1 + ". " + analysis.name);
-            }
-            similar.push((parseInt(analysis["m" + activeMode + "_similar"]) * 100) / total);
-            similar_absolute.push(analysis["m" + activeMode + "_similar"] + "/" + total);
-            duplicated.push((parseInt(analysis["m" + activeMode + "_duplicated"]) * 100) / total);
-            duplicated_absolute.push(analysis["m" + activeMode + "_duplicated"] + "/" + total);
-            dissimilar.push((parseInt(analysis["m" + activeMode + "_dissimilar"]) * 100) / total);
-            dissimilar_absolute.push(analysis["m" + activeMode + "_dissimilar"] + "/" + total);
-            missing.push((parseInt(analysis["m" + activeMode + "_missing"]) * 100) / total);
-            missing_absolute.push(analysis["m" + activeMode + "_missing"] + "/" + total);
-            ignored.push((parseInt(analysis["m" + activeMode + "_ignored"]) * 100) / total);
-            ignored_absolute.push(analysis["m" + activeMode + "_ignored"] + "/" + total);
-        });
+            fcat.forEach((analysis: { [x: string]: string; label: string; name: string }, index: number) => {
+                const total = parseInt(
+                    analysis['m' + activeMode + '_similar'] +
+                        analysis['m' + activeMode + '_duplicated'] +
+                        analysis['m' + activeMode + '_dissimilar'] +
+                        analysis['m' + activeMode + '_missing'] +
+                        analysis['m' + activeMode + '_ignored'],
+                );
+                if (analysis.label) {
+                    names.push(index + 1 + '. ' + analysis.label);
+                } else {
+                    names.push(index + 1 + '. ' + analysis.name);
+                }
+                similar.push((parseInt(analysis['m' + activeMode + '_similar']) * 100) / total);
+                similar_absolute.push(analysis['m' + activeMode + '_similar'] + '/' + total);
+                duplicated.push((parseInt(analysis['m' + activeMode + '_duplicated']) * 100) / total);
+                duplicated_absolute.push(analysis['m' + activeMode + '_duplicated'] + '/' + total);
+                dissimilar.push((parseInt(analysis['m' + activeMode + '_dissimilar']) * 100) / total);
+                dissimilar_absolute.push(analysis['m' + activeMode + '_dissimilar'] + '/' + total);
+                missing.push((parseInt(analysis['m' + activeMode + '_missing']) * 100) / total);
+                missing_absolute.push(analysis['m' + activeMode + '_missing'] + '/' + total);
+                ignored.push((parseInt(analysis['m' + activeMode + '_ignored']) * 100) / total);
+                ignored_absolute.push(analysis['m' + activeMode + '_ignored'] + '/' + total);
+            });
 
         names.reverse();
         similar.reverse();
@@ -74,83 +73,83 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
         tracks.push({
             x: similar,
             y: names,
-            name: "similar",
+            name: 'similar',
             text: similar.map((val) => {
-                return "S: " + Number(val).toFixed(2);
+                return 'S: ' + Number(val).toFixed(2);
             }),
             customdata: similar_absolute,
-            hovertemplate: "%{label}: <br> %{customdata} </br> %{text}",
-            orientation: "h",
-            type: "bar",
+            hovertemplate: '%{label}: <br> %{customdata} </br> %{text}',
+            orientation: 'h',
+            type: 'bar',
             marker: {
                 color: colors[0],
-                line: { width: 1, color: "#515E63" },
+                line: { width: 1, color: '#515E63' },
             },
             width: 0.4,
         });
         tracks.push({
             x: duplicated,
             y: names,
-            name: "duplicated",
+            name: 'duplicated',
             text: duplicated.map((val) => {
-                return "Du: " + Number(val).toFixed(2);
+                return 'Du: ' + Number(val).toFixed(2);
             }),
             customdata: duplicated_absolute,
-            hovertemplate: "%{label}: <br> %{customdata} </br> %{text}",
-            orientation: "h",
-            type: "bar",
+            hovertemplate: '%{label}: <br> %{customdata} </br> %{text}',
+            orientation: 'h',
+            type: 'bar',
             marker: {
                 color: colors[1],
-                line: { width: 1, color: "#515E63" },
+                line: { width: 1, color: '#515E63' },
             },
             width: 0.4,
         });
         tracks.push({
             x: dissimilar,
             y: names,
-            name: "dissimilar",
+            name: 'dissimilar',
             text: dissimilar.map((val) => {
-                return "Di: " + Number(val).toFixed(2);
+                return 'Di: ' + Number(val).toFixed(2);
             }),
             customdata: dissimilar_absolute,
-            hovertemplate: "%{label}: <br> %{customdata} </br> %{text}",
-            orientation: "h",
-            type: "bar",
+            hovertemplate: '%{label}: <br> %{customdata} </br> %{text}',
+            orientation: 'h',
+            type: 'bar',
             marker: {
                 color: colors[2],
-                line: { width: 1, color: "#515E63" },
+                line: { width: 1, color: '#515E63' },
             },
             width: 0.4,
         });
         tracks.push({
             x: missing,
             y: names,
-            name: "missing",
+            name: 'missing',
             text: missing.map((val) => {
-                return "M: " + Number(val).toFixed(2);
+                return 'M: ' + Number(val).toFixed(2);
             }),
             customdata: missing_absolute,
-            hovertemplate: "%{label}: <br> %{customdata} </br> %{text}",
-            orientation: "h",
-            type: "bar",
+            hovertemplate: '%{label}: <br> %{customdata} </br> %{text}',
+            orientation: 'h',
+            type: 'bar',
             marker: {
                 color: colors[3],
-                line: { width: 1, color: "#515E63" },
+                line: { width: 1, color: '#515E63' },
             },
             width: 0.4,
         });
         tracks.push({
             x: ignored,
             y: names,
-            name: "ignored",
+            name: 'ignored',
             text: ignored.map((val) => {
-                return "I: " + Number(val).toFixed(2);
+                return 'I: ' + Number(val).toFixed(2);
             }),
-            orientation: "h",
-            type: "bar",
+            orientation: 'h',
+            type: 'bar',
             marker: {
                 color: colors[4],
-                line: { width: 1, color: "#515E63" },
+                line: { width: 1, color: '#515E63' },
             },
             width: 0.4,
         });
@@ -160,8 +159,8 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
 
     const getFcatLayout = () => {
         setLayout({
-            title: "fCat completeness",
-            barmode: "stack",
+            title: 'fCat completeness',
+            barmode: 'stack',
             margin: { pad: 6 },
             transition: {
                 duration: 300,
@@ -171,30 +170,30 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
             yaxis: {
                 tickangle: 25,
                 automargin: true,
-                title: { text: "Analysis", standoff: 10 },
+                title: { text: 'Analysis', standoff: 10 },
                 tickfont: {
-                    family: "Courier New, Courier, monospace",
+                    family: 'Courier New, Courier, monospace',
                     size: 14,
-                    color: "black",
+                    color: 'black',
                 },
             },
             xaxis: {
                 automargin: true,
-                title: { text: "% of sequences", standoff: 10 },
+                title: { text: '% of sequences', standoff: 10 },
                 range: [0, 100],
                 tick0: 0,
                 dtick: 10,
                 tickfont: {
-                    family: "Courier New, Courier, monospace",
+                    family: 'Courier New, Courier, monospace',
                     size: 14,
-                    color: "black",
+                    color: 'black',
                 },
                 ticklen: 12,
             },
             legend: {
-                orientation: "h",
-                traceorder: "normal",
-                xanchor: "left",
+                orientation: 'h',
+                traceorder: 'normal',
+                xanchor: 'left',
                 y: -0.3,
             },
         });
@@ -203,17 +202,15 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
     return (
         <Row>
             <Col xs={8}>
-                <Plot
-                    layout={layout}
-                    data={data as Plotly.Data[]}
-                    useResizeHandler={true}
-                    style={{width: "100%"}}/>
+                <Plot layout={layout} data={data as Plotly.Data[]} useResizeHandler={true} style={{ width: '100%' }} />
             </Col>
             <Col>
                 <Card className="shadow">
                     <Card.Body>
                         <Card.Title>fCat analysis</Card.Title>
-                        <Card.Subtitle><div className="text-muted">{fcat[0].name}</div></Card.Subtitle>
+                        <Card.Subtitle>
+                            <div className="text-muted">{fcat[0].name}</div>
+                        </Card.Subtitle>
                     </Card.Body>
                     <ListGroup className="list-group-flush">
                         <ListGroup.Item>
@@ -232,12 +229,15 @@ const FcatViewer = ({ fcat }: {taxon: string, assembly: Assembly, fcat: object})
                             <b>Added:</b> {fcat[0].addedOn}
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <b>Downloads:</b><br/><Button className="mt-1"><i className="bi bi-download"/>  fCat results</Button>
+                            <b>Downloads:</b>
+                            <br />
+                            <Button className="mt-1">
+                                <i className="bi bi-download" /> fCat results
+                            </Button>
                         </ListGroup.Item>
                     </ListGroup>
                 </Card>
             </Col>
-
         </Row>
     );
 };

@@ -1,7 +1,7 @@
 {
     "options": [
-        {"label": "Spectrum", "value": "spectrum"},
-        {"label": "Colorblind", "value": "colorblind"}
+        { "label": "Spectrum", "value": "spectrum" },
+        { "label": "Colorblind", "value": "colorblind" }
     ],
     "palettes": {
         "spectrum": ["#fc0303", "#fc4503", "#fc8c03", "#fcdb03", "#8cfc03", "#03fc0b", "#03fcd3", "#03fcd3", "#2003fc", "#2003fc"],

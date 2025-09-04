@@ -1,33 +1,23 @@
 import NotificationListener from '@/Components/NotificationsListener';
 import TaxonCard from '@/Components/TaxonCard';
 import TopNavBar from '@/Components/TopNavBar';
+import { Assembly, TaxonData } from '@/types/data';
 import axios from 'axios';
 import React, { useState } from 'react';
-import {
-    Accordion,
-    Alert,
-    Button,
-    Card,
-    Col,
-    Container,
-    Form,
-    InputGroup,
-    Row,
-} from 'react-bootstrap';
-import {Assembly, TaxonData} from "@/types/data";
+import { Accordion, Alert, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 
 const default_taxon = {
     assemblies: [],
     commonName: 'No Taxon selected',
     scientificName: 'No Taxon selected',
     ncbiTaxonID: '0000',
-    taxonRank: "no rank",
-    created_at: "string",
+    taxonRank: 'no rank',
+    created_at: 'string',
     id: 0,
     imageCredit: null,
     imagePath: null,
     parentNcbiTaxonID: '0000',
-    updated_at: "Never"
+    updated_at: 'Never',
 };
 
 export default function Import() {
@@ -108,13 +98,12 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True
+            return True;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False
+            return False;
         }
     };
-
 
     const handleMappingUpload = async () => {
         if (!mappingFile) return;
@@ -132,10 +121,10 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True
+            return True;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False
+            return False;
         }
     };
 
@@ -155,28 +144,28 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True
+            return True;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False
+            return False;
         }
     };
 
     const handleUpload = async () => {
         if (assemblyName) {
-            await handleAssemblyUpload()
+            await handleAssemblyUpload();
         } else {
             if (annotationName) {
                 const success = await handleAnnotationUpload();
-                return success
+                return success;
             }
             if (mappingName) {
                 const success = await handleMappingUpload();
-                return success
+                return success;
             }
             if (buscoName) {
                 const success = await handleBuscoUpload();
-                return success
+                return success;
             }
         }
     };
@@ -194,42 +183,25 @@ export default function Import() {
                                 <Row>
                                     <Col>
                                         <Form>
-                                            <Form.Label>
-                                                Enter NCBI Taxonomy ID
-                                            </Form.Label>
+                                            <Form.Label>Enter NCBI Taxonomy ID</Form.Label>
 
                                             <InputGroup className="mb-3">
                                                 <Form.Control
                                                     aria-label="NCBI taxonomy ID"
-                                                    onChange={(
-                                                        e: React.ChangeEvent<HTMLInputElement>,
-                                                    ) => {
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                         setTaxonID(e.target.value as number);
                                                     }}
                                                 />
                                             </InputGroup>
-                                            <Button onClick={() => updateTaxon()}>
-                                                Select Taxon ID
-                                            </Button>
-                                            <Alert
-                                                className="mt-3"
-                                                variant="danger"
-                                                show={
-                                                    invalidID &&
-                                                    selectedTaxonID != -1
-                                                }
-                                            >
-                                                <b>Invalid ID:</b> no Taxon found
-                                                for NCBI ID
+                                            <Button onClick={() => updateTaxon()}>Select Taxon ID</Button>
+                                            <Alert className="mt-3" variant="danger" show={invalidID && selectedTaxonID != -1}>
+                                                <b>Invalid ID:</b> no Taxon found for NCBI ID
                                             </Alert>
                                         </Form>
                                     </Col>
                                     <Col>
                                         <Form.Label>Selected Taxon</Form.Label>
-                                        <TaxonCard
-                                           taxon={taxon as TaxonData}
-                                           withAssemblySelection={false}
-                                        />
+                                        <TaxonCard taxon={taxon as TaxonData} withAssemblySelection={false} />
                                     </Col>
                                 </Row>
                             </Card.Body>
@@ -241,66 +213,53 @@ export default function Import() {
                         <Col>
                             <Card className="mt-2">
                                 <Card.Body>
-                                    <Card.Title>
-                                        Import or select a new assembly
-                                    </Card.Title>
+                                    <Card.Title>Import or select a new assembly</Card.Title>
 
                                     <Form.Group>
                                         <Form.Check // prettier-ignore
                                             type="checkbox"
                                             id="assembly-import"
                                             label="Import a new assembly"
-                                            onClick={() =>
-                                                setImportAssembly(
-                                                    !import_assembly,
-                                                )
-                                            }
+                                            onClick={() => setImportAssembly(!import_assembly)}
                                         />
-                                        <Form.Label>
-                                            Select Assembly file (.fa.gz)
-                                        </Form.Label>
+                                        <Form.Label>Select Assembly file (.fa.gz)</Form.Label>
                                         <Form.Control
                                             type="file"
                                             disabled={!import_assembly}
-                                            onChange={(e) =>
-                                                setAssemblyFile(
-                                                    e.target.files?.[0] ?? null,
-                                                )
-                                            }
+                                            onChange={(e) => setAssemblyFile(e.target.files?.[0] ?? null)}
                                         />
                                         <br />
-                                        <Form.Label>
-                                            Name your assembly
-                                        </Form.Label>
+                                        <Form.Label>Name your assembly</Form.Label>
                                         <Form.Control
                                             placeholder="Enter a custom name for this assembly"
-                                            onChange={(e) => {setAssemblyName(e.target.value)}}/>
+                                            onChange={(e) => {
+                                                setAssemblyName(e.target.value);
+                                            }}
+                                        />
                                         <br />
                                         <Form.Check // prettier-ignore
                                             type="checkbox"
                                             id="assembly-import"
                                             label="This is a reference assembly"
-                                            onClick={() =>
-                                                setRefAssembly(!ref_assembly)
-                                            }
+                                            onClick={() => setRefAssembly(!ref_assembly)}
                                         />
-                                        <Form.Control
-                                            disabled={!ref_assembly}
-                                            placeholder="Enter reference assembly ID"
-                                        />
+                                        <Form.Control disabled={!ref_assembly} placeholder="Enter reference assembly ID" />
                                     </Form.Group>
                                     <hr />
                                     <Form.Group>
-                                        <Form.Label>
-                                            Select an existing assembly for this
-                                            taxon
-                                        </Form.Label>
+                                        <Form.Label>Select an existing assembly for this taxon</Form.Label>
                                         <Form.Select
-                                        onChange={(e) => {setAssemblyID(e.target.value)}}
+                                            onChange={(e) => {
+                                                setAssemblyID(e.target.value);
+                                            }}
                                         >
                                             <option default>Select an assembly</option>
                                             {assemblies?.map((assembly) => {
-                                                return <option value={assembly.id}>{assembly.name} {assembly.label && "|" + assembly.label} | {assembly.id}</option>
+                                                return (
+                                                    <option value={assembly.id}>
+                                                        {assembly.name} {assembly.label && '|' + assembly.label} | {assembly.id}
+                                                    </option>
+                                                );
                                             })}
                                         </Form.Select>
                                     </Form.Group>
@@ -311,106 +270,79 @@ export default function Import() {
                                 <Card.Body>
                                     <Card.Title>Import Analyses</Card.Title>
                                     <Card.Text>
-                                        Select analysis to import below.
-                                        Analysis imports are only available for
-                                        existing assemblies.
+                                        Select analysis to import below. Analysis imports are only available for existing assemblies.
                                     </Card.Text>
                                     <Accordion>
                                         <Accordion.Item eventKey="annotation">
-                                            <Accordion.Header>
-                                                Annotation
-                                            </Accordion.Header>
+                                            <Accordion.Header>Annotation</Accordion.Header>
                                             <Accordion.Body>
-                                                <Form.Label>
-                                                    Select GFF file
-                                                </Form.Label>
+                                                <Form.Label>Select GFF file</Form.Label>
                                                 <Form.Control
                                                     type="file"
                                                     accept=".gff"
-                                                    onChange={(e) =>
-                                                        setAnnotationFile(
-                                                            e.target.files?.[0] ?? null,
-                                                        )
-                                                    }
+                                                    onChange={(e) => setAnnotationFile(e.target.files?.[0] ?? null)}
                                                 />
                                                 <br />
-                                                <Form.Label>
-                                                    Name annotation
-                                                </Form.Label>
+                                                <Form.Label>Name annotation</Form.Label>
                                                 <Form.Control
                                                     placeholder="Enter a custom name for this annotation"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setAnnotationName(e.target.value)}}/>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setAnnotationName(e.target.value);
+                                                    }}
+                                                />
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="mapping">
-                                            <Accordion.Header>
-                                                Mapping
-                                            </Accordion.Header>
+                                            <Accordion.Header>Mapping</Accordion.Header>
                                             <Accordion.Body>
-                                                <Form.Label>
-                                                    Select SAM / BAM file
-                                                </Form.Label>
+                                                <Form.Label>Select SAM / BAM file</Form.Label>
                                                 <Form.Control
                                                     type="file"
                                                     accept=".sam,.bam"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                                        setMappingFile(
-                                                            e.target.files?.[0] ?? null,
-                                                        )
-                                                    }
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMappingFile(e.target.files?.[0] ?? null)}
                                                 />
                                                 <br />
-                                                <Form.Label>
-                                                    Name mapping
-                                                </Form.Label>
+                                                <Form.Label>Name mapping</Form.Label>
                                                 <Form.Control
                                                     placeholder="Enter a custom name for this annotation"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setMappingName(e.target.value)}}/>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setMappingName(e.target.value);
+                                                    }}
+                                                />
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="busco">
-                                            <Accordion.Header>
-                                                BUSCO
-                                            </Accordion.Header>
+                                            <Accordion.Header>BUSCO</Accordion.Header>
                                             <Accordion.Body>
-                                                <Form.Label>
-                                                    Select BUSCO summary file
-                                                </Form.Label>
+                                                <Form.Label>Select BUSCO summary file</Form.Label>
                                                 <Form.Control
                                                     type="file"
                                                     accept=".txt"
                                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                                        setBuscoSummary(
-                                                            e.target.files?.[0] ?? null,
-                                                        )
+                                                        setBuscoSummary(e.target.files?.[0] ?? null)
                                                     }
                                                 />
                                                 <br />
-                                                <Form.Label>
-                                                    Name BUSCO Analysis
-                                                </Form.Label>
+                                                <Form.Label>Name BUSCO Analysis</Form.Label>
                                                 <Form.Control
                                                     placeholder="Enter a custom name for this annotation"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setBuscoName(e.target.value)}}/>
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setBuscoName(e.target.value);
+                                                    }}
+                                                />
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="fcat">
-                                            <Accordion.Header>
-                                                fCat
-                                            </Accordion.Header>
+                                            <Accordion.Header>fCat</Accordion.Header>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="repeatmasker">
-                                            <Accordion.Header>
-                                                Repeatmasker
-                                            </Accordion.Header>
+                                            <Accordion.Header>Repeatmasker</Accordion.Header>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="taxaminer">
-                                            <Accordion.Header>
-                                                taXaminer
-                                            </Accordion.Header>
+                                            <Accordion.Header>taXaminer</Accordion.Header>
                                         </Accordion.Item>
                                     </Accordion>
                                 </Card.Body>
@@ -418,13 +350,8 @@ export default function Import() {
                             <Card className="mt-2">
                                 <Card.Body>
                                     <Card.Title>Start Import job</Card.Title>
-                                    <Card.Text>
-                                        You will be notified once the import is
-                                        finished.
-                                    </Card.Text>
-                                    <Button onClick={handleUpload}>
-                                        Start Import
-                                    </Button>
+                                    <Card.Text>You will be notified once the import is finished.</Card.Text>
+                                    <Button onClick={handleUpload}>Start Import</Button>
                                 </Card.Body>
                             </Card>
                         </Col>
