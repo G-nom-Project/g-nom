@@ -13,4 +13,8 @@ class TaxonGeoData extends Model
     {
         return $this->belongsTo(Taxon::class, 'taxonID', 'ncbiTaxonID');
     }
+
+    protected $casts = [
+        'data' => 'array',
+    ];
 }

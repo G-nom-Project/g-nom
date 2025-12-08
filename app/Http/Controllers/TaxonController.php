@@ -78,15 +78,10 @@ class TaxonController extends Controller
             'description' => 'nullable|string|max:1000',
             'source_link' => 'required|string|max:512',
             'data_link' => 'nullable|string|max:512',
-            'data' => 'nullable|json',
+            'data' => 'nullable|array',
         ]);
 
-        $now = now();
-
-        $taxon = Taxon::where('ncbiTaxonID', $taxonID)->firstOrFail();
-        $this->authorize('update', $taxon);
-
-        $geoData = new TaxonGeoData;
+        $geoData = new TaxonGeoData();
         $geoData->name = $validated['name'];
         $geoData->type = $validated['type'];
         $geoData->description = $validated['description'] ?? null;
@@ -94,9 +89,8 @@ class TaxonController extends Controller
         $geoData->data_link = $validated['data_link'] ?? null;
         $geoData->data = $validated['data'] ?? null;
         $geoData->taxonID = $taxonID;
-        $geoData->created_at = $now;
-        $geoData->updated_at = $now;
         $geoData->save();
+
 
         return response()->json(['message' => 'GeoData uploaded successfully']);
     }

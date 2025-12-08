@@ -61,4 +61,11 @@ class User extends Authenticatable
     {
         return in_array($this->role, ['contributor']);
     }
+
+    public function hasAbility(string $ability): bool
+    {
+        $token = $this->currentAccessToken();
+
+        return $token ? $this->tokenCan($ability) : false;
+    }
 }

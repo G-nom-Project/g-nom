@@ -7,59 +7,46 @@ use App\Models\User;
 
 class AssemblyPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    use HandlesTokenAbilities;
+
     public function viewAny(User $user): bool
     {
-        return true;
+      return false;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Assembly $assembly): bool
     {
+        if ($this->tokenAllows($user, 'read:assemblies')) {
+            return $assembly->public || $user->id === $assembly->owner || $user->is_admin;
+        }
+
         return $assembly->public || $user->id === $assembly->owner || $user->is_admin;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
+        if ($this->tokenAllows($user, 'write:assemblies')) {
+            return $user->is_admin || $user->is_contributor;
+        }
+
         return $user->is_admin || $user->is_contributor;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Assembly $assembly): bool
     {
+        if ($this->tokenAllows($user, 'write:assemblies')) {
+            return $user->id === $assembly->owner || $user->is_admin;
+        }
+
         return $user->id === $assembly->owner || $user->is_admin;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Assembly $assembly): bool
     {
+        if ($this->tokenAllows($user, 'delete:assemblies')) {
+            return $user->id === $assembly->owner || $user->is_admin;
+        }
+
         return $user->id === $assembly->owner || $user->is_admin;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Assembly $assembly): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Assembly $assembly): bool
-    {
-        return false;
     }
 }

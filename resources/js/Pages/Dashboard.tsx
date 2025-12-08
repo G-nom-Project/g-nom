@@ -1,18 +1,55 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { Card, Col, Row } from 'react-bootstrap';
+
+const breadcrumbs = [{ title: 'Dashboard', href: '/dashboard' }];
 
 export default function Dashboard() {
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">Dashboard</h2>}>
+            <>
             <Head title="Dashboard" />
+            <div className="container py-4">
+                <Row className="g-4">
+                    <Col md={4}>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>Card 1</Card.Title>
+                                <Card.Text>Placeholder content for your dashboard widget.</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col md={4}>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>Card 2</Card.Title>
+                                <Card.Text>Another dashboard placeholder card.</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <div className="p-6 text-gray-900 dark:text-gray-100">You're logged in!</div>
-                    </div>
-                </div>
+                    {/* NEW CARD */}
+                    <Col md={4}>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>API Tokens</Card.Title>
+                                <Card.Text>Generate and manage API tokens for external apps.</Card.Text>
+                                <a className="btn btn-primary" href="/api-tokens">Manage Tokens</a>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+
+
+                <Row className="mt-4">
+                    <Col>
+                        <Card>
+                            <Card.Body style={{ minHeight: '300px' }}>
+                                <Card.Title>Main Content Area</Card.Title>
+                                <Card.Text>Use this space for a larger table, chart, or overview.</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }

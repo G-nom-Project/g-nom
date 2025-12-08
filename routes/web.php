@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ApiTokenController;
 
 Route::get('/', [AssemblyController::class, 'stats']);
 
@@ -85,5 +86,13 @@ Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
     ->where('path', '.*')->middleware(['auth']);
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
+    Route::post('/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
+    Route::delete('/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+});
+
 
 require __DIR__.'/auth.php';
