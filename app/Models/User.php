@@ -56,4 +56,9 @@ class User extends Authenticatable
     {
         return in_array($this->role, ['admin']);
     }
+
+    public function getIsContributorAttribute(): bool
+    {
+        return in_array($this->role, ['contributor']);
+    }
 }

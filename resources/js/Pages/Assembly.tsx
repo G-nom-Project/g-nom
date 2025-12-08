@@ -104,11 +104,11 @@ export default function Assemblies({ assembly }) {
             <TopNavBar />
             <Navbar bg="secondary" expand="lg">
                 <Container fluid>
-                    <Nav className="m-1">
+                    <Nav>
                         <Nav.Item>
-                            <h4 className="text-white">
+                            <h1 className="text-white band-header">
                                 <b className="capitalize">{assembly.taxon.scientificName}</b>{' '}
-                            </h4>
+                            </h1>
                         </Nav.Item>
                         <Nav.Item>
                             {assembly.taxon.phylopic && (
@@ -116,17 +116,17 @@ export default function Assemblies({ assembly }) {
                                     src={`/taxon/${assembly.taxon_id}/icon?updated=${assembly.taxon.updated_at}`}
                                     alt="Taxon Icon"
                                     style={{
-                                        height: '30px',
+                                        height: '2rem',
                                         filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
                                     }}
                                 />
                             )}
                         </Nav.Item>
                         <Nav.Item>
-                            <h4 className="text-white">
-                                {' > '}
+                            <h1 className="text-white band-header">
+                                <i className="bi bi-caret-right-fill" style={{marginLeft: '1rem', marginRight: '1rem'}}></i>
                                 {assembly?.label ? assembly.label : assembly.name}
-                            </h4>
+                            </h1>
                         </Nav.Item>
                     </Nav>
                     <Nav className="m-1">
@@ -194,13 +194,13 @@ export default function Assemblies({ assembly }) {
                             <Card.Body>
                                 <Card.Title className="capitalize">{assembly.taxon.commonName || assembly.taxon.scientificName}</Card.Title>
                                 <Card.Text>
-                                    {taxonHeadline || (
+                                    {<p>{taxonHeadline}</p> || (
                                         <Placeholder as="p" animation="glow">
                                             <Placeholder xs={12} />
                                             <Placeholder xs={5} />
                                         </Placeholder>
                                     )}
-                                    <hr />
+                                    <hr style={{marginTop: "0.75rem", marginBottom: "0.75rem"}} />
                                     {(taxonInfo && (
                                         <Form>
                                             <Form.Group className="mb-3">
@@ -265,7 +265,7 @@ export default function Assemblies({ assembly }) {
                     </Col>
                 </Row>
                 <Row>
-                    <Accordion className="mt-2" defaultActiveKey={['0']} alwaysOpen>
+                    <Accordion className="mt-2 mb-2" defaultActiveKey={['0']} alwaysOpen>
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>
                                 <h4>Assembly Information</h4>
@@ -387,8 +387,8 @@ export default function Assemblies({ assembly }) {
                                         </Card>
                                     </Col>
                                 </Row>
-                                <hr />
-                                <Row className="mb-4 mt-4">
+                                <hr/>
+                                <Row className="mb-2">
                                     <Col xs={6}>
                                         <Card className="shadow" style={{ height: '50vh' }}>
                                             <Card.Header>TaxSun Placeholder</Card.Header>
@@ -409,10 +409,11 @@ export default function Assemblies({ assembly }) {
                             </Accordion.Header>
                             <Accordion.Body onEntered={() => setRenderCompleteness(true)}>
                                 {/* Only render the BUSCO Plot after the Accordion item has expanded => forces plotly to size plot correctly */}
-                                {renderCompleteness && assembly.busco_analyses.length > 0 && <BuscoViewer busco={assembly.busco_analyses} />}
+                                {renderCompleteness && assembly.busco_analyses.length > 0 && <BuscoViewer busco={assembly.busco_analyses} /> || <b>No BUSCO analysis available!</b>}
+                                <hr/>
                                 {renderCompleteness && assembly.fcat_analyses.length > 0 && (
                                     <FcatViewer assembly={assembly} taxon={''} fcat={assembly.fcat_analyses} />
-                                )}
+                                ) || <b>No fCat analysis available!</b>}
                             </Accordion.Body>
                         </Accordion.Item>
                         {assembly.repeatmasker_analyses.length > 0 && (

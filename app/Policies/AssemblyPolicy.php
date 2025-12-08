@@ -20,7 +20,7 @@ class AssemblyPolicy
      */
     public function view(User $user, Assembly $assembly): bool
     {
-        return $assembly->public || $user->id === $assembly->owner;
+        return $assembly->public || $user->id === $assembly->owner || $user->is_admin;
     }
 
     /**
@@ -28,7 +28,7 @@ class AssemblyPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_contributor;
     }
 
     /**
@@ -44,7 +44,7 @@ class AssemblyPolicy
      */
     public function delete(User $user, Assembly $assembly): bool
     {
-        return false;
+        return $user->id === $assembly->owner || $user->is_admin;
     }
 
     /**

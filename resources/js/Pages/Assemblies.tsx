@@ -38,7 +38,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                 <Container fluid>
                     <Nav className="m-1">
                         <Nav.Item>
-                            <h4 className="text-white">Search assemblies</h4>
+                            <h1 className="text-white band-header">Search assemblies</h1>
                         </Nav.Item>
                     </Nav>
                     <Nav className="m-1" style={{ width: '50%' }}>

@@ -168,3 +168,12 @@ div {
     border-color: #96d4d4;
     padding: 2px 2px 2px;
 }
+
+hr {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
+.band-header {
+    font-size: 2rem
+}
