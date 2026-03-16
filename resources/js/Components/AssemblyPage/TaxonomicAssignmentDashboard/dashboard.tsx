@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Scatter3D from './scatterplot3d/scatter3d';
 import { DataSetMeta } from './sidebar/DataSet/dataset_metadata';
 import { DataSetSelector } from './sidebar/DataSet/dataset_selector';
-import Table from './sidebar/DiamondTable/diamondtable';
+import Table from './sidebar/DiamondTable';
 import { FilterUI } from './sidebar/Filters/filterui';
 import PCAPlot from './sidebar/PCAPlot/PCAPlot';
 import ScatterMatrix from './sidebar/ScatterMatrix/ScatterMatrix';

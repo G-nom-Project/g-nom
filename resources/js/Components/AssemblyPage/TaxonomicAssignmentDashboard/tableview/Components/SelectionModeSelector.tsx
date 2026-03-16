@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Button, ButtonGroup } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
-import { fetchTaxaminerDownload } from '../../api';
+import { Row, Col } from 'react-bootstrap';
 
 interface Props {
-    passMode: Function;
-    resetSelection: Function;
-    selection: Set<string>;
-    analysisID: number;
-    assemblyID: number;
-    userID: number;
-    token: string;
-    main_data: any;
-    passCsvExport: Function;
+    passMode: (mode: string) => void
+    resetSelection: () => void
+    selection: Set<string>
+    dataset_id: number
+    base_url: string
+    main_data: any
+    passCsvExport: () => void
 }
 
 /**
@@ -25,21 +23,26 @@ function SelectionModeSelector(props: Props) {
 
     // lift mode up
     useEffect(() => {
-        props.passMode(mode);
-    }, [mode]);
+        props.passMode(mode)
+    }, [mode])
 
     /**
      * Download the selected data in a specified files format
      * @param type file format
      */
     function download_file(type: string) {
-        // Create file blob
-        fetchTaxaminerDownload(props.assemblyID, props.analysisID, 'fasta', Array.from(props.selection)).then((data: any) => {
-            const a = document.createElement('a');
-            a.href = window.URL.createObjectURL(data);
-            a.download = 'selection.' + type;
-            a.click();
-        });
+        const my_body = {
+            'genes': Array.from(props.selection).map((each: any) => {return props.main_data[each]})
+        }
+
+        getFastaDownload(props.base_url, props.dataset_id, my_body)
+            // create a temporary link & click to download blob as file
+            .then((data) => {
+                const a = document.createElement("a");
+                a.href = window.URL.createObjectURL(data);
+                a.download = "selection." + type;
+                a.click();
+            });
     }
 
     /**
@@ -47,50 +50,38 @@ function SelectionModeSelector(props: Props) {
      */
     function download_json() {
         const all_json = Array.from(props.selection).map((each: string) => {
-            return props.main_data[each];
-        });
-        const a = document.createElement('a');
+            return props.main_data[each]
+        })
+        const a = document.createElement("a");
         // pretty print
         a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(all_json, null, 2)));
         // set as download
-        a.setAttribute('download', 'selection.json');
+        a.setAttribute('download', "selection.json");
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
 
         // clean up
         document.body.removeChild(a);
+
     }
 
     return (
         <div>
-            <Row className="mt-2">
+            <Row className='mt-2'>
                 <Col>
                     <Card>
                         <Card.Body>
                             <Card.Title>Edit Mode</Card.Title>
                             <Row className="m-2">
-                                <ButtonGroup style={{ width: '100%' }}>
-                                    <Button variant="success" onClick={() => SetMode('add')} disabled={mode === 'add'} className="btn-block">
-                                        +
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => SetMode('neutral')}
-                                        disabled={mode === 'neutral'}
-                                        className="btn-block"
-                                    >
-                                        o
-                                    </Button>
-                                    <Button variant="danger" onClick={() => SetMode('remove')} disabled={mode === 'remove'} className="btn-block">
-                                        -
-                                    </Button>
+                                <ButtonGroup style={{width: "100%"}}>
+                                    <Button variant="success" onClick={() => SetMode('add')} disabled={mode === 'add'} className='btn-block'>+</Button>
+                                    <Button variant="secondary" onClick={() => SetMode('neutral')} disabled={mode === 'neutral' } className='btn-block'>o</Button>
+                                    <Button variant="danger" onClick={() => SetMode('remove')} disabled={mode === 'remove'} className='btn-block'>-</Button>
                                 </ButtonGroup>
                             </Row>
-                            <Row className="m-2">
-                                <Button className="md-2" variant="danger" onClick={() => props.resetSelection()}>
-                                    Reset
-                                </Button>
+                            <Row className='m-2'>
+                                <Button className='md-2' variant="danger" onClick={() => props.resetSelection()}>Reset</Button>
                             </Row>
                         </Card.Body>
                     </Card>
@@ -99,16 +90,10 @@ function SelectionModeSelector(props: Props) {
                     <Card>
                         <Card.Body>
                             <Card.Title>Export data</Card.Title>
-                            <ButtonGroup className="md-2" style={{ width: '100%' }}>
-                                <Button variant="primary" className="btn-block" onClick={() => download_file('fasta')}>
-                                    FASTA
-                                </Button>
-                                <Button variant="primary" className="btn-block" onClick={() => props.passCsvExport()}>
-                                    CSV
-                                </Button>
-                                <Button variant="primary" className="btn-block" onClick={() => download_json()}>
-                                    JSON
-                                </Button>
+                            <ButtonGroup className='md-2' style={{width: "100%"}}>
+                                <Button variant="primary" className='btn-block' onClick={() => download_file("fasta")}>FASTA</Button>
+                                <Button variant="primary" className='btn-block' onClick={() => props.passCsvExport()}>CSV</Button>
+                                <Button variant="primary" className='btn-block' onClick={() => download_json()}>JSON</Button>
                             </ButtonGroup>
                         </Card.Body>
                     </Card>
@@ -118,4 +103,4 @@ function SelectionModeSelector(props: Props) {
     );
 }
 
-export default SelectionModeSelector;
+export default SelectionModeSelector

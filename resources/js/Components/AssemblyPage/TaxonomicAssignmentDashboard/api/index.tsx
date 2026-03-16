@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {DiamondRow} from "@/Components/AssemblyPage/TaxonomicAssignmentDashboard/api/interfaces";
 
 const userID = 2;
 const GNOM_HEADLESS = '/plugin/taxaminer';
@@ -18,6 +19,23 @@ export function fetchTaxaminerMain(assembly_id: number, taxaminer_id: number): P
         .then((response) => response.data)
         .then((data) => data);
 }
+
+/**
+ * Fetch the diamond hits of a given ID of a given dataset
+ * @param base_url API base url
+ * @param dataset_id dataset id
+ * @param fasta_header fasta id (string)
+ * @returns list of rows as JSON objects
+ */
+export function fetchDiamond(base_url: string, dataset_id: number, fasta_header: string): Promise<DiamondRow[]> {
+    return fetch(`${GNOM_HEADLESS}/taxaminer/diamond?id=${dataset_id}&fasta_id=${fasta_header}`)
+        .then(response => response.json())
+        .then(data => data)
+        .catch((error) => {
+            console.error(error);
+        });
+}
+
 
 // ==== Taxaminer Metadata ==== //
 export function fetchTaxaminerMetadata(assembly_id: number, taxaminer_id: number) {
@@ -105,4 +123,22 @@ export function fetchTaxaminerDownload(assembly_id: number, taxaminer_id: number
             console.error(error);
             return [];
         });
+}
+
+/**
+ * Fetch a .fasta file blob
+ * @param base_url API base URL
+ * @param dataset_id dataset id
+ * @param body request body
+ * @returns Promise
+ */
+export function getFastaDownload(base_url: string, dataset_id: number, body: any) {
+    return fetch(`http://${base_url}:5500/download/fasta?id=${dataset_id}`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((res) => { return res.blob(); })
 }

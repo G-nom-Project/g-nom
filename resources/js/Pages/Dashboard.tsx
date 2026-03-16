@@ -1,8 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { Card, Col, Row } from 'react-bootstrap';
 
-const breadcrumbs = [{ title: 'Dashboard', href: '/dashboard' }];
-
 export default function Dashboard() {
     return (
             <>

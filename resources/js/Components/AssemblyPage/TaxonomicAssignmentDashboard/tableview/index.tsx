@@ -1,67 +1,56 @@
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/esm/Container';
 import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col'
+import Container from 'react-bootstrap/esm/Container';
 
 // Stylesheet
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ColumnSelector from './Components/ColumnSelector';
 import SelectionModeSelector from './Components/SelectionModeSelector';
-import SelectionTable from './Components/SelectionTable';
+import ColumnSelector from './Components/ColumnSelector'
 
-import fields_glossary from './Components/field_options.json';
+import fields_glossary from"@/Components/AssemblyPage/TaxonomicAssignmentDashboard/static/tableRows.json";
+import SimpleTable from './Components/SimpleTable';
 
 interface Props {
-    data: [];
-    keys: Set<string>;
-    setSelectMode: any;
-    passClick: any;
-    dataset_id: number;
-    userID: number;
-    token: string;
-    assemblyID: number;
-    row: any;
-    customFields: any[];
-    resetSelection: Function;
+    data: []
+    keys: Set<string>
+    setSelectMode: any
+    passClick: (genes: string[]) => void
+    dataset_id: number
+    base_url: string
+    row: Record<never, never>
+    customFields: any[]
+    resetSelection: () => void
 }
 
 interface State {
-    aa_seq: string;
-    camera: any;
-    select_mode: string;
-    selected_data: Set<string>;
-    data: any;
-    col_keys: any[];
-    options: any[];
-    child_cols: any[];
-    child_data: any;
+    aa_seq: string
+    camera: any
+    select_mode: string
+    selected_data: Set<string>
+    data: any
+    col_keys: any[]
+    options: any[]
+    child_cols: any[]
+    child_data: any
 }
+
 
 class TableView extends React.Component<Props, State> {
     // Set up states for loading data
-    constructor(props: any) {
+    constructor(props: Props){
         super(props);
-        this.state = {
-            // selected_row: {g_name: "Pick a gene", taxonomic_assignment: "Pick a gene", plot_label: "Pick a gene", best_hit: "Pick a gene", c_name: "Pick a gene", bh_evalue: 0, best_hitID: "None"},
-            aa_seq: 'Pick a gene',
+        this.state ={
+            aa_seq: "Pick a gene",
             camera: null,
             select_mode: 'neutral',
             selected_data: new Set(),
             data: undefined,
-            col_keys: [
-                { label: 'ID', value: 'g_name' },
-                { label: 'Plot label', value: 'plot_label' },
-                { label: 'e-value', value: 'bh_evalue' },
-            ],
-            options: [
-                { label: 'ID', value: 'g_name' },
-                { label: 'Plot label', value: 'plot_label' },
-                { label: 'e-value', value: 'bh_evalue' },
-            ],
+            col_keys: [{ label: "ID", value: "g_name"}, { label: "Contig ID", value: "c_name"}, { label: "Plot label", value: "plot_label" }, { label: "e-value", value: "bh_evalue" }],
+            options: [{ label: "ID", value: "g_name"}, { label: "Contig ID", value: "c_name"}, { label: "Plot label", value: "plot_label" }, { label: "e-value", value: "bh_evalue" }],
             child_cols: [],
-            child_data: [],
-        };
-        // bin to local context
+            child_data: []
+        }
         this.csvExport = this.csvExport.bind(this);
         this.trackTable = this.trackTable.bind(this);
     }
@@ -69,12 +58,10 @@ class TableView extends React.Component<Props, State> {
     /**
      * Component did update
      * @param prevProps previous Props
-     * @param prevState previous State
-     * @param snapshot previous snapshot
      */
-    componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
+    componentDidUpdate(prevProps: Readonly<Props>): void {
         if (prevProps.row !== this.props.row) {
-            this.convertFieldsOptions();
+            this.convertFieldsOptions()
         }
     }
 
@@ -84,39 +71,40 @@ class TableView extends React.Component<Props, State> {
      */
     setTableCols = (cols: any[]) => {
         for (const col of cols) {
-            if (col.value == 'g_name') {
-                return this.setState({ col_keys: cols });
+            if (col.value === "g_name") {
+                return this.setState({col_keys: cols})
             }
         }
         // always preserve g_name as it is the main identifier
-        cols.unshift({ label: 'ID', value: 'g_name' });
-        return this.setState({ col_keys: cols });
-    };
+        cols.unshift({ label: "ID", value: "g_name"})
+        return this.setState({col_keys: cols})
+    }
 
     /**
      * Convert available fields into table colmunns
      */
     convertFieldsOptions() {
-        let options: { label: string; value: string }[] = [];
+        let options: { label: string; value: string; }[] = []
         // available row features
-        const row_keys = Object.keys(this.props.row);
+        const row_keys = Object.keys(this.props.row)
         options = row_keys.map((each: string) => {
             // match against glossary
             for (const field of fields_glossary) {
                 // exact match
                 if (each === field.value) {
-                    return { label: field.label, value: each };
+                    return { label: (field.label), value: each, tooltip: field.tooltip + " [" + each + "]" }
                 } else {
                     // match with suffix (c_cov_...)
-                    const re = new RegExp(field.value + '.*');
+                    // anchor "^" makes sure to match from beginning; '_' to avoid lcaID matching to lca etc.
+                    const re = new RegExp("^" + field.value + "_.*");
                     if (re.test(each)) {
-                        return { label: field.label + ' (' + each + ')', value: each };
+                        return { label: (field.label) + " " + each.split('_').slice(-1)[0], value: each, tooltip: field.tooltip + " [" + each + "]" }
                     }
                 }
             }
-            return { label: each, value: each };
-        });
-        this.setState({ options: options });
+            return { label: each, value: each }
+        })
+        this.setState({options: options})
     }
 
     /**
@@ -124,32 +112,32 @@ class TableView extends React.Component<Props, State> {
      */
     csvExport() {
         const fields = this.state.child_cols.map((col: any) => {
-            return col.dataField;
-        });
+            return col.dataField
+        })
         const names = this.state.child_cols.map((col: any) => {
-            return col.text;
-        });
-        let file_content = '';
+            return col.text
+        })
+        let file_content = ""
 
         // Table header row
         for (const name of names) {
-            file_content = file_content.concat(name + ',');
+            file_content = file_content.concat(name + ",")
         }
-        file_content = file_content.concat('\n');
+        file_content = file_content.concat("\n")
 
         // print rows
         for (const row of this.state.child_data) {
             for (const field of fields) {
-                file_content = file_content.concat(row[field] + ',');
+                file_content = file_content.concat(row[field] + ",")
             }
-            file_content = file_content.concat('\n');
+            file_content = file_content.concat("\n")
         }
 
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         // create file
         a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(file_content));
         // set as download
-        a.setAttribute('download', 'selection.csv');
+        a.setAttribute('download', "selection.csv");
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
@@ -159,12 +147,12 @@ class TableView extends React.Component<Props, State> {
     }
 
     /**
-     * Track table edits
+     * Track tabl edits
      * @param cols table columns
      * @param data table data
      */
-    trackTable(cols: any, data: any): void {
-        this.setState({ child_cols: cols, child_data: data });
+    trackTable(cols: any, data: any) {
+        this.setState({child_cols: cols, child_data: data})
     }
 
     render() {
@@ -172,32 +160,35 @@ class TableView extends React.Component<Props, State> {
             <Container fluid>
                 <Row>
                     <Col xs={7}>
-                        <SelectionTable
+                        <SimpleTable
                             master_data={this.props.data}
-                            keys={this.props.keys}
-                            // pass table click events up
                             passClick={this.props.passClick}
-                            col_keys={this.state.col_keys}
-                            trackTable={this.trackTable}
+                            row_keys = {Array.from(this.props.keys)}
+                            col_keys={this.state.col_keys  || []}
+                            trackTable = {this.trackTable}
                         />
                     </Col>
                     <Col>
-                        <Row></Row>
+                        <Row>
+
+                        </Row>
                         <Row>
                             <SelectionModeSelector
-                                passMode={this.props.setSelectMode}
-                                selection={this.props.keys}
-                                analysisID={this.props.dataset_id}
-                                assemblyID={this.props.assemblyID}
-                                userID={this.props.userID}
-                                resetSelection={this.props.resetSelection}
-                                token={this.props.token}
-                                main_data={this.props.data}
-                                passCsvExport={this.csvExport}
+                                passMode = {this.props.setSelectMode}
+                                selection = {this.props.keys}
+                                dataset_id = {this.props.dataset_id}
+                                base_url = {this.props.base_url}
+                                main_data = {this.props.data}
+                                resetSelection = {this.props.resetSelection}
+                                passCsvExport = {this.csvExport}
                             />
                         </Row>
                         <Row>
-                            <ColumnSelector passCols={this.setTableCols} options={this.state.options} customFields={this.props.customFields} />
+                            <ColumnSelector
+                                passCols = {this.setTableCols}
+                                options={this.state.options}
+                                customFields={this.props.customFields}
+                            />
                         </Row>
                     </Col>
                 </Row>
@@ -206,4 +197,4 @@ class TableView extends React.Component<Props, State> {
     }
 }
 
-export { TableView };
+export { TableView }
