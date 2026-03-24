@@ -61,11 +61,13 @@ class ImportMapping implements ShouldQueue
         $vault = Storage::disk('vault');
         $local = Storage::disk('local');
         $sourcePath = $this->filepath;
-        $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/mapping/{$mappingID}";
+        $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/mappings/{$mappingID}";
 
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);
+            Log::info($targetDir);
             if (! $vault->exists($targetDir)) {
+                Log::info('Creating mapping directory for assembly '.$this->assemblyID);
                 $vault->makeDirectory($targetDir);
             }
 
@@ -83,14 +85,14 @@ class ImportMapping implements ShouldQueue
 
         // Convert to BAM
         if (! $this->type == 'bam') {
-            $result = Process::run('samtools view -bS -o '.escapeshellarg($vault->path($path.'bam')).' '.escapeshellarg($vault->path($path)));
+            $result = Process::run('samtools view -bS -o '.escapeshellarg($vault->path($path.'.bam')).' '.escapeshellarg($vault->path($path)));
             if ($result->failed()) {
                 Log::critical('samtools failed while compressing: '.$result->errorOutput());
                 $this->fail('Failed while compressing file!');
             }
         } else {
             Log::info('Skipping samtools view, file is already BAM');
-            $result = Process::run('cp '.escapeshellarg($vault->path($path)).' '.escapeshellarg($vault->path($path.'bam')));
+            $result = Process::run('cp '.escapeshellarg($vault->path($path)).' '.escapeshellarg($vault->path($path.'.bam')));
             if ($result->failed()) {
                 Log::critical('Failed to copy BAM '.$result->errorOutput());
                 $this->fail('Failed while compressing file!');
@@ -101,7 +103,7 @@ class ImportMapping implements ShouldQueue
         $this->filepath = $path.'.bam';
 
         // Index compressed file
-        $result = Process::run('samtools index'.escapeshellarg($vault->path($this->filepath)));
+        $result = Process::run('samtools index '.escapeshellarg($vault->path($this->filepath)));
         if ($result->failed()) {
             Log::critical('samtools failed while indexing: '.$result->errorOutput());
             $this->fail('Failed while compressing file!');

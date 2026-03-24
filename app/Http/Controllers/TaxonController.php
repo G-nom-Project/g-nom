@@ -81,7 +81,9 @@ class TaxonController extends Controller
             'data' => 'nullable|array',
         ]);
 
-        $geoData = new TaxonGeoData();
+        Log::info('Received new Geo data'.$validated['name']);
+
+        $geoData = new TaxonGeoData;
         $geoData->name = $validated['name'];
         $geoData->type = $validated['type'];
         $geoData->description = $validated['description'] ?? null;
@@ -90,7 +92,6 @@ class TaxonController extends Controller
         $geoData->data = $validated['data'] ?? null;
         $geoData->taxonID = $taxonID;
         $geoData->save();
-
 
         return response()->json(['message' => 'GeoData uploaded successfully']);
     }

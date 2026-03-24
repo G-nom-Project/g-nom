@@ -38,7 +38,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                 <Container fluid>
                     <Nav className="m-1">
                         <Nav.Item>
-                            <h1 className="text-white band-header">Search assemblies</h1>
+                            <h1 className="band-header text-white">Search assemblies</h1>
                         </Nav.Item>
                     </Nav>
                     <Nav className="m-1" style={{ width: '50%' }}>
@@ -75,7 +75,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                             <AssemblyCard
                                 assemblyName={each.name}
                                 assemblyID={each.id}
-                                ncbiID={each.taxon_id}
+                                ncbiID={each.taxon.ncbiTaxonID}
                                 info_text={each.taxon.infos[0]?.headline}
                                 last_update={'Never'}
                                 public={true}
@@ -91,7 +91,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                         </Col>
                     ))}
                 </Row>
-                <Row className="justify-content-center">
+                <Row className="justify-content-center mb-3">
                     <Col xs="auto">
                         <Pagination links={assemblies.links} />
                     </Col>

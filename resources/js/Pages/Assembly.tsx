@@ -44,7 +44,7 @@ export default function Assemblies({ assembly }) {
     useEffect(() => {
         const fetchTaxonData = async () => {
             try {
-                const info_response = await getTaxonInfo(assembly.taxon_id);
+                const info_response = await getTaxonInfo(assembly.taxon.ncbiTaxonID);
                 if (info_response.data.infos[0]) {
                     setTaxonInfo(info_response.data.infos[0]?.text);
                     setTaxonHeadline(info_response.data.infos[0]?.headline);
@@ -54,18 +54,18 @@ export default function Assemblies({ assembly }) {
                 }
 
                 // Taxon Geo Data
-                const data = await getGeoData(assembly.taxon_id);
+                const data = await getGeoData(assembly.taxon.ncbiTaxonID);
                 setGeoData(data.geo_data);
 
                 // NCBI Lineage
-                const new_lineage = await getLineage(assembly.taxon_id);
+                const new_lineage = await getLineage(assembly.taxon.ncbiTaxonID);
                 setLineage(new_lineage);
             } catch (error) {
                 console.error('Error fetching Taxon data:', error);
             }
         };
 
-        if (assembly?.taxon_id) {
+        if (assembly?.taxon_ncbiTaxonID) {
             fetchTaxonData();
         }
     }, [assembly]);
@@ -106,14 +106,14 @@ export default function Assemblies({ assembly }) {
                 <Container fluid>
                     <Nav>
                         <Nav.Item>
-                            <h1 className="text-white band-header">
+                            <h1 className="band-header text-white">
                                 <b className="capitalize">{assembly.taxon.scientificName}</b>{' '}
                             </h1>
                         </Nav.Item>
                         <Nav.Item>
                             {assembly.taxon.phylopic && (
                                 <img
-                                    src={`/taxon/${assembly.taxon_id}/icon?updated=${assembly.taxon.updated_at}`}
+                                    src={`/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
                                     alt="Taxon Icon"
                                     style={{
                                         height: '2rem',
@@ -123,8 +123,8 @@ export default function Assemblies({ assembly }) {
                             )}
                         </Nav.Item>
                         <Nav.Item>
-                            <h1 className="text-white band-header">
-                                <i className="bi bi-caret-right-fill" style={{marginLeft: '1rem', marginRight: '1rem'}}></i>
+                            <h1 className="band-header text-white">
+                                <i className="bi bi-caret-right-fill" style={{ marginLeft: '1rem', marginRight: '1rem' }}></i>
                                 {assembly?.label ? assembly.label : assembly.name}
                             </h1>
                         </Nav.Item>
@@ -139,8 +139,8 @@ export default function Assemblies({ assembly }) {
                                     <Button
                                         size="lg"
                                         target="_blank"
-                                        href={`/taxon/${assembly.taxon_id}`}
-                                        onClick={() => (window.location.href = `/taxon/${assembly.taxon_id}`)}
+                                        href={`/taxon/${assembly.taxon.ncbiTaxonID}`}
+                                        onClick={() => (window.location.href = `/taxon/${assembly.taxon.ncbiTaxonID}`)}
                                     >
                                         {' '}
                                         <i className="bi bi-diagram-2"></i>
@@ -166,7 +166,7 @@ export default function Assemblies({ assembly }) {
                                     <Card className="m-1 shadow" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
-                                            src={`/taxon/${assembly.taxon_id}/image?updated=${assembly.taxon.updated_at}`}
+                                            src={`/taxon/${assembly.taxon.ncbiTaxonID}/image?updated=${assembly.taxon.updated_at}`}
                                             alt="Card image"
                                             style={{
                                                 height: '400px',
@@ -200,7 +200,7 @@ export default function Assemblies({ assembly }) {
                                             <Placeholder xs={5} />
                                         </Placeholder>
                                     )}
-                                    <hr style={{marginTop: "0.75rem", marginBottom: "0.75rem"}} />
+                                    <hr style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }} />
                                     {(taxonInfo && (
                                         <Form>
                                             <Form.Group className="mb-3">
@@ -249,7 +249,7 @@ export default function Assemblies({ assembly }) {
                                                     </span>
                                                 ),
                                             )}
-                                            {` (${assembly.taxon_id})`}
+                                            {` (${assembly.taxon.ncbiTaxonID})`}
                                         </>
                                     ) : (
                                         <Placeholder as="p" animation="glow">
@@ -265,7 +265,7 @@ export default function Assemblies({ assembly }) {
                     </Col>
                 </Row>
                 <Row>
-                    <Accordion className="mt-2 mb-2" defaultActiveKey={['0']} alwaysOpen>
+                    <Accordion className="mb-2 mt-2" defaultActiveKey={['0']} alwaysOpen>
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>
                                 <h4>Assembly Information</h4>
@@ -387,7 +387,7 @@ export default function Assemblies({ assembly }) {
                                         </Card>
                                     </Col>
                                 </Row>
-                                <hr/>
+                                <hr />
                                 <Row className="mb-2">
                                     <Col xs={6}>
                                         <Card className="shadow" style={{ height: '50vh' }}>
@@ -409,11 +409,13 @@ export default function Assemblies({ assembly }) {
                             </Accordion.Header>
                             <Accordion.Body onEntered={() => setRenderCompleteness(true)}>
                                 {/* Only render the BUSCO Plot after the Accordion item has expanded => forces plotly to size plot correctly */}
-                                {renderCompleteness && assembly.busco_analyses.length > 0 && <BuscoViewer busco={assembly.busco_analyses} /> || <b>No BUSCO analysis available!</b>}
-                                <hr/>
-                                {renderCompleteness && assembly.fcat_analyses.length > 0 && (
+                                {(renderCompleteness && assembly.busco_analyses.length > 0 && <BuscoViewer busco={assembly.busco_analyses} />) || (
+                                    <b>No BUSCO analysis available!</b>
+                                )}
+                                <hr />
+                                {(renderCompleteness && assembly.fcat_analyses.length > 0 && (
                                     <FcatViewer assembly={assembly} taxon={''} fcat={assembly.fcat_analyses} />
-                                ) || <b>No fCat analysis available!</b>}
+                                )) || <b>No fCat analysis available!</b>}
                             </Accordion.Body>
                         </Accordion.Item>
                         {assembly.repeatmasker_analyses.length > 0 && (

@@ -12,12 +12,12 @@ const generateConfig = (assembly) => {
             adapter: {
                 type: 'Gff3TabixAdapter',
                 gffGzLocation: {
-                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/annotations/${annotation.id}.${fileBasename}`,
+                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/annotations/${annotation.id}.${fileBasename}`,
                     locationType: 'UriLocation',
                 },
                 index: {
                     location: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/annotations/${annotation.id}.${fileBasename}.tbi`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/annotations/${annotation.id}.${fileBasename}.tbi`,
                         locationType: 'UriLocation',
                     },
                     indexType: 'TBI',
@@ -28,7 +28,6 @@ const generateConfig = (assembly) => {
 
     // Convert Mappings into JBrowse Tracks
     const mappings = assembly.mappings.map((mapping) => {
-        const fileBasename = mapping.path.split('/').reverse()[0];
         let verbose_name = mapping.name;
         if (mapping.label) {
             verbose_name = mapping.label;
@@ -40,12 +39,12 @@ const generateConfig = (assembly) => {
             adapter: {
                 type: 'BamAdapter',
                 bamLocation: {
-                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${fileBasename}`,
+                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/mappings/${mapping.id}.bam`,
                     locationType: 'UriLocation',
                 },
                 index: {
                     location: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${fileBasename}.bai`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/mappings/${mapping.id}.bam.bai`,
                         locationType: 'UriLocation',
                     },
                     indexType: 'BAI',
@@ -53,15 +52,15 @@ const generateConfig = (assembly) => {
                 sequenceAdapter: {
                     type: 'BgzipFastaAdapter',
                     fastaLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.name}`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/assembly.fa.gz`,
                         locationType: 'UriLocation',
                     },
                     faiLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.name}.fai`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/assembly.fa.gz.fai`,
                         locationType: 'UriLocation',
                     },
                     gziLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.name}.gzi`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/assembly.fa.gz.gzi`,
                         locationType: 'UriLocation',
                     },
                 },
@@ -81,15 +80,15 @@ const generateConfig = (assembly) => {
                     adapter: {
                         type: 'BgzipFastaAdapter',
                         fastaLocation: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/assembly.fa.gz`,
+                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/assembly.fa.gz`,
                             locationType: 'UriLocation',
                         },
                         faiLocation: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/assembly.fa.gz.fai`,
+                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/assembly.fa.gz.fai`,
                             locationType: 'UriLocation',
                         },
                         gziLocation: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_id}/${assembly.id}/assembly.fa.gz.gzi`,
+                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/assembly.fa.gz.gzi`,
                             locationType: 'UriLocation',
                         },
                     },

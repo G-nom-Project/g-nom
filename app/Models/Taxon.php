@@ -15,7 +15,7 @@ class Taxon extends Model
     //
     public function assemblies()
     {
-        return $this->hasMany(Assembly::class, 'taxon_id', 'ncbiTaxonID');
+        return $this->hasMany(Assembly::class, 'taxon_ncbiTaxonID', 'ncbiTaxonID');
     }
 
     public function infos()

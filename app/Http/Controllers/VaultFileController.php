@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VaultFileController extends Controller
@@ -24,7 +25,7 @@ class VaultFileController extends Controller
         }
 
         // Only allow certain file extensions
-        $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi'];
+        $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi', 'bam', 'bai'];
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
         if (! in_array($extension, $allowedExtensions)) {
@@ -45,6 +46,7 @@ class VaultFileController extends Controller
 
         // Find real path - or not
         $filePath = storage_path("app/vault/{$path}");
+        Log::info($filePath);
         if (! file_exists($filePath)) {
             abort(404, 'File not found');
         }

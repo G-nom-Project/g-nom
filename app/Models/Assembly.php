@@ -20,7 +20,7 @@ class Assembly extends Model
         if ($user->role === 'admin') {
             return $query;
         } else {
-            return $query->where('owner', $user->id)->orWhere('public', true);
+            return $query->where('user_id', $user->id)->orWhere('public', true);
         }
     }
 
@@ -56,7 +56,7 @@ class Assembly extends Model
 
     public function taxon()
     {
-        return $this->belongsTo(Taxon::class, 'taxon_id', 'ncbiTaxonID');
+        return $this->belongsTo(Taxon::class, 'taxon_ncbiTaxonID', 'ncbiTaxonID');
     }
 
     public function user()

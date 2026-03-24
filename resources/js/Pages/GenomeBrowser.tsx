@@ -14,7 +14,7 @@ export default function GenomeBrowser({ assembly }) {
         const my_config = generateConfig(assembly);
         const state = createViewState({ config: my_config });
         setViewState(state);
-    }, []);
+    }, [assembly]);
 
     if (!viewState) {
         return null;

@@ -35,9 +35,9 @@ class ImportAssembly implements ShouldQueue
         $assembly = new Assembly;
         $assembly->name = $this->name;
         $assembly->infoText = null;
-        $assembly->taxon_id = $this->taxonID;
+        $assembly->taxon_ncbiTaxonID = $this->taxonID;
         $assembly->addedBy = $this->user->getAuthIdentifier();
-        $assembly->owner = $this->user->getAuthIdentifier();
+        $assembly->user_id = $this->user->getAuthIdentifier();
         $assembly->public = false;
         $assembly->save();
 

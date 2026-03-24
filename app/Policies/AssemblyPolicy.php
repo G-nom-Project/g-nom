@@ -11,16 +11,16 @@ class AssemblyPolicy
 
     public function viewAny(User $user): bool
     {
-      return false;
+        return false;
     }
 
     public function view(User $user, Assembly $assembly): bool
     {
         if ($this->tokenAllows($user, 'read:assemblies')) {
-            return $assembly->public || $user->id === $assembly->owner || $user->is_admin;
+            return $assembly->public || $user->id === $assembly->user_id || $user->is_admin;
         }
 
-        return $assembly->public || $user->id === $assembly->owner || $user->is_admin;
+        return $assembly->public || $user->id === $assembly->user_id || $user->is_admin;
     }
 
     public function create(User $user): bool
@@ -35,18 +35,18 @@ class AssemblyPolicy
     public function update(User $user, Assembly $assembly): bool
     {
         if ($this->tokenAllows($user, 'write:assemblies')) {
-            return $user->id === $assembly->owner || $user->is_admin;
+            return $user->id === $assembly->user_id || $user->is_admin;
         }
 
-        return $user->id === $assembly->owner || $user->is_admin;
+        return $user->id === $assembly->user_id || $user->is_admin;
     }
 
     public function delete(User $user, Assembly $assembly): bool
     {
         if ($this->tokenAllows($user, 'delete:assemblies')) {
-            return $user->id === $assembly->owner || $user->is_admin;
+            return $user->id === $assembly->user_id || $user->is_admin;
         }
 
-        return $user->id === $assembly->owner || $user->is_admin;
+        return $user->id === $assembly->user_id || $user->is_admin;
     }
 }

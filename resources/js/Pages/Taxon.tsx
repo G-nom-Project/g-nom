@@ -142,7 +142,7 @@ export default function Taxon({ taxon }) {
         if (taxon.ncbiTaxonID) {
             fetchTaxonData().then(() => setImageCredit(taxon.imageCredit));
         }
-    }, []);
+    }, [taxon.imageCredit, taxon.ncbiTaxonID]);
 
     return (
         <>

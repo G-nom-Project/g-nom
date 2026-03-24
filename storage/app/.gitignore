@@ -1,4 +1,6 @@
 *
 !private/
 !public/
+!vault/
 !.gitignore
+!.dockerignore

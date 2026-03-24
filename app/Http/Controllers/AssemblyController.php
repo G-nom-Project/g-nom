@@ -28,7 +28,7 @@ class AssemblyController extends Controller
             ->visibleTo($request->user())
             ->when($search, function ($query) use ($search) {
                 if (is_numeric($search)) {
-                    return $query->where('taxon_id', (int) $search);
+                    return $query->where('taxon_ncbiTaxonID', (int) $search);
                 } else {
                     return $query
                         ->where('name', 'LIKE', '%'.$search.'%')
@@ -246,7 +246,7 @@ class AssemblyController extends Controller
             $user->notify(new UploadComplete($path));
         }
 
-        Log::info('Dispatching BUSCO Import Job');
+        Log::info('Dispatching BUSCO Import Job @ '.$path);
         // Handle files and database entry
         ImportBusco::dispatch($path, $assemblyID, $taxonID, $name, $user);
 
@@ -266,7 +266,12 @@ class AssemblyController extends Controller
             return Taxon::whereHas('assemblies')->count();
         });
 
-        $rootUpdate = Taxon::where('ncbiTaxonID', 1)->first()->updated_at->format('d.m.Y');
+        $root_taxon = Taxon::where('ncbiTaxonID', 1)->first();
+        if ($root_taxon) {
+            $rootUpdate = $root_taxon->updated_at->format('d.m.Y');
+        } else {
+            $rootUpdate = 'never';
+        }
 
         return Inertia::render('Welcome', [
             'totalAssemblies' => $totalAssemblies,

@@ -21,8 +21,6 @@ const JBrowseView = ({
     const [locationState, setLocationState] = useState<string>();
     const [defaultViewState, setDefaultViewState] = useState<object>();
 
-    console.log(my_assembly);
-
     useEffect(() => {
         setLocationState(location);
     }, [location]);
@@ -50,15 +48,15 @@ const JBrowseView = ({
                 adapter: {
                     type: 'BgzipFastaAdapter',
                     fastaLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon_id}/${my_assembly.id}/assembly.fa.gz`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz`,
                         locationType: 'UriLocation',
                     },
                     faiLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon_id}/${my_assembly.id}/assembly.fa.gz.fai`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz.fai`,
                         locationType: 'UriLocation',
                     },
                     gziLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon_id}/${my_assembly.id}/assembly.fa.gz.gzi`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz.gzi`,
                         locationType: 'UriLocation',
                     },
                 },
@@ -77,12 +75,12 @@ const JBrowseView = ({
                 adapter: {
                     type: 'Gff3TabixAdapter',
                     gffGzLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon_id}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz`,
+                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz`,
                         locationType: 'UriLocation',
                     },
                     index: {
                         location: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon_id}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz.tbi`,
+                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz.tbi`,
                             locationType: 'UriLocation',
                         },
                         indexType: 'TBI',

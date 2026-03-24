@@ -1,56 +1,121 @@
 services:
-    laravel.test:
+    app:
         build:
-            context: './vendor/laravel/sail/runtimes/8.4'
+            context: .
             dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.4/app'
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        image: php
+        container_name: app
+        restart: unless-stopped
+        tty: true
         environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            SERVICE_NAME: app
+            SERVICE_TAGS: dev
+        working_dir: /var/www
         volumes:
-            - '.:/var/www/html'
+            - ./:/var/www
+            - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
         networks:
-            - sail
+            - gnom-network
         depends_on:
-            - pgsql
-    pgsql:
-        image: 'postgres:17'
-        ports:
-            - '${FORWARD_DB_PORT:-5432}:5432'
-        environment:
-            PGPASSWORD: '${DB_PASSWORD:-secret}'
-            POSTGRES_DB: '${DB_DATABASE}'
-            POSTGRES_USER: '${DB_USERNAME}'
-            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+            postgres:
+                condition: service_healthy
+        post_start:
+            - command: php artisan migrate && php artisan config:cache
+
+    horizon:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: php
+        container_name: horizon
+        restart: unless-stopped
+        working_dir: /var/www
+        command: php artisan horizon
         volumes:
-            - 'sail-pgsql:/var/lib/postgresql/data'
-            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+            - ./:/var/www
+            - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        depends_on:
+            postgres:
+                condition: service_healthy
+            app:
+                condition: service_healthy
+            redis:
+                condition: service_started
         networks:
-            - sail
+            - gnom-network
+
+    redis:
+        image: redis:7-alpine
+        container_name: redis
+        restart: unless-stopped
+        networks:
+            - gnom-network
+        volumes:
+            - redis_data:/data
+
+    reverb:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: php
+        container_name: reverb
+        restart: unless-stopped
+        working_dir: /var/www
+        command: php artisan reverb:start
+        ports:
+            - 8080
+        volumes:
+            - ./:/var/www
+            - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        depends_on:
+            postgres:
+                condition: service_healthy
+            app:
+                condition: service_healthy
+        networks:
+            - gnom-network
+
+    webserver:
+        image: nginx:alpine
+        container_name: webserver
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443"
+        volumes:
+            - ./:/var/www
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - gnom-network
+        depends_on:
+            app:
+                condition: service_healthy
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: postgres
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            PGUSER: ${DB_USERNAME}
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        restart: unless-stopped
+        networks:
+            - gnom-network
         healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
+            test: ["CMD-SHELL", "sh -c 'pg_isready -d ${DB_USERNAME}'"]
+            interval: 10s
+            timeout: 3s
             retries: 3
-            timeout: 5s
+
 networks:
-    sail:
+    gnom-network:
         driver: bridge
+
 volumes:
-    sail-pgsql:
-        driver: local
+    postgres_data:
+    redis_data:

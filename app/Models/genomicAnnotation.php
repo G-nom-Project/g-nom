@@ -13,4 +13,9 @@ class genomicAnnotation extends Model
     {
         return $this->hasMany(genomicAnnotationFeature::class);
     }
+
+    public function assembly()
+    {
+        return $this->belongsTo(Assembly::class, 'id');
+    }
 }

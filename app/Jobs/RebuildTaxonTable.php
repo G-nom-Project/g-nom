@@ -109,8 +109,9 @@ class RebuildTaxonTable implements ShouldBeUnique, ShouldQueue
             }
 
             // Swap tables
-            DB::statement('ALTER TABLE taxa RENAME TO taxa_old');
-            DB::statement('ALTER TABLE taxa_staging RENAME TO taxa');
+            DB::statement('TRUNCATE TABLE taxa RESTART IDENTITY CASCADE');
+            DB::statement('INSERT INTO taxa SELECT * FROM taxa_staging');
+            DB::statement('DROP TABLE taxa_staging');
             DB::commit();
 
             $count = DB::table('taxa')->count();

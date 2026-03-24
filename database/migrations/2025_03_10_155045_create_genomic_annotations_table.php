@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('genomic_annotations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assemblies_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('assembly_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('label')->nullable();
             $table->integer('featureCount');

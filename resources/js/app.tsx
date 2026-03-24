@@ -10,6 +10,9 @@ import { createRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+// eslint-disable-next-line
+const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.tsx`, import.meta.glob('./Pages/**/*.tsx')),

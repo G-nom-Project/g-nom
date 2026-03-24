@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('infoText')->nullable();
-            $table->foreignId('taxon_id')->constrained();
+            $table->foreignIdFor(\App\Models\Taxon::class)->constrained();
             $table->integer('addedBy');
             $table->boolean('public')->default(false);
             $table->bigInteger('numberOfSequences')->default(0);
