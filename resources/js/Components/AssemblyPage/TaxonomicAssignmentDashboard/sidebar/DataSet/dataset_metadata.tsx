@@ -8,6 +8,7 @@ interface Props {
     userID: number;
     token: string;
     assemblyID: number;
+    taxon_id: number;
     metadata: any;
 }
 
@@ -39,7 +40,7 @@ class DataSetMeta extends React.Component<Props, State> {
      */
     componentDidUpdate(prevProps: Readonly<Props>): void {
         if (prevProps.dataset_id !== this.props.dataset_id) {
-            fetchTaxaminerMetadata(this.props.assemblyID, this.props.dataset_id).then((data) => {
+            fetchTaxaminerMetadata(this.props.assemblyID, this.props.dataset_id, this.props.taxon_id).then((data) => {
                 this.convertMetadata(data);
             });
         }

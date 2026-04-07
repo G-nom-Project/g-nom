@@ -21,7 +21,8 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6.4",
         "spatie/image": "^3.8",
-        "tightenco/ziggy": "^2.0"
+        "tightenco/ziggy": "^2.0",
+        "ext-zip": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -39,7 +39,7 @@ const NotificationToasts = () => {
     };
 
     return (
-        <ToastContainer position="top-end" className="p-3">
+        <ToastContainer position="top-end" className="position-fixed end-0 top-0 p-3">
             <TransitionGroup>
                 {notifications.map((notification) => (
                     <CSSTransition key={notification.id} timeout={500} classNames="toast fade">

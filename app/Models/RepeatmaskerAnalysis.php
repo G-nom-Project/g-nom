@@ -7,4 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class RepeatmaskerAnalysis extends Model
 {
     //
+    protected $table = 'repeatmasker_analyses';
 }

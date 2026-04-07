@@ -1,4 +1,6 @@
 import { Badge, Button, Card, Col, ListGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import axios from 'axios';
+import { useState } from 'react';
 
 interface Props {
     assemblyName: string;
@@ -15,11 +17,25 @@ interface Props {
     repeatmaskers: number;
     taxaminers: number;
     taxon_updated_at: string;
+    is_bookmarked: boolean | null;
 }
 
+
+
 const AssemblyCard = (props: Props) => {
+    const [isBookmarked, setIsBookmarked] = useState(props.is_bookmarked || false);
+
+    const setBookmark = () => {
+        axios.post(`/assemblies/${props.assemblyID}/bookmark`)
+            .then(() => setIsBookmarked(true));
+    }
+
+    const deleteBookmark = () => {
+        axios.delete(`/assemblies/${props.assemblyID}/bookmark`).then(() => setIsBookmarked(false));
+    };
+
     return (
-        <Card className="md-2 assembly-card m-2" style={{ width: '100%' }}>
+        <Card className="md-2 assembly-card m-2" style={{ width: '100%', maxHeight: '600px' }}>
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
@@ -52,8 +68,9 @@ const AssemblyCard = (props: Props) => {
             </Card.Body>
             <ListGroup className="list-group-flush">
                 <ListGroup.Item>
-                    <Button>
-                        <i className={'bi bi-bookmark-plus'}></i>
+                    <Button onClick={!isBookmarked && (() => setBookmark()) || (() => deleteBookmark())}
+                            variant={isBookmarked ? 'danger' : 'primary'}>
+                        <i className={!isBookmarked ? 'bi bi-bookmark-plus' : 'bi bi-bookmark-dash'}></i>
                     </Button>
                     <Button className="m-2" href={`/assemblies/${props.assemblyID}`}>
                         Show details <i className="bi bi-arrow-right-circle"></i>

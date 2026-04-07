@@ -47,6 +47,12 @@ export default function Import() {
     // BUSCO Import
     const [buscoName, setBuscoName] = useState<string>();
     const [buscoSummary, setBuscoSummary] = useState<File | null>(null);
+    // RepeatMasker Import
+    const [repeatName, setRepeatName] = useState<string>();
+    const [repeatSummary, setRepeatSummary] = useState<File | null>(null);
+    // taXaminer Import
+    const [taxaminerName, setTaxaminerName] = useState<string>();
+    const [taxaminerData, setTaxaminerData] = useState<File | null>(null);
 
     const updateTaxon = () => {
         axios.get('/taxon-assemblies/' + taxonID).then((taxon) => {
@@ -151,6 +157,51 @@ export default function Import() {
         }
     };
 
+    const handleRepeatMaskerUpload = async () => {
+        if (!repeatSummary) return;
+
+        const formData = new FormData();
+        formData.append('summary', repeatSummary);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', taxonID);
+
+        try {
+            const response = await axios.post('/upload-repeatmasker', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return True;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return False;
+        }
+    };
+
+    const handleTaxaminerUpload = async () => {
+        if (!taxaminerData) return;
+
+        const formData = new FormData();
+        formData.append('archive', taxaminerData);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', taxonID);
+        formData.append('name', taxaminerName as string);
+
+        try {
+            const response = await axios.post('/upload-taxaminer', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return true;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return false;
+        }
+    };
+
     const handleUpload = async () => {
         if (assemblyName) {
             await handleAssemblyUpload();
@@ -167,6 +218,14 @@ export default function Import() {
                 const success = await handleBuscoUpload();
                 return success;
             }
+            if (taxaminerName) {
+                const success = await handleTaxaminerUpload();
+                return success;
+            }
+            if (repeatName) {
+                const success = await handleRepeatMaskerUpload();
+                return success;
+            }
         }
     };
 
@@ -174,7 +233,7 @@ export default function Import() {
         <>
             <TopNavBar />
             <NotificationListener />
-            <Container className="mt-2">
+            <Container className="mb-2 mt-2">
                 <Row>
                     <Col>
                         <Card>
@@ -340,9 +399,47 @@ export default function Import() {
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="repeatmasker">
                                             <Accordion.Header>Repeatmasker</Accordion.Header>
+                                            <Accordion.Body>
+                                                <Form.Label>Select RepeatMasker summary file</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".tbl"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                        setRepeatSummary(e.target.files?.[0] ?? null)
+                                                    }
+                                                />
+                                                <br />
+                                                <Form.Label>Name Repeatmasker Analysis</Form.Label>
+                                                <Form.Control
+                                                    placeholder="Enter a custom name for this annotation"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setRepeatName(e.target.value);
+                                                    }}
+                                                />
+                                                <br />
+                                            </Accordion.Body>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="taxaminer">
                                             <Accordion.Header>taXaminer</Accordion.Header>
+                                            <Accordion.Body>
+                                                <Form.Label>Select zipped taXaminer output</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".zip"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                        setTaxaminerData(e.target.files?.[0] ?? null)
+                                                    }
+                                                />
+                                                <br />
+                                                <Form.Label>Name taXaminer Analysis</Form.Label>
+                                                <Form.Control
+                                                    placeholder="Enter a custom name for this analyses"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setTaxaminerName(e.target.value);
+                                                    }}
+                                                />
+                                                <br />
+                                            </Accordion.Body>
                                         </Accordion.Item>
                                     </Accordion>
                                 </Card.Body>

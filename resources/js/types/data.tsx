@@ -27,7 +27,7 @@ export interface AggregatedAssembly {
     id: number;
     name: string;
     infoText: string | null;
-    taxon_id: number;
+    taxon_ncbiTaxonID: number;
     taxon: TaxonData;
     addedBy: number;
     public: boolean;
@@ -53,6 +53,12 @@ export interface AggregatedAssembly {
     taxaminer_analyses_count: number;
 }
 
+export interface TaxonInfos {
+    ncbiTaxonID: number;
+    headline: string | null;
+    text: string | null;
+}
+
 export interface TaxonData {
     assemblies: Assembly[];
     commonName: string | null;
@@ -65,6 +71,7 @@ export interface TaxonData {
     scientificName: string;
     taxonRank: string;
     updated_at: string;
+    infos: TaxonInfos[] | null;
 }
 
 export interface Annotation {

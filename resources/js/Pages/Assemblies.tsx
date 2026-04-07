@@ -87,6 +87,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                                 repeatmaskers={each.repeatmasker_analyses_count}
                                 taxaminers={each.taxaminer_analyses_count}
                                 taxon_updated_at={each.taxon.updated_at}
+                                is_bookmarked={each.is_bookmarked}
                             />
                         </Col>
                     ))}

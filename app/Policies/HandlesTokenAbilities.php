@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Policies;
 
 trait HandlesTokenAbilities

@@ -41,6 +41,7 @@ export default function Assemblies({ assembly }) {
     const [taxonHeadline, setTaxonHeadline] = useState<string>(null);
     const [taxonInfo, setTaxonInfo] = useState<string>(null);
 
+
     useEffect(() => {
         const fetchTaxonData = async () => {
             try {
@@ -433,9 +434,10 @@ export default function Assemblies({ assembly }) {
                                 <h4>Taxonomic Assignment</h4>
                             </Accordion.Header>
                             <Accordion.Body>
-                                {assembly && (
+                                {assembly.taxon.ncbiTaxonID && (
                                     <TaxaminerDashboard
                                         assembly_id={assembly.id}
+                                        taxonID={assembly.taxon.ncbiTaxonID}
                                         analyses={assembly.taxaminer_analyses}
                                         setLocation={setLocation}
                                         setAutoScroll={null}

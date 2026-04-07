@@ -48,13 +48,8 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                         label: string;
                         name: string;
                     },
-                    index: number,
                 ) => {
-                    if (analysis.label) {
-                        names.push(index + 1 + '. ' + analysis.label);
-                    } else {
-                        names.push(index + 1 + '. ' + analysis.name);
-                    }
+                    names.push('RM (' + analysis.id + ')');
                     sines_lengths.push(analysis['sines_length'] as string);
                     sines_numbers.push(analysis['sines'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
                     lines_lengths.push(analysis['lines_length'] as string);
@@ -100,6 +95,8 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
         low_complexity_numbers.reverse();
         names.reverse();
 
+        const hv = ' Elements: %{customdata} <br> %{text} </br>';
+
         tracks.push({
             x: sines_lengths,
             y: names,
@@ -108,7 +105,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: sines_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -125,7 +122,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: lines_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -142,7 +139,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: ltr_elements_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -159,7 +156,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: dna_elements_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -176,7 +173,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: rolling_circles_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -193,7 +190,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: unclassified_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -210,7 +207,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: small_rna_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -226,7 +223,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: satellites_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -243,7 +240,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: simple_repeats_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -260,7 +257,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bp';
             }),
             customdata: low_complexity_numbers,
-            hovertemplate: '%{label}: <br> Elements: %{customdata} </br> %{text}',
+            hovertemplate: hv,
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -282,7 +279,6 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
             yaxis: {
                 tickangle: 25,
                 automargin: true,
-                title: { text: 'Masking', standoff: 10 },
                 type: 'category',
                 tickfont: {
                     family: 'Courier New, Courier, monospace',
@@ -329,22 +325,13 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                         label: string;
                         name: string;
                     },
-                    index: number,
                 ) => {
                     const total = analysis.total_repetitive_length + analysis.total_non_repetitive_length;
-                    if (analysis.label) {
-                        names.push(index + 1 + '. ' + analysis.label);
-                    } else {
-                        names.push(index + 1 + '. ' + analysis.name);
-                    }
+                    names.push('RM (' + analysis.id + ')');
                     total_repetitive_length.push((analysis['total_repetitive_length'] * 100) / total);
-                    total_repetitive_length_absolute.push(
-                        Number(analysis['total_repetitive_length'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')),
-                    );
+                    total_repetitive_length_absolute.push(analysis['total_repetitive_length']);
                     total_non_repetitive_length.push((analysis['total_non_repetitive_length'] * 100) / total);
-                    total_non_repetitive_length_absolute.push(
-                        Number(analysis['total_non_repetitive_length'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')),
-                    );
+                    total_non_repetitive_length_absolute.push(analysis['total_non_repetitive_length']);
                 },
             );
 
@@ -362,7 +349,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return Number(val).toFixed(2) + '%';
             }),
             customdata: total_repetitive_length_absolute,
-            hovertemplate: '%{label}: <br> %{customdata} bp </br> %{text}',
+            hovertemplate: '%{customdata} bp <br> %{text}</br>',
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -380,7 +367,7 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
                 return Number(val).toFixed(2) + '%';
             }),
             customdata: total_non_repetitive_length_absolute,
-            hovertemplate: '%{label}: <br> %{customdata} bp </br> %{text}',
+            hovertemplate: '%{customdata} bp <br> %{text}</br>',
             orientation: 'h',
             type: 'bar',
             marker: {
@@ -403,7 +390,6 @@ const RepeatMaskerViewer = ({ repeatmasker }: { repeatmasker: object }) => {
             yaxis: {
                 tickangle: 25,
                 automargin: true,
-                title: { text: 'Masking', standoff: 10 },
                 type: 'category',
                 tickfont: {
                     family: 'Courier New, Courier, monospace',

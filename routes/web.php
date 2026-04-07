@@ -1,23 +1,24 @@
 <?php
 
+use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\ApiTokenController;
 
 Route::get('/', [AssemblyController::class, 'stats']);
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('bookmarks', BookmarkController::class);
+Route::middleware('auth')->group(function () {
+    Route::get('/bookmarks', [BookmarkController::class, 'bookmarkedAssemblies'])->name('bookmarks.get');
+    Route::post('/assemblies/{id}/bookmark', [BookmarkController::class, 'store'])->name('bookmarks.set');
+    Route::delete('/assemblies/{id}/bookmark', [BookmarkController::class, 'delete'])->name('bookmarks.delete');
 });
-
-Route::get('/bookmarks', [BookmarkController::class, 'bookmarkedAssemblies'])->name('bookmarks')->middleware(['auth']);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -43,6 +44,7 @@ Route::get('/import', function () {
     return Inertia::render('Import');
 })->name('import')->middleware('auth');
 
+/**
 Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $request, $any = '') {
     $proxyUrl = "http://gdock.izn-ffm.intern:1234/{$any}";
 
@@ -55,6 +57,13 @@ Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $
     return response($response->body(), $response->status())
         ->withHeaders($response->headers());
 })->where('any', '.*');
+ **/
+Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/scatter', [TaxaminerController::class, 'scatterData'])->name('taxaminer.scatter');
+Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/pca', [TaxaminerController::class, 'fetchPCA'])->name('taxaminer.pca');
+Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/config', [TaxaminerController::class, 'fetchUserConfig'])->name('taxaminer.userconfig');
+Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/summary', [TaxaminerController::class, 'fetchSummary'])->name('taxaminer.summary');
+Route::post('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/diamond-hit', [TaxaminerController::class, 'fetchDiamond'])->name('taxaminer.diamond-hit');
+Route::post('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/seq', [TaxaminerController::class, 'fetchSequence'])->name('taxaminer.sequence');
 
 // Taxon Page
 Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon')->middleware(['auth']);
@@ -77,22 +86,26 @@ Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage'])->mid
 Route::get('/taxon/{taxonID}/icon', [TaxonController::class, 'showIcon'])->middleware(['auth']);
 
 // UPLOADING DATA
-Route::post('/upload-assembly', [AssemblyController::class, 'uploadAssembly'])->middleware(['auth']);
-Route::post('/upload-annotation', [AssemblyController::class, 'uploadAnnotation'])->middleware(['auth']);
-Route::post('/upload-mapping', [AssemblyController::class, 'uploadMapping'])->middleware(['auth']);
-Route::post('/upload-busco', [AssemblyController::class, 'uploadBusco'])->middleware(['auth']);
+Route::middleware([
+    'auth',
+])->group(function () {
+    Route::post('/upload-assembly', [AssemblyController::class, 'uploadAssembly']);
+    Route::post('/upload-annotation', [AssemblyController::class, 'uploadAnnotation']);
+    Route::post('/upload-mapping', [AssemblyController::class, 'uploadMapping']);
+    Route::post('/upload-busco', [AssemblyController::class, 'uploadBusco']);
+    Route::post('/upload-repeatmasker', [AssemblyController::class, 'uploadRepeatmasker']);
+    Route::post('/upload-taxaminer', [TaxaminerController::class, 'uploadTaxaminer']);
+});
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
     ->where('path', '.*')->middleware(['auth']);
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
     Route::post('/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
     Route::delete('/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
 });
-
 
 require __DIR__.'/auth.php';

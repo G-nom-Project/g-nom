@@ -9,6 +9,7 @@ import variables from '../../static/tableRows.json';
 interface Props {
     dataset_id: number;
     assemblyID: number;
+    taxon_id: number;
     camera: any;
     userID: number;
     token: string;
@@ -80,7 +81,7 @@ class PCAPlot extends Component<Props, State> {
      */
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
         if (prevProps.dataset_id !== this.props.dataset_id) {
-            fetchTaxaminerPCA(this.props.assemblyID, this.props.dataset_id, this.props.userID, this.props.token)
+            fetchTaxaminerPCA(this.props.assemblyID, this.props.dataset_id, this.props.taxon_id)
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 .then(

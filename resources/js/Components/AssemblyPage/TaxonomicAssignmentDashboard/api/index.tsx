@@ -4,21 +4,7 @@ import {DiamondRow} from "@/Components/AssemblyPage/TaxonomicAssignmentDashboard
 const userID = 2;
 const GNOM_HEADLESS = '/plugin/taxaminer';
 
-// ===== FETCH TAXAMINER ANALYSES BY ASSEMBLY ID ===== //
-export async function fetchTaXaminerAnalysesByAssemblyID(assemblyID: number): Promise<any[]> {
-    return axios
-        .get(GNOM_HEADLESS + '/fetchTaXaminerAnalysesByAssemblyID?assemblyID=' + assemblyID + '&userID=' + userID)
-        .then((response) => response.data)
-        .then((data) => data);
-}
 
-// ==== Taxaminer Main ==== //
-export function fetchTaxaminerMain(assembly_id: number, taxaminer_id: number): Promise<any> {
-    return axios
-        .get(`${GNOM_HEADLESS}/taxaminer/main?assemblyID=${assembly_id}&analysisID=${taxaminer_id}&userID=${userID}`)
-        .then((response) => response.data)
-        .then((data) => data);
-}
 
 /**
  * Fetch the diamond hits of a given ID of a given dataset
@@ -27,36 +13,37 @@ export function fetchTaxaminerMain(assembly_id: number, taxaminer_id: number): P
  * @param fasta_header fasta id (string)
  * @returns list of rows as JSON objects
  */
-export function fetchDiamond(base_url: string, dataset_id: number, fasta_header: string): Promise<DiamondRow[]> {
-    return fetch(`${GNOM_HEADLESS}/taxaminer/diamond?id=${dataset_id}&fasta_id=${fasta_header}`)
-        .then(response => response.json())
-        .then(data => data)
-        .catch((error) => {
-            console.error(error);
-        });
+export function fetchDiamond(assembly_id: number, analysis_id: number, taxon_id:number, fasta_header: string): Promise<DiamondRow[]> {
+    return axios
+        .post(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/diamond-hit`,
+            {
+                "fasta_header": fasta_header
+            })
+        .then((response) => response.data)
+        .then((data) => data);
 }
 
 
 // ==== Taxaminer Metadata ==== //
-export function fetchTaxaminerMetadata(assembly_id: number, taxaminer_id: number) {
+export function fetchTaxaminerMetadata(assembly_id: number, analysis_id: number, taxon_id:number) {
     return axios
-        .get(`${GNOM_HEADLESS}/taxaminer/summary?assemblyID=${assembly_id}&analysisID=${taxaminer_id}&userID=${userID}`)
+        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/summary`)
         .then((response) => response.data)
         .then((data) => data);
 }
 
 // ==== Taxaminer Plot data ==== //
-export function fetchTaxaminerScatterplot(assembly_id: number, taxaminer_id: number): Promise<any[]> {
+export function fetchTaxaminerScatterplot(assembly_id: number, analysis_id: number, taxon_id: number): Promise<any[]> {
     return axios
-        .get(`${GNOM_HEADLESS}/taxaminer/scatterplot?assemblyID=${assembly_id}&analysisID=${taxaminer_id}&userID=${userID}`)
+        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/scatter`)
         .then((response) => response.data)
         .then((data) => data);
 }
 
 // ==== Taxaminer PCA data ==== //
-export function fetchTaxaminerPCA(assembly_id: number, taxaminer_id: number): Promise<any> {
+export function fetchTaxaminerPCA(assembly_id: number, analysis_id: number, taxon_id: number): Promise<any> {
     return axios
-        .get(`${GNOM_HEADLESS}/taxaminer/pca_contribution?assemblyID=${assembly_id}&analysisID=${taxaminer_id}&userID=${userID}`)
+        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/pca`)
         .then((response) => response.data)
         .then((data) => data);
 }
@@ -70,17 +57,19 @@ export function fetchTaxaminerDiamond(assembly_id: number, taxaminer_id: number,
 }
 
 // ==== Taxaminer Sequence data ==== //
-export function fetchTaxaminerSeq(assembly_id: number, taxaminer_id: number, fasta_id: string): Promise<any> {
+export function fetchTaxaminerSeq(assembly_id: number, analysis_id: number, taxon_id: number, fasta_header: string): Promise<any> {
     return axios
-        .get(`${GNOM_HEADLESS}/taxaminer/seq?assemblyID=${assembly_id}&analysisID=${taxaminer_id}&fastaID=${fasta_id}&userID=${userID}`)
+        .post(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/seq`, {
+            fasta_header: fasta_header,
+        })
         .then((response) => response.data)
         .then((data) => data);
 }
 
 // ==== fetch taXaminer user settings ==== //
-export function fetchTaxaminerSettings(assembly_id: number, analysisID: number): Promise<any> {
+export function fetchTaxaminerSettings(assembly_id: number, analysis_id: number, taxon_id: number): Promise<any> {
     return axios
-        .get(`${GNOM_HEADLESS}/taxaminer/userconfig?assemblyID=${assembly_id}&analysisID=${analysisID}&userID=${userID}`)
+        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/config`)
         .then((response) => response.data)
         .then((data) => data);
 }

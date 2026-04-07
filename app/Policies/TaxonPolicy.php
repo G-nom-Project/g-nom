@@ -7,8 +7,8 @@ use App\Models\User;
 
 class TaxonPolicy
 {
-
     use HandlesTokenAbilities;
+
     /**
      * Determine whether the user can view any models.
      */
@@ -41,6 +41,7 @@ class TaxonPolicy
         if ($this->tokenAllows($user, 'write:assemblies')) {
             return $user->role === 'admin' || $user->role === 'editor';
         }
+
         return $user->role === 'admin' || $user->role === 'editor';
     }
 

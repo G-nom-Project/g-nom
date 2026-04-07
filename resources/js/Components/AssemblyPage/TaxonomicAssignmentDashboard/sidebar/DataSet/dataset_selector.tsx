@@ -38,7 +38,6 @@ class DataSetSelector extends React.Component<Props, State> {
      * Load Inital datasets
      */
     componentDidMount(): void {
-        console.log(this.props.analyses);
         const extended = default_analysis.concat(this.props.analyses);
         for (const analysis of extended) {
             if (analysis.label && analysis.label !== '') {

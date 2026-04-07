@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBookmarkRequest;
 use App\Http\Requests\UpdateBookmarkRequest;
 use App\Models\Bookmark;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -26,7 +26,7 @@ class BookmarkController extends Controller
                     'buscoAnalyses',
                     'repeatmaskerAnalyses',
                     'taxaminerAnalyses',
-                ]);
+                ])->with('taxon.infos');
             }])
             ->paginate(10);
 
@@ -53,11 +53,11 @@ class BookmarkController extends Controller
         return response()->json($bookmarks);
     }
 
-    public function store(StoreBookmarkRequest $request)
+    public function store(int $id, Request $request)
     {
         $bookmark = Bookmark::create([
             'user_id' => Auth::id(),
-            'assembly_id' => $request->assembly_id,
+            'assembly_id' => $id,
         ]);
 
         return response()->json($bookmark, 201);
@@ -73,6 +73,19 @@ class BookmarkController extends Controller
         $bookmark->update(['assembly_id' => $request->assembly_id]);
 
         return response()->json($bookmark);
+    }
+
+    public function delete(int $assembly_id)
+    {
+        $user = Auth::user();
+        $bookmark = Bookmark::where('assembly_id', $assembly_id)->where('user_id', $user->id)->first();
+        if ($bookmark) {
+            $bookmark->delete();
+
+            return 200;
+        } else {
+            return 404;
+        }
     }
 
     public function destroy(Bookmark $bookmark)

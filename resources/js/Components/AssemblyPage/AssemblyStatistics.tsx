@@ -5,7 +5,6 @@ import Plot from 'react-plotly.js';
 const AssemblyStatistics = ({ assembly }: { assembly: Assembly }) => {
     const [data, setData] = useState<SeqLengthMarker[]>([]);
     const [layout, setLayout] = useState({});
-    console.log(assembly);
 
     useEffect(() => {
         getData();
@@ -77,8 +76,6 @@ const AssemblyStatistics = ({ assembly }: { assembly: Assembly }) => {
             y2.push(element.y);
         });
 
-        console.log(y1, y2);
-
         const data = [
             {
                 x: x1,
@@ -100,7 +97,6 @@ const AssemblyStatistics = ({ assembly }: { assembly: Assembly }) => {
                 marker: { color: 'orange' },
             },
         ];
-        console.log(data);
         setData(data);
     };
 

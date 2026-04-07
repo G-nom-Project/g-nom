@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 
 export default function BrowserSelection({ assemblies }) {
-    const [assemblyID, SetAssemblyID] = useState<number>();
+    const [assemblyID, SetAssemblyID] = useState<number>(null);
 
     return (
         <>
@@ -28,7 +28,7 @@ export default function BrowserSelection({ assemblies }) {
                                         ))}
                                 </Form.Select>
                             </Card.Body>
-                            <Button href={'/browser/' + assemblyID} className="m-3">
+                            <Button href={'/browser/' + assemblyID} className="m-3" disabled={!assemblyID}>
                                 Launch Browser
                             </Button>
                         </Card>

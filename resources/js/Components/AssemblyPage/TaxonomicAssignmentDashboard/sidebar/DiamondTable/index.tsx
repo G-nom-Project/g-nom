@@ -3,6 +3,7 @@ import "./customstyle.css"
 import RichTable from '@/Components/AssemblyPage/TaxonomicAssignmentDashboard/components/shared/RichTable';
 import ColumnSelector from './ColumnSelector';
 import options from './diamond_cols.json'
+import { fetchDiamond } from '@/Components/AssemblyPage/TaxonomicAssignmentDashboard/api';
 
 export interface ColumnKey {
     label: string
@@ -10,9 +11,11 @@ export interface ColumnKey {
 }
 
 interface Props {
-    dataset_id: number
-    row: any
-    base_url: string
+    dataset_id: number;
+    row: any;
+    base_url: string;
+    assembly_id: number;
+    taxonID: number;
 }
 
 interface State {
@@ -48,12 +51,14 @@ class Table extends Component<Props, State> {
                 sequence_header = this.props.row.fasta_header.split(" ")[0]
             }
             // fetch the table data
-            fetchDiamond(this.props.base_url, this.props.dataset_id, sequence_header)
-                .then(data => {
-                    // convert to appropriate datatype for proper sorting
-                    data = data.map((row: any) => { row.evalue = Number(row.evalue); return row })
-                    this.setState({ table_data: data, loading: false })
-                })
+            fetchDiamond(this.props.assembly_id, this.props.dataset_id, this.props.taxonID, sequence_header).then((data) => {
+                // convert to appropriate datatype for proper sorting
+                data = data.map((row: any) => {
+                    row.evalue = Number(row.evalue);
+                    return row;
+                });
+                this.setState({ table_data: data, loading: false });
+            });
         }
     }
 

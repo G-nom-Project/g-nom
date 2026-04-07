@@ -51,6 +51,7 @@ interface State {
 interface Props {
     assembly_id: number;
     analyses: any[];
+    taxonID: number;
     setLocation: Function;
     setAutoScroll: Function;
     userID: number;
@@ -124,9 +125,12 @@ class TaxaminerDashboard extends React.Component<Props, State> {
      * @param id dataset ID
      */
     setDataset(id: number) {
+        if (!this.props.taxonID) {
+            return;
+        }
         this.setState({ is_loading: true });
         this.setState({ dataset_id: id }, () => {
-            fetchTaxaminerScatterplot(this.props.assembly_id, id, this.state.userID, this.state.token)
+            fetchTaxaminerScatterplot(this.props.assembly_id, id, this.props.taxonID)
                 .then((data) => {
                     const main_data = {};
                     this.setState({ scatterPoints: data }, () => {
@@ -155,7 +159,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                             this.setState({ fasta_col: 'protID' });
                         }
 
-                        fetchTaxaminerSettings(this.props.assembly_id, this.state.dataset_id).then((settings) => {
+                        fetchTaxaminerSettings(this.props.assembly_id, this.state.dataset_id, this.props.taxonID).then((settings) => {
                             const selection_array = settings['selection'];
                             // @ts-ignore
                             this.setState({
@@ -213,7 +217,6 @@ class TaxaminerDashboard extends React.Component<Props, State> {
             // format coordinates for JBrowse
             if (this.state.gene_pos_supported && this.state.genomeBrowserInteraction) {
                 const coords = `${new_row.c_name}:${new_row.start}..${new_row.end}`;
-                console.log(coords);
                 this.props.setLocation(coords);
             }
         }
@@ -245,9 +248,11 @@ class TaxaminerDashboard extends React.Component<Props, State> {
             }
         }
 
-        fetchTaxaminerSeq(this.props.assembly_id, this.state.dataset_id, this.state.data[keys[0]][this.state.fasta_col]).then((data) => {
+
+        fetchTaxaminerSeq(this.props.assembly_id, this.state.dataset_id, this.props.taxonID, this.state.data[keys[0]][this.state.fasta_col]).then((data) => {
             this.setState({ aa_seq: data as unknown as string });
         });
+
 
         if (this.state.select_mode !== 'neutral') {
             updateTaxaminerSettings(this.props.assembly_id, this.state.dataset_id, this.state.customFields, Array.from(this.state.selected_data));
@@ -407,6 +412,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                                     userID={this.state.userID}
                                                     token={this.state.token}
                                                     metadata={this.state.analysis}
+                                                    taxon_id={this.props.taxonID}
                                                 />
                                             </Tab>
                                         </Tabs>
@@ -424,6 +430,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                     passCustomFields={this.setCustomFields}
                                     setAutoScroll={this.setGenomeBrowserInteraction}
                                     gene_pos_supported={this.state.gene_pos_supported}
+                                    taxonId={this.props.taxonID}
                                 />
                             </Tab>
                             <Tab eventKey="Filter" title="Filters">
@@ -445,6 +452,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                         <Table
                                             dataset_id={this.state.dataset_id}
                                             assembly_id={this.props.assembly_id}
+                                            taxonID={this.props.taxonID}
                                             row={this.state.selected_row}
                                             userID={this.state.userID}
                                             token={this.state.token}
@@ -471,6 +479,7 @@ class TaxaminerDashboard extends React.Component<Props, State> {
                                             camera={this.state.camera}
                                             dataset_id={this.state.dataset_id}
                                             assemblyID={this.props.assembly_id}
+                                            taxon_id={this.props.taxonID}
                                             userID={this.state.userID}
                                             token={this.state.token}
                                             is_loading={this.state.is_loading}

@@ -29,7 +29,7 @@ class ApiTokenController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'      => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'abilities' => ['array'],
         ]);
 
@@ -40,7 +40,6 @@ class ApiTokenController extends Controller
             $validated['name'],
             $validated['abilities'] ?? ['*']
         );
-
 
         return back()->with('plainTextToken', $token->plainTextToken);
     }

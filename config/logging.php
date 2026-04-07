@@ -55,6 +55,7 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),
+            'tap' => [App\Logging\AddContainerProcessor::class],
             'ignore_exceptions' => false,
         ],
 
@@ -63,6 +64,9 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
+            'formatter_with' => [
+                'format' => "[%datetime%] %extra.container% %channel%.%level_name%: %message% %context% %extra%\n",
+            ],
         ],
 
         'daily' => [

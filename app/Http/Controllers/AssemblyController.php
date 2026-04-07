@@ -6,6 +6,7 @@ use App\Jobs\ImportAnnotation;
 use App\Jobs\ImportAssembly;
 use App\Jobs\ImportBusco;
 use App\Jobs\ImportMapping;
+use App\Jobs\ImportRepeatmasker;
 use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Notifications\UploadComplete;
@@ -45,6 +46,9 @@ class AssemblyController extends Controller
                 'repeatmaskerAnalyses',
                 'taxaminerAnalyses',
             ])
+            ->withExists(['bookmarks as is_bookmarked' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])
             ->with('taxon.infos')
             ->paginate(12)
             ->withQueryString();
@@ -249,6 +253,44 @@ class AssemblyController extends Controller
         Log::info('Dispatching BUSCO Import Job @ '.$path);
         // Handle files and database entry
         ImportBusco::dispatch($path, $assemblyID, $taxonID, $name, $user);
+
+        return response()->json([
+            'message' => 'Assembly imported successfully.',
+            'path' => $path,
+        ]);
+    }
+
+    public function uploadRepeatmasker(Request $request)
+    {
+        $request->validate([
+            'summary' => 'required|file',
+            'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
+            'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
+        ]);
+
+        // Enforce assembly policy on RepeatMasker imports
+        $assemblyID = $request->input('assemblyID');
+        $assembly = Assembly::where('id', $assemblyID)->first();
+        $this->authorize('update', $assembly);
+
+        // Store in upload directory
+        $file = $request->file('summary');
+        $originalExtension = $file->getClientOriginalExtension();
+        $uniqueName = Str::random(20);
+
+        // Store the file with a unique name and the original extension
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
+        $assemblyID = $request->input('assemblyID');
+        $taxonID = $request->input('taxonID');
+        $user = Auth::user();
+
+        if ($user) {
+            $user->notify(new UploadComplete($path));
+        }
+
+        Log::info('Dispatching Repeatmasker Import Job @ '.$path);
+        // Handle files and database entry
+        ImportRepeatmasker::dispatch($path, $assemblyID, $taxonID);
 
         return response()->json([
             'message' => 'Assembly imported successfully.',

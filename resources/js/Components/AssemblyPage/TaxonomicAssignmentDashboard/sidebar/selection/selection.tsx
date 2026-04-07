@@ -25,6 +25,7 @@ interface Props {
     passCustomFields: any;
     setAutoScroll: Function;
     gene_pos_supported: boolean;
+    taxonId: number;
 }
 
 interface State {
@@ -66,7 +67,7 @@ class SelectionView extends React.Component<Props, State> {
             this.convertFieldsOptions();
             this.formatCoord();
         } else if (prevProps.analysisID !== this.props.analysisID) {
-            fetchTaxaminerSettings(this.props.assemblyID, this.props.analysisID).then((data: any) => {
+            fetchTaxaminerSettings(this.props.assemblyID, this.props.analysisID, this.props.taxonID).then((data: any) => {
                 if (data === undefined) {
                     data = [];
                 }
