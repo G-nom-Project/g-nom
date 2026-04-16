@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -87,7 +88,7 @@ class AssemblyController extends Controller
 
     public function browser($id): Response
     {
-        $assembly = Assembly::with(['mappings', 'genomicAnnotations'])->findOrFail($id);
+        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'repeatmaskerAnalyses'])->findOrFail($id);
         $this->authorize('view', $assembly);
 
         return Inertia::render('GenomeBrowser', [
@@ -264,6 +265,7 @@ class AssemblyController extends Controller
     {
         $request->validate([
             'summary' => 'required|file',
+            'out' => 'required|file',
             'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
             'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
         ]);
@@ -279,7 +281,7 @@ class AssemblyController extends Controller
         $uniqueName = Str::random(20);
 
         // Store the file with a unique name and the original extension
-        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
+        $path = $file->storeAs('uploads', $uniqueName.".tbl");
         $assemblyID = $request->input('assemblyID');
         $taxonID = $request->input('taxonID');
         $user = Auth::user();
@@ -290,7 +292,11 @@ class AssemblyController extends Controller
 
         Log::info('Dispatching Repeatmasker Import Job @ '.$path);
         // Handle files and database entry
-        ImportRepeatmasker::dispatch($path, $assemblyID, $taxonID);
+        ImportRepeatmasker::dispatch("uploads/$uniqueName", $assemblyID, $taxonID);
+        // Add Annotation to genome Browser
+        $file = $request->file('out');
+        $path = $file->storeAs('uploads', $uniqueName.'.out');
+        ImportAnnotation::dispatch("uploads/$uniqueName.tbl.gff", $assemblyID, $taxonID, "Repeatmasker", $user, true);
 
         return response()->json([
             'message' => 'Assembly imported successfully.',

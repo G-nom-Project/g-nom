@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('assembly_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('label')->nullable();
+            $table->string('category')->default('Annotations');
             $table->integer('featureCount');
             $table->string('path');
             $table->foreignId('user_id')->constrained();

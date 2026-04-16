@@ -6,6 +6,7 @@ use App\Models\RepeatmaskerAnalysis;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
 class ImportRepeatmasker implements ShouldQueue
@@ -34,10 +35,9 @@ class ImportRepeatmasker implements ShouldQueue
      */
     public function handle(): void
     {
+        $local = Storage::disk('local');
         try {
-
-            $local = Storage::disk('local');
-            $sourcePath = $local->path($this->filepath);
+            $sourcePath = $local->path($this->filepath . ".tbl");
 
             if (! file_exists($sourcePath)) {
                 Log::error("RepeatMasker file not found: {$sourcePath}");
@@ -134,5 +134,9 @@ class ImportRepeatmasker implements ShouldQueue
 
             $this->fail('Failed to parse RepeatMasker: '.$e->getMessage());
         }
+
+        $script = base_path('resources/scripts/rm_to_gff.pl');
+        Log::info("$script < {$local->path($this->filepath)}.out > $sourcePath.gff");
+        $result = Process::run("$script < {$local->path($this->filepath)}.out > $sourcePath.gff");
     }
 }

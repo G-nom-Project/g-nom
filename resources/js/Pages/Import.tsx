@@ -50,6 +50,7 @@ export default function Import() {
     // RepeatMasker Import
     const [repeatName, setRepeatName] = useState<string>();
     const [repeatSummary, setRepeatSummary] = useState<File | null>(null);
+    const [repeatOut, setRepeatOut] = useState<File | null>(null);
     // taXaminer Import
     const [taxaminerName, setTaxaminerName] = useState<string>();
     const [taxaminerData, setTaxaminerData] = useState<File | null>(null);
@@ -162,6 +163,7 @@ export default function Import() {
 
         const formData = new FormData();
         formData.append('summary', repeatSummary);
+        formData.append('out', repeatOut);
         formData.append('assemblyID', assemblyID);
         formData.append('taxonID', taxonID);
 
@@ -172,10 +174,10 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True;
+            return true;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False;
+            return false;
         }
     };
 
@@ -406,6 +408,14 @@ export default function Import() {
                                                     accept=".tbl"
                                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                         setRepeatSummary(e.target.files?.[0] ?? null)
+                                                    }
+                                                />
+                                                <Form.Label>Select RepeatMasker out</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".out"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                        setRepeatOut(e.target.files?.[0] ?? null)
                                                     }
                                                 />
                                                 <br />

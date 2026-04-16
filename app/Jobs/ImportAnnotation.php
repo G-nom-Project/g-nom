@@ -21,13 +21,16 @@ class ImportAnnotation implements ShouldQueue
     protected int $taxonID;
 
     protected string $name;
+    protected string $category;
 
     protected $user;
+
+    protected bool $is_repeatmasker;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $filepath, int $assemblyID, int $taxonID, string $name, $user)
+    public function __construct(string $filepath, int $assemblyID, int $taxonID, string $name, $user, $is_repeatmasker = false, $category= "Annotations")
     {
         //
         $this->filepath = $filepath;
@@ -35,6 +38,8 @@ class ImportAnnotation implements ShouldQueue
         $this->taxonID = $taxonID;
         $this->name = $name;
         $this->user = $user;
+        $this->is_repeatmasker = $is_repeatmasker;
+        $this->category = $category;
     }
 
     /**
@@ -50,6 +55,12 @@ class ImportAnnotation implements ShouldQueue
         $annotation->path = '';
         $annotation->featureCount = 0;
 
+        if ($this->is_repeatmasker) {
+            $annotation->category = "Default Tracks";
+        } else {
+            $annotation->category = $this->category;
+        }
+
         // Write to DB and obtain new ID
         $annotation->save();
         $annotationID = $annotation->id;
@@ -59,7 +70,14 @@ class ImportAnnotation implements ShouldQueue
         $local = Storage::disk('local');
 
         $sourcePath = $this->filepath;
-        $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/annotations/{$annotationID}";
+        if ($this->is_repeatmasker) {
+            $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/annotations/repeatmasker";
+            $annotation->path = $targetPath;
+            $annotation->save();
+        } else {
+            $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/annotations/{$annotationID}";
+        }
+
 
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);

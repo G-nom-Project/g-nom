@@ -11,7 +11,8 @@ export default function GenomeBrowser({ assembly }) {
     const [viewState, setViewState] = useState<ViewModel>();
 
     useEffect(() => {
-        const my_config = generateConfig(assembly);
+        const params = new URL(location.href).searchParams;
+        const my_config = generateConfig(assembly, params.get('location'));
         const state = createViewState({ config: my_config });
         setViewState(state);
     }, [assembly]);

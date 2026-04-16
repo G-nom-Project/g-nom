@@ -1,6 +1,10 @@
-import { Assembly } from '@jbrowse/core/assemblyManager/assembly';
 import { createViewState, JBrowseLinearGenomeView } from '@jbrowse/react-linear-genome-view';
 import { useEffect, useState } from 'react';
+import { Annotation, Assembly, Mapping } from '@/types/data';
+import { ModelCreationType } from 'mobx-state-tree';
+// @ts-expect-error Stub import
+import { ExtractCFromProps } from '@jbrowse/mobx-state-tree';
+
 
 const JBrowseView = ({
     my_assembly,
@@ -9,14 +13,14 @@ const JBrowseView = ({
     location = '',
 }: {
     my_assembly: Assembly;
-    annotations: object;
-    mappings: object;
+    annotations: Annotation[];
+    mappings: Mapping[];
     location: string;
 }) => {
     const [assembly, setAssembly] = useState<Assembly>();
     const [tracks, setTracks] = useState<object[]>();
-    const [defaultSession, setDefaultSession] = useState<object>();
-    const [configuration, setConfiguration] = useState<object>();
+    const [defaultSession, setDefaultSession] = useState<ModelCreationType<ExtractCFromProps>>();
+    const [configuration, setConfiguration] = useState<Record<string, object>>();
     const [aggregateTextSearchAdapters, setAggregateTextSearchAdapters] = useState<object[]>();
     const [locationState, setLocationState] = useState<string>();
     const [defaultViewState, setDefaultViewState] = useState<object>();
@@ -41,7 +45,7 @@ const JBrowseView = ({
     useEffect(() => {
         setAssembly({
             name: my_assembly.name,
-            active: true,
+            // @ts-expect-error param sequence appears to be undocumented but works
             sequence: {
                 type: 'ReferenceSequenceTrack',
                 trackId: my_assembly.name + '-ReferenceSequenceTrack',
@@ -132,19 +136,6 @@ const JBrowseView = ({
     }, [annotations]);
 
     useEffect(() => {
-        const annotationsTracks = annotations.map((annotation) => {
-            return {
-                type: 'FeatureTrack',
-                configuration: 'track_annotation_' + annotation.id,
-                displays: [
-                    {
-                        type: 'LinearBasicDisplay',
-                        height: 150,
-                        configuration: 'track_annotation_' + annotation.id + '-LinearBasicDisplay',
-                    },
-                ],
-            };
-        });
         setDefaultSession({
             name: 'My session',
             view: {
@@ -157,17 +148,13 @@ const JBrowseView = ({
                         displays: [
                             {
                                 type: 'LinearReferenceSequenceDisplay',
-                                height: 400,
                                 configuration: my_assembly.name + '-ReferenceSequenceTrack-LinearReferenceSequenceDisplay',
                             },
                         ],
                     },
-
-                    ...annotationsTracks,
                 ],
             },
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [my_assembly]);
 
     useEffect(() => {
@@ -233,7 +220,8 @@ const JBrowseView = ({
         ]);
     }, [my_assembly.name]);
 
-    return <>{assembly?.name && <JBrowseLinearGenomeView viewState={defaultViewState as object} />}</>;
+    // @ts-expect-error ViewState Object declaration does not match our input here but is compatible
+    return <>{assembly?.name && <JBrowseLinearGenomeView viewState={defaultViewState} />}</>;
 };
 
 export default JBrowseView;

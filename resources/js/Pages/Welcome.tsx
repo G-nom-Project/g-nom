@@ -1,10 +1,11 @@
 import TopBar from '@/Components/TopNavBar';
 import { Head } from '@inertiajs/react';
+import React from 'react';
 import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 
-export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdate }) {
+export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdate } : {totalAssemblies: number, taxaWithAssemblies: number, rootUpdate: string}) {
     return (
-        <>
+        <React.Fragment>
             <Head title="Home" />
             <TopBar />
             <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
@@ -40,6 +41,6 @@ export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdat
                     </Card>
                 </Container>
             </div>
-        </>
+        </React.Fragment>
     );
 }
