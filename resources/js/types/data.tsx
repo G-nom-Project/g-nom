@@ -3,6 +3,7 @@ export interface Assembly {
     name: string;
     infoText: string | null;
     taxon_id: number;
+    taxon_ncbiTaxonID: number;
     addedBy: number;
     public: boolean;
     numberOfSequences: number;
@@ -21,6 +22,9 @@ export interface Assembly {
     created_at: string;
     updated_at: string;
     mappings_count?: number;
+    taxon: TaxonData;
+    genomic_annotations: Annotation[];
+    mappings: Mapping[]
 }
 
 export interface AggregatedAssembly {

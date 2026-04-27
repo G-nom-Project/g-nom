@@ -7,7 +7,7 @@ import TaxMap from '@/Components/AssemblyPage/TaxMap';
 import { TaxaminerDashboard } from '@/Components/AssemblyPage/TaxonomicAssignmentDashboard/dashboard';
 import TopNavBar from '@/Components/TopNavBar';
 import { getLineage, getTaxonInfo } from '@/REST/taxon';
-import { Annotation, TaxonData } from '@/types/data';
+import { Annotation, Assembly, TaxonData } from '@/types/data';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
@@ -29,7 +29,8 @@ import {
     Tabs,
 } from 'react-bootstrap';
 
-export default function Assemblies({ assembly }) {
+
+export default function Assemblies({ assembly } : { assembly: Assembly }) {
     const [renderCompleteness, setRenderCompleteness] = useState<boolean>(false);
     const [renderRepeats, setRenderRepeats] = useState<boolean>(false);
     const [location, setLocation] = useState<string>('');
@@ -38,8 +39,8 @@ export default function Assemblies({ assembly }) {
     const [activeTab, setActiveTab] = useState('image');
 
     // Taxon Information
-    const [taxonHeadline, setTaxonHeadline] = useState<string>(null);
-    const [taxonInfo, setTaxonInfo] = useState<string>(null);
+    const [taxonHeadline, setTaxonHeadline] = useState<string>("");
+    const [taxonInfo, setTaxonInfo] = useState<string>("");
 
 
     useEffect(() => {
@@ -71,9 +72,6 @@ export default function Assemblies({ assembly }) {
         }
     }, [assembly]);
 
-    useEffect(() => {
-        console.log(location);
-    }, [location]);
 
     const getGeoData = async (ncbiTaxonID: number) => {
         try {
@@ -466,7 +464,7 @@ export default function Assemblies({ assembly }) {
                                                 </Button>
                                                 <br />
                                             </Card.Body>
-                                            <ListGroup variant="flush">
+                                            <ListGroup variant="flush" key="annot_list">
                                                 <ListGroup.Item className="text-muted">
                                                     <i className="bi bi-database"></i> Reference sequence
                                                 </ListGroup.Item>

@@ -3,12 +3,11 @@
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -97,10 +96,21 @@ Route::middleware([
     Route::post('/upload-taxaminer', [TaxaminerController::class, 'uploadTaxaminer']);
 });
 
+// Jobs
+Route::middleware([
+    'auth',
+])->group(function () {
+    Route::get('/create-blast', [JobController::class, 'createBLAST']);
+    Route::put('/create-blast', [JobController::class, 'dispatchBLAST']);
+});
+
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
     ->where('path', '.*')->middleware(['auth']);
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
+
+Route::get('/jobs', [\App\Http\Controllers\JobController::class, 'index'])->name('jobs')->middleware(['auth']);
+Route::get('/job/{job_id}', [\App\Http\Controllers\JobController::class, 'details'])->name('job.details')->middleware(['auth']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');

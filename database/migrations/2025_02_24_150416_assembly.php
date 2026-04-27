@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Shard;
+use App\Models\Taxon;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,9 +16,10 @@ return new class extends Migration
         //
         Schema::create('assemblies', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Shard::class)->constrained();
             $table->string('name');
             $table->string('infoText')->nullable();
-            $table->foreignIdFor(\App\Models\Taxon::class)->constrained();
+            $table->foreignIdFor(Taxon::class)->constrained();
             $table->integer('addedBy');
             $table->boolean('public')->default(false);
             $table->bigInteger('numberOfSequences')->default(0);

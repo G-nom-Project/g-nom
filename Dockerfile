@@ -29,8 +29,8 @@ RUN apt-get install -y \
     samtools \
     nodejs \
     npm \
-    libpq-dev \
-    libmagickwand-dev
+    libmagickwand-dev \
+    ncbi-blast+
 
 # Install JBrose CLI
 RUN npm install -g @jbrowse/cli

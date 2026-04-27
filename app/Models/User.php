@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->hasMany(Bookmark::class);
     }
 
+    public function jobs()
+    {
+        return $this->hasMany(UserJob::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

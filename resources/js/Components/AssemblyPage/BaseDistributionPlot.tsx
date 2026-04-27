@@ -13,7 +13,7 @@ interface BaseData {
 
 const BaseDistributionPlot = ({ assembly }: { assembly: Assembly }) => {
     const [data, setData] = useState<BaseData[]>();
-    const [layout, setLayout] = useState<>({});
+    const [layout, setLayout] = useState({});
 
     useEffect(() => {
         getData();

@@ -2,17 +2,20 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Base\TrackableJob;
+use App\Jobs\Concerns\DispatchesTrackableJobs;
 use App\Models\Assembly;
+use App\Models\Shard;
+use App\Models\UserJob;
 use App\Notifications\ImportCompleted;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
-class ImportAssembly implements ShouldQueue
+class ImportAssembly extends TrackableJob
 {
-    use Queueable;
+    use DispatchesTrackableJobs, Queueable;
 
     protected string $filepath;
 
@@ -22,8 +25,10 @@ class ImportAssembly implements ShouldQueue
 
     protected $user;
 
-    public function __construct(string $filepath, int $taxonID, string $name, $user)
+    public function __construct(int $userJobId, string $filepath, int $taxonID, string $name, $user)
     {
+        parent::__construct($userJobId);
+
         $this->filepath = $filepath;
         $this->taxonID = $taxonID;
         $this->user = $user;
@@ -32,6 +37,21 @@ class ImportAssembly implements ShouldQueue
 
     public function handle(): void
     {
+        // Update trackable job
+        $this->markRunning();
+
+        // Create or find the current shard
+        $shard_size = config('gnom.shard_size');
+        Log::info('Shard size is '.$shard_size);
+        $total_assemblies = Assembly::all()->count();
+        $shard_id = floor($total_assemblies / $shard_size) + 1;
+
+        $shard = Shard::where('id', $shard_id)->first();
+        if (! $shard) {
+            $shard = new Shard;
+            $shard->save();
+        }
+
         $assembly = new Assembly;
         $assembly->name = $this->name;
         $assembly->infoText = null;
@@ -39,10 +59,11 @@ class ImportAssembly implements ShouldQueue
         $assembly->addedBy = $this->user->getAuthIdentifier();
         $assembly->user_id = $this->user->getAuthIdentifier();
         $assembly->public = false;
+        $assembly->shard_id = $shard_id;
         $assembly->save();
 
         $assemblyId = $assembly->id;
-
+        $this->setProgress(20);
         $sourcePath = $this->filepath;
         $targetPath = "taxa/{$this->taxonID}/{$assemblyId}/assembly.fa";
 
@@ -55,12 +76,25 @@ class ImportAssembly implements ShouldQueue
                 $vault->makeDirectory($targetDir);
             }
 
-            $sourceFile = fopen($local->path($sourcePath), 'rb');
-            $targetFile = fopen($vault->path($targetPath), 'wb');
+            $sourceFile = fopen($local->path($sourcePath), 'r');
+            $targetFile = fopen($vault->path($targetPath), 'w');
 
-            while (! feof($sourceFile)) {
-                $buffer = fread($sourceFile, 1024);
-                fwrite($targetFile, $buffer);
+            while (($line = fgets($sourceFile)) !== false) {
+                if (str_starts_with($line, '>')) {
+
+                    // Strip newline
+                    $header = preg_replace('/\R+/', ' ', $line);
+                    /**
+                     * We append the assemblyID to the FASTA header to make BLAST results differentiable across
+                     * assemblies with overlapping sequence identifiers. The | char serves as separator, while the
+                     * added space ensures the FASTA ID stays unaltered (this prevents mismatching chromosome IDs in gff
+                     * files).
+                     */
+                    $newHeader = $header.' |'.$assemblyId;
+                    fwrite($targetFile, $newHeader."\n");
+                } else {
+                    fwrite($targetFile, $line);
+                }
             }
 
             fclose($sourceFile);
@@ -68,7 +102,7 @@ class ImportAssembly implements ShouldQueue
         } else {
             Log::warning("File not found while trying to copy: $sourcePath");
         }
-
+        $this->setProgress(40);
         $stats = $this->parseFasta($targetPath);
         if (isset($stats['error'])) {
             Log::error('Error: '.$stats['error']);
@@ -88,9 +122,21 @@ class ImportAssembly implements ShouldQueue
         $assembly->lengthDistributionString = $stats['length_distribution'];
         $assembly->update();
 
+        $this->setProgress(60);
         $this->prepareJBrowse("taxa/{$this->taxonID}/{$assemblyId}/");
 
+        $other_imports = UserJob::where('job_class', '\App\Jobs\ImportAssembly')
+            ->where('status', '!=', 'completed')
+            ->where('status', '!=', 'failed')
+            ->where('id', '>', $this->userJobId)
+            ->get();
+
+        if ($other_imports->count() == 0) {
+            $this->dispatchTrackable('App\Jobs\RebuildBlastShard', [$shard_id], user_id: $this->user->id, queue: 'long');
+        }
+
         $this->user->notify(new ImportCompleted($assemblyId));
+        $this->markCompleted(['assemblyID' => $assemblyId]);
     }
 
     public function prepareJBrowse(string $path): void
@@ -131,7 +177,6 @@ class ImportAssembly implements ShouldQueue
         }
 
         $script = base_path('resources/scripts/fasta_parser.pl');
-        Log::info("$script \"$filePath\"");
         $result = Process::run("$script \"$filePath\"");
 
         if ($result->failed()) {

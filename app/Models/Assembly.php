@@ -68,4 +68,9 @@ class Assembly extends Model
     {
         return $this->hasMany(Bookmark::class, 'assembly_id');
     }
+
+    public function shard()
+    {
+        return $this->belongsTo(Shard::class);
+    }
 }

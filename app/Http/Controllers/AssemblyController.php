@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\Concerns\DispatchesTrackableJobs;
 use App\Jobs\ImportAnnotation;
-use App\Jobs\ImportAssembly;
 use App\Jobs\ImportBusco;
 use App\Jobs\ImportMapping;
 use App\Jobs\ImportRepeatmasker;
@@ -15,13 +15,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AssemblyController extends Controller
 {
+    use DispatchesTrackableJobs;
+
     public function index(Request $request): Response
     {
         $search = $request->input('search');
@@ -126,8 +127,7 @@ class AssemblyController extends Controller
             $user->notify(new UploadComplete($path));
         }
 
-        // Handle files and database entry
-        ImportAssembly::dispatch($path, $taxonID, $name, $user);
+        $this->dispatchTrackable('App\Jobs\ImportAssembly', payload: [$path, $taxonID, $name, $user], queue: 'long');
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
@@ -281,7 +281,7 @@ class AssemblyController extends Controller
         $uniqueName = Str::random(20);
 
         // Store the file with a unique name and the original extension
-        $path = $file->storeAs('uploads', $uniqueName.".tbl");
+        $path = $file->storeAs('uploads', $uniqueName.'.tbl');
         $assemblyID = $request->input('assemblyID');
         $taxonID = $request->input('taxonID');
         $user = Auth::user();
@@ -296,7 +296,7 @@ class AssemblyController extends Controller
         // Add Annotation to genome Browser
         $file = $request->file('out');
         $path = $file->storeAs('uploads', $uniqueName.'.out');
-        ImportAnnotation::dispatch("uploads/$uniqueName.tbl.gff", $assemblyID, $taxonID, "Repeatmasker", $user, true);
+        ImportAnnotation::dispatch("uploads/$uniqueName.tbl.gff", $assemblyID, $taxonID, 'Repeatmasker', $user, true);
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
