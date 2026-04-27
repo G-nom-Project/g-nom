@@ -37,7 +37,7 @@ class ImportRepeatmasker implements ShouldQueue
     {
         $local = Storage::disk('local');
         try {
-            $sourcePath = $local->path($this->filepath . ".tbl");
+            $sourcePath = $local->path($this->filepath.'.tbl');
 
             if (! file_exists($sourcePath)) {
                 Log::error("RepeatMasker file not found: {$sourcePath}");

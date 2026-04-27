@@ -1,6 +1,7 @@
 import { ThemeConfiguration } from '@/Components/GenomeBrowser/config';
+import { Assembly } from '@/types/data';
 
-const generateConfig = (assembly, location_string = null) => {
+const generateConfig = (assembly: Assembly, location_string: string | undefined) => {
     // Convert Annotations into JBrowse Tracks
     const annot_basename = 'sorted.gff3.gz';
 
@@ -116,7 +117,7 @@ const generateConfig = (assembly, location_string = null) => {
         trackId: `${assembly.name}-GC`,
         assemblyNames: [assembly.name],
         name: 'GC-Content',
-
+        category: ['Default Tracks'],
         adapter: {
             type: 'BgzipFastaAdapter',
             fastaLocation: {
@@ -165,54 +166,14 @@ const generateConfig = (assembly, location_string = null) => {
             name: assembly.name + ' - default',
             drawerPosition: 'right',
             margin: 0,
-            views: [
-                {
-                    minimized: false,
-                    type: 'LinearGenomeView',
-                    bpPerPx: 156,
-                    displayedRegions: [],
-                    tracks: [
-                        {
-                            id: 'go3o6ho0mM7l7Er9lRI1M',
-                            type: 'FeatureTrack',
-                            configuration: 'repeatmasker',
-                            minimized: false,
-                            pinned: false,
-                            displays: [
-                                {
-                                    id: 'nZpYE3hwBCR0vTiQAWq26',
-                                    type: 'LinearBasicDisplay',
-                                    configuration: 'repeatmasker-LinearBasicDisplay',
-                                },
-                            ],
-                        },
-                    ],
-                    hideHeader: false,
-                    hideHeaderOverview: false,
-                    hideNoTracksActive: false,
-                    trackSelectorType: 'hierarchical',
-                    showCenterLine: false,
-                    showCytobandsSetting: true,
-                    trackLabels: '',
-                    showGridlines: true,
-                    highlight: [],
-                    colorByCDS: false,
-                    showTrackOutlines: true,
-                    bookmarkHighlightsVisible: true,
-                    bookmarkLabelsVisible: true,
-                },
-            ],
+            views: [],
         },
-
         configuration: {
             theme: ThemeConfiguration,
         },
     };
     if (location_string) {
         const partials = location_string.split('|');
-        partials[1] = parseInt(partials[1].replaceAll(',', ''));
-        partials[2] = parseInt(partials[2].replaceAll(',', ''));
-
         const hit_track = {
             type: 'FeatureTrack',
             trackId: 'current_hit',
@@ -226,30 +187,14 @@ const generateConfig = (assembly, location_string = null) => {
                     {
                         uniqueId: 'one',
                         refName: partials[0],
-                        start: partials[1],
-                        end: partials[2],
+                        start: parseInt(partials[1].replaceAll(',', '')),
+                        end: parseInt(partials[2].replaceAll(',', '')),
                         name: 'Selected Region',
                     },
                 ],
             },
         };
-
-        const view_config = {
-            id: 'fromurl-view',
-            type: 'FeatureTrack',
-            configuration: 'current_hit',
-            minimized: false,
-            pinned: true,
-            displays: [
-                {
-                    id: 'nZpYE3hwBCR0vTiQAWq26',
-                    type: 'LinearBasicDisplay',
-                    configuration: 'current_hit-LinearBasicDisplay',
-                },
-            ],
-        };
         config.tracks.push(hit_track);
-        config.defaultSession.views[0].tracks.push(view_config);
     }
     return config;
 };

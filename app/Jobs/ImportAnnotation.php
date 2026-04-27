@@ -21,6 +21,7 @@ class ImportAnnotation implements ShouldQueue
     protected int $taxonID;
 
     protected string $name;
+
     protected string $category;
 
     protected $user;
@@ -30,7 +31,7 @@ class ImportAnnotation implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $filepath, int $assemblyID, int $taxonID, string $name, $user, $is_repeatmasker = false, $category= "Annotations")
+    public function __construct(string $filepath, int $assemblyID, int $taxonID, string $name, $user, $is_repeatmasker = false, $category = 'Annotations')
     {
         //
         $this->filepath = $filepath;
@@ -56,7 +57,7 @@ class ImportAnnotation implements ShouldQueue
         $annotation->featureCount = 0;
 
         if ($this->is_repeatmasker) {
-            $annotation->category = "Default Tracks";
+            $annotation->category = 'Default Tracks';
         } else {
             $annotation->category = $this->category;
         }
@@ -77,7 +78,6 @@ class ImportAnnotation implements ShouldQueue
         } else {
             $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/annotations/{$annotationID}";
         }
-
 
         if ($local->exists($sourcePath)) {
             $targetDir = dirname($targetPath);
