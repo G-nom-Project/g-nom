@@ -68,7 +68,6 @@ class RebuildBlastShard extends TrackableJob implements ShouldBeUnique, ShouldQu
             if ($result->failed()) {
                 Log::critical('Failed to build BLAST Alias: '.$result->errorOutput());
                 $this->fail('Failed to build BLAST Alias');
-                $this->markFailed();
             }
 
             // Dispatch deferred jobs
@@ -78,7 +77,7 @@ class RebuildBlastShard extends TrackableJob implements ShouldBeUnique, ShouldQu
                 Log::info($job->payload['query']);
                 SingleBlastQuery::dispatch($job->id, $job->payload['query'], $job->user_id);
             }
-            $this->markCompleted();
+            $this->markCompleted([]);
         } finally {
             Log::info('Releasing BLAST Rebuild lock');
             Cache::forget('rebuilding_blast_shard');

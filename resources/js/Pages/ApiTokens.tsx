@@ -11,7 +11,7 @@ export default function ApiTokens() {
     const [showModal, setShowModal] = useState(!!plainTextToken);
 
     const RESOURCES = ['assemblies', 'taxon'];
-    const ACTIONS = ['read', 'write', 'delete'];
+    const ACTIONS = ['read', 'write', 'create', 'delete'];
     const [abilities, setAbilities] = useState([]);
 
     const toggleAbility = (resource, action) => {

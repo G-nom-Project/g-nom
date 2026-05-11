@@ -48,16 +48,10 @@ export default function Taxon({ taxon }) {
 
     const handleGeoSubmit = (event) => {
         const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        } else {
-            event.preventDefault();
-            event.stopPropagation();
+        if (form.checkValidity() ) {
             uploadGeoData(taxon.ncbiTaxonID, geoFormData);
         }
         setGeoValidated(true);
-        window.location.reload();
     };
 
     const handleImageUpload = async () => {
@@ -351,7 +345,7 @@ export default function Taxon({ taxon }) {
                         {showAddGeo && (
                             <>
                                 <h5>Metadata</h5>
-                                <Form noValidate validated={geoValidated} onSubmit={handleGeoSubmit}>
+                                <Form noValidate validated={geoValidated}>
                                     <Form.Group className="mb-2">
                                         <Form.Label>Name</Form.Label>
                                         <Form.Control name="name" value={geoFormData.name} onChange={handleGeoChange} required />
@@ -395,7 +389,7 @@ export default function Taxon({ taxon }) {
                                         <Form.Label>Raw data</Form.Label>
                                         <Form.Control as="textarea" rows={3} name="data" value={geoFormData.data} onChange={handleGeoChange} />
                                     </Form.Group>
-                                    <Button type="submit">Submit Geo Data</Button>
+                                    <Button onClick={handleGeoSubmit}>Submit Geo Data</Button>
                                 </Form>
                             </>
                         )}

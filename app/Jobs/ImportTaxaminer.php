@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Base\TrackableJob;
 use App\Models\TaxaminerAnalysis;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
-class ImportTaxaminer implements ShouldQueue
+class ImportTaxaminer extends TrackableJob
 {
     use Queueable;
 
@@ -26,9 +26,10 @@ class ImportTaxaminer implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($filepath, $assemblyID, $taxonID, string $name)
+    public function __construct(int $userJobId, string $filepath, int $assemblyID, int $taxonID, string $name)
     {
         //
+        parent::__construct($userJobId);
         $this->filepath = $filepath;
         $this->assemblyID = $assemblyID;
         $this->taxonID = $taxonID;
@@ -41,11 +42,12 @@ class ImportTaxaminer implements ShouldQueue
     public function handle(): void
     {
         //
+        $this->markRunning();
         $analysis = new TaxaminerAnalysis;
         $analysis->assembly_id = $this->assemblyID;
         $analysis->name = $this->name;
         $analysis->save();
-
+        Log::debug($analysis);
         $analysisID = $analysis->id;
 
         $local = Storage::disk('local');
@@ -57,25 +59,23 @@ class ImportTaxaminer implements ShouldQueue
             $targetPath = "taxa/{$this->taxonID}/{$this->assemblyID}/taxaminerAnalyses/{$analysisID}/";
             $zip->extractTo($vault->path($targetPath));
             $zip->close();
-            Log::warning('Taxaminer zip extracted to '.$targetPath);
+            Log::debug('Taxaminer zip extracted to '.$targetPath);
         } else {
             Log::warning('failed to open zip file');
 
             return;
         }
-
-        $result = Process::run('bgzip '.escapeshellarg($vault->path($targetPath.'proteins.faa')));
+        $this->setProgress(10);
+        $result = Process::timeout(1500)->run('bgzip '.escapeshellarg($vault->path($targetPath.'proteins.faa')));
         if ($result->failed()) {
-            Log::critical('bgzip failed: '.$result->errorOutput());
-            $this->fail('Failed while compressing file!');
+            throw new \RuntimeException('bgzip failed: '.$result->errorOutput());
         }
-
-        $result = Process::run('samtools faidx '.escapeshellarg($vault->path($targetPath.'proteins.faa.gz')));
+        $this->setProgress(30);
+        $result = Process::timeout(1500)->run('samtools faidx '.escapeshellarg($vault->path($targetPath.'proteins.faa.gz')));
         if ($result->failed()) {
-            Log::critical('samtools faidx failed: '.$result->errorOutput());
-            $this->fail('Failed while generating FASTA index!');
+            throw new \RuntimeException('Failed while generating FASTA index: '.$result->errorOutput());
         }
-
+        $this->setProgress(50);
         /** Import of diamond results
          * Relevant fields in correspondence to the reduced output mode are:
          * ['qseqid', 'sseqid', 'pident', 'length', evalue', 'bitscore', 'staxids', 'ssciname']
@@ -106,7 +106,6 @@ class ImportTaxaminer implements ShouldQueue
             ];
 
             if (count($batch) >= $batchSize) {
-                Log::info("Inserting batch size: $batchSize");
                 DB::table('taxaminer_diamond_hits')->insert($batch);
                 $batch = [];
             }
@@ -117,5 +116,11 @@ class ImportTaxaminer implements ShouldQueue
         }
 
         fclose($file);
+        $this->markCompleted([]);
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        $this->markFailed($e);
     }
 }

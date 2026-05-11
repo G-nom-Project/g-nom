@@ -25,7 +25,6 @@ abstract class TrackableJob implements ShouldQueue
 
     protected function markRunning(): void
     {
-        logger('Updating job', ['id' => $this->userJobId]);
         $this->jobModel()->update([
             'status' => 'running',
             'started_at' => now(),
@@ -42,11 +41,11 @@ abstract class TrackableJob implements ShouldQueue
         ]);
     }
 
-    protected function markFailed(\Throwable $e): void
+    protected function markFailed(\Throwable|string $error): void
     {
         $this->jobModel()->update([
             'status' => 'failed',
-            'error_message' => $e->getMessage(),
+            'error_message' => (string) $error,
             'finished_at' => now(),
         ]);
     }

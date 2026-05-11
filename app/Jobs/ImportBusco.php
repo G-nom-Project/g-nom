@@ -2,15 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Base\TrackableJob;
 use App\Models\BuscoAnalysis;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
-class ImportBusco implements ShouldQueue
+class ImportBusco extends TrackableJob
 {
     use Queueable;
 
@@ -29,8 +28,10 @@ class ImportBusco implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $filepath, int $assemblyID, int $taxonID, string $name, $user)
+    public function __construct(int $userJobId, string $filepath, int $assemblyID, int $taxonID, string $name, $user)
     {
+        parent::__construct($userJobId);
+
         $this->filepath = $filepath;
         $this->assemblyID = $assemblyID;
         $this->taxonID = $taxonID;
@@ -43,6 +44,9 @@ class ImportBusco implements ShouldQueue
      */
     public function handle(): void
     {
+
+        $this->markRunning();
+
         // Storage definitions
         $vault = Storage::disk('vault');
         $local = Storage::disk('local');
@@ -87,6 +91,8 @@ class ImportBusco implements ShouldQueue
 
         $analysis->targetFile = $stats['targetFile'];
         $analysis->update();
+
+        $this->markCompleted();
     }
 
     public function parseBusco(string $filePath)
@@ -97,7 +103,7 @@ class ImportBusco implements ShouldQueue
         }
 
         $script = base_path('resources/scripts/parse_busco.pl');
-        Log::info("$script \"$filePath\"");
+        Log::debug("$script \"$filePath\"");
         $result = Process::run("$script \"$filePath\"");
 
         if ($result->failed()) {
@@ -111,15 +117,8 @@ class ImportBusco implements ShouldQueue
 
             return ['error' => 'Failed to parse JSON'];
         }
-        Log::info($output);
+        Log::debug($output);
 
         return $output;
-    }
-
-    public function middleware(): array
-    {
-        return [
-            (new WithoutOverlapping("status:{$this->assemblyID}"))->shared(),
-        ];
     }
 }

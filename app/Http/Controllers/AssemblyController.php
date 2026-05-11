@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\Concerns\DispatchesTrackableJobs;
-use App\Jobs\ImportAnnotation;
-use App\Jobs\ImportBusco;
 use App\Jobs\ImportMapping;
-use App\Jobs\ImportRepeatmasker;
 use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Notifications\UploadComplete;
@@ -127,11 +124,12 @@ class AssemblyController extends Controller
             $user->notify(new UploadComplete($path));
         }
 
-        $this->dispatchTrackable('App\Jobs\ImportAssembly', payload: [$path, $taxonID, $name, $user], queue: 'long');
+        $job = $this->dispatchTrackable('App\Jobs\ImportAssembly', payload: [$path, $taxonID, $name, $user], queue: 'long');
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
-            'path' => $path,
+            'jobID' => $job->id,
+            'jobUser' => $job->user->name,
         ]);
     }
 
@@ -174,11 +172,12 @@ class AssemblyController extends Controller
 
         Log::info('Dispatching Annotation Import Job now');
         // Handle files and database entry
-        ImportAnnotation::dispatch($path, $assemblyID, $taxonID, $name, $user);
+        $job = $this->dispatchTrackable('App\Jobs\ImportAnnotation', payload: [$path, $assemblyID, $taxonID, $name], queue: 'long');
 
         return response()->json([
             'message' => 'Assembly imported successfully.',
-            'path' => $path,
+            'jobID' => $job->id,
+            'jobUser' => $job->user->name,
         ]);
     }
 
@@ -253,11 +252,11 @@ class AssemblyController extends Controller
 
         Log::info('Dispatching BUSCO Import Job @ '.$path);
         // Handle files and database entry
-        ImportBusco::dispatch($path, $assemblyID, $taxonID, $name, $user);
+        $job = $this->dispatchTrackable('\App\Jobs\ImportBusco', payload: [$path, $assemblyID, $taxonID, $name, $user], queue: 'default');
 
         return response()->json([
-            'message' => 'Assembly imported successfully.',
-            'path' => $path,
+            'message' => 'BUSCO upload complete. Dispatching import Job.',
+            'jobID' => $job->id,
         ]);
     }
 
@@ -277,11 +276,13 @@ class AssemblyController extends Controller
 
         // Store in upload directory
         $file = $request->file('summary');
-        $originalExtension = $file->getClientOriginalExtension();
         $uniqueName = Str::random(20);
 
         // Store the file with a unique name and the original extension
         $path = $file->storeAs('uploads', $uniqueName.'.tbl');
+        $file = $request->file('out');
+        $path = $file->storeAs('uploads', $uniqueName.'.out');
+
         $assemblyID = $request->input('assemblyID');
         $taxonID = $request->input('taxonID');
         $user = Auth::user();
@@ -292,15 +293,19 @@ class AssemblyController extends Controller
 
         Log::info('Dispatching Repeatmasker Import Job @ '.$path);
         // Handle files and database entry
-        ImportRepeatmasker::dispatch("uploads/$uniqueName", $assemblyID, $taxonID);
-        // Add Annotation to genome Browser
-        $file = $request->file('out');
-        $path = $file->storeAs('uploads', $uniqueName.'.out');
-        ImportAnnotation::dispatch("uploads/$uniqueName.tbl.gff", $assemblyID, $taxonID, 'Repeatmasker', $user, true);
+        $this->dispatchTrackableChain([
+            [
+                'class' => \App\Jobs\ImportRepeatmasker::class,
+                'payload' => ["uploads/$uniqueName", $assemblyID, $taxonID],
+            ],
+            [
+                'class' => \App\Jobs\ImportAnnotation::class,
+                'payload' => ["uploads/$uniqueName.tbl.gff", $assemblyID, $taxonID, 'Repeatmasker', true],
+            ],
+        ], queue: 'long');
 
         return response()->json([
-            'message' => 'Assembly imported successfully.',
-            'path' => $path,
+            'message' => 'Upload successful. Dispatching RepeatMasker Import Job',
         ]);
     }
 

@@ -72,13 +72,14 @@ class TaxonController extends Controller
      */
     public function uploadGeoData($taxonID, Request $request): JsonResponse
     {
+        Log::debug('Validating Geo DATA');
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'source_link' => 'required|string|max:512',
             'data_link' => 'nullable|string|max:512',
-            'data' => 'nullable|array',
+            'data' => 'nullable|json',
         ]);
 
         Log::info('Received new Geo data'.$validated['name']);

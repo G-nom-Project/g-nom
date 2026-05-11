@@ -99,6 +99,9 @@ class ImportAssembly extends TrackableJob
 
             fclose($sourceFile);
             fclose($targetFile);
+
+            // Remove from uploads directory
+            Storage::delete($local->path($sourcePath));
         } else {
             Log::warning("File not found while trying to copy: $sourcePath");
         }
@@ -146,21 +149,23 @@ class ImportAssembly extends TrackableJob
         $gzippedFile = $path.'assembly.fa.gz';
         Log::info("Preparing jBrowse for $gzippedFile");
 
-        $result = Process::run('bgzip '.escapeshellarg($vault->path($path.'assembly.fa')));
+        $result = Process::timeout(600)->run('bgzip '.escapeshellarg($vault->path($path.'assembly.fa')));
         if ($result->failed()) {
             Log::critical('bgzip failed: '.$result->errorOutput());
             $this->fail('Failed while compressing file!');
         }
 
+        // Delete the uncompressed file
+        Storage::delete($vault->path($path.'assembly.fa'));
         $this->filepath = $gzippedFile;
 
-        $result = Process::run('samtools faidx '.escapeshellarg($vault->path($gzippedFile)));
+        $result = Process::timeout(600)->run('samtools faidx '.escapeshellarg($vault->path($gzippedFile)));
         if ($result->failed()) {
             Log::critical('samtools faidx failed: '.$result->errorOutput());
             $this->fail('Failed while generating FASTA index!');
         }
 
-        $result = Process::run('jbrowse add-assembly '.escapeshellarg($vault->path($gzippedFile)).' --name '.escapeshellarg($this->name).' --load inPlace'.' --target '.$vault->path($path.'config.json'));
+        $result = Process::timeout(600)->run('jbrowse add-assembly '.escapeshellarg($vault->path($gzippedFile)).' --name '.escapeshellarg($this->name).' --load inPlace'.' --target '.$vault->path($path.'config.json'));
         if ($result->failed()) {
             Log::critical('JBrowse Import failed: '.$result->errorOutput());
             $this->fail('Failed while generating JBrowse track config!');
@@ -177,7 +182,7 @@ class ImportAssembly extends TrackableJob
         }
 
         $script = base_path('resources/scripts/fasta_parser.pl');
-        $result = Process::run("$script \"$filePath\"");
+        $result = Process::timeout(600)->run("$script \"$filePath\"");
 
         if ($result->failed()) {
             return ['error' => 'Perl script failed', 'message' => $result->errorOutput()];

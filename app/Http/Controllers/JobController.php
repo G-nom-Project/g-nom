@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\Concerns\DispatchesTrackableJobs;
+use App\Models\Assembly;
+use App\Models\UserJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -86,5 +88,19 @@ class JobController extends Controller
         $this->dispatchTrackable('App\Jobs\SingleBlastQuery', payload: [$request->input('query'), $user->id]);
 
         return $this->index();
+    }
+
+    public function map_job_to_assembly(Request $request, int $id)
+    {
+        $job = UserJob::findOrFail($id);
+        $assembly_id = $job->result['assemblyID'];
+        $assembly = Assembly::where('id', $assembly_id)->first();
+        $this->authorize('update', $assembly);
+
+        return json_encode([
+            'jobID' => $id,
+            'assemblyID' => $assembly_id,
+            'taxonID' => $assembly->taxon_ncbiTaxonID,
+        ]);
     }
 }

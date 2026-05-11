@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Base\TrackableJob;
 use App\Models\RepeatmaskerAnalysis;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
-class ImportRepeatmasker implements ShouldQueue
+class ImportRepeatmasker extends TrackableJob
 {
     use Queueable;
 
@@ -22,8 +21,10 @@ class ImportRepeatmasker implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($filepath, $assemblyID, $taxonID)
+    public function __construct(int $userJobId, $filepath, $assemblyID, $taxonID)
     {
+
+        parent::__construct($userJobId);
         //
         $this->filepath = $filepath;
         $this->assemblyID = $assemblyID;
@@ -35,15 +36,16 @@ class ImportRepeatmasker implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->markRunning();
+
         $local = Storage::disk('local');
+        $sourcePath = $local->path($this->filepath.'.tbl');
+
+        if (! file_exists($sourcePath)) {
+            throw new \RuntimeException("RepeatMasker file not found: {$sourcePath}");
+        }
+
         try {
-            $sourcePath = $local->path($this->filepath.'.tbl');
-
-            if (! file_exists($sourcePath)) {
-                Log::error("RepeatMasker file not found: {$sourcePath}");
-                $this->fail("RepeatMasker file not found: {$sourcePath}");
-            }
-
             $lines = file($sourcePath);
 
             $result = new RepeatmaskerAnalysis;
@@ -54,9 +56,6 @@ class ImportRepeatmasker implements ShouldQueue
             $totalSequenceLength = 0;
             $remainingSequenceLength = 0;
 
-            /**
-             * Mapping RepeatMasker labels to model fields
-             */
             $repeatMap = [
                 'sines' => ['sines', 'sines_length'],
                 'lines' => ['lines', 'lines_length'],
@@ -72,7 +71,6 @@ class ImportRepeatmasker implements ShouldQueue
             ];
 
             foreach ($lines as $line) {
-
                 if ($line === '' || $line[0] === '=' || $line[0] === '-') {
                     continue;
                 }
@@ -94,7 +92,7 @@ class ImportRepeatmasker implements ShouldQueue
 
                 if (str_contains($lineLower, 'bases masked')) {
                     $result->numberN = (int) $values[0];
-                    $result->percentN = (float) $values[1] ?? 0;
+                    $result->percentN = (float) ($values[1] ?? 0);
 
                     continue;
                 }
@@ -116,27 +114,40 @@ class ImportRepeatmasker implements ShouldQueue
                 }
             }
 
+            if ($totalSequenceLength === 0) {
+                throw new \RuntimeException('Invalid RepeatMasker file: total length = 0');
+            }
+
             $result->total_non_repetitive_length = $remainingSequenceLength;
             $result->total_non_repetitive_length_percent = $remainingSequenceLength / $totalSequenceLength;
             $result->total_repetitive_length = $totalSequenceLength - $remainingSequenceLength;
-            $result->total_repetitive_length_percent = ($totalSequenceLength - $remainingSequenceLength) / $totalSequenceLength;
-
-            Log::info('Parsed Repeatmasker: '.$result);
+            $result->total_repetitive_length_percent =
+                ($totalSequenceLength - $remainingSequenceLength) / $totalSequenceLength;
 
             $result->save();
 
         } catch (\Throwable $e) {
-
-            Log::error('Failed to parse RepeatMasker: ', [
-                'file' => $sourcePath,
-                'error' => $e->getMessage(),
-            ]);
-
-            $this->fail('Failed to parse RepeatMasker: '.$e->getMessage());
+            throw $e;
         }
 
+        // External process
         $script = base_path('resources/scripts/rm_to_gff.pl');
-        Log::info("$script < {$local->path($this->filepath)}.out > $sourcePath.gff");
-        $result = Process::run("$script < {$local->path($this->filepath)}.out > $sourcePath.gff");
+        $input = file_get_contents($local->path($this->filepath).'.out');
+        $process = Process::timeout(600)
+            ->input($input)
+            ->run($script);
+
+        if ($process->failed()) {
+            throw new \RuntimeException('GFF conversion failed');
+        }
+
+        file_put_contents($sourcePath.'.gff', $process->output());
+
+        $this->markCompleted([]);
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        $this->markFailed($e);
     }
 }

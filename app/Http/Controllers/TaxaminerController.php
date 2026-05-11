@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ImportTaxaminer;
+use App\Jobs\Concerns\DispatchesTrackableJobs;
 use App\Models\Assembly;
 use App\Models\TaxaminerConfig;
 use App\Models\TaxaminerDiamondRecord;
@@ -18,6 +18,8 @@ use Illuminate\Support\Str;
 class TaxaminerController extends Controller
 {
     //
+    use DispatchesTrackableJobs;
+
     public function fetchSummary($taxonID, $assemblyID, $analysisID)
     {
         $vault = Storage::disk('vault');
@@ -68,7 +70,7 @@ class TaxaminerController extends Controller
         $handle = fopen($vault->path($targetPath), 'r');
 
         if ($handle === false) {
-            throw new Exception("Cannot open file: $path");
+            throw new Exception("Cannot open file: $targetPath");
         }
 
         $headers = fgetcsv($handle); // first row = column names
@@ -91,7 +93,7 @@ class TaxaminerController extends Controller
         Log::debug('Attempting to read from '.$vault->path($targetPath));
         $handle = fopen($vault->path($targetPath), 'r');
         if ($handle === false) {
-            throw new Exception("Cannot open file: $path");
+            throw new Exception("Cannot open file: $targetPath");
         }
 
         $headers = fgetcsv($handle);
@@ -230,7 +232,11 @@ class TaxaminerController extends Controller
 
         Log::info('Dispatching taXaminer Import Job @ '.$path);
         // Handle files and database entry
-        ImportTaxaminer::dispatch($path, $assemblyID, $taxonID, $name);
+        $job = $this->dispatchTrackable(
+            '\App\Jobs\ImportTaxaminer',
+            ['path' => $path, 'assemblyID' => $assemblyID, 'taxonID' => $taxonID, 'name' => $name],
+            'long',
+        );
 
         return response()->json([
             'message' => 'Taxaminer Import started',

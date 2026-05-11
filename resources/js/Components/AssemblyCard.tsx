@@ -18,6 +18,7 @@ interface Props {
     taxaminers: number;
     taxon_updated_at: string;
     is_bookmarked: boolean | null;
+    taxon_name: string;
 }
 
 
@@ -57,7 +58,7 @@ const AssemblyCard = (props: Props) => {
                         </Badge>
                     </OverlayTrigger>
                 </Card.Title>
-                <Card.Subtitle className="text-muted mb-2">NCBI ID: {props.ncbiID}</Card.Subtitle>
+                <Card.Subtitle className="text-muted mb-2"><i>{props.taxon_name}</i> ({props.ncbiID})</Card.Subtitle>
                 <Card.Text style={{ maxHeight: '300px' }}>
                     {props.info_text || (
                         <p className="text-muted">

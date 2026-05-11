@@ -2,17 +2,20 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Base\TrackableJob;
 use App\Models\genomicAnnotation;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\User;
+use App\Models\UserJob;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
-class ImportAnnotation implements ShouldQueue
+class ImportAnnotation extends TrackableJob
 {
     use Queueable;
+    use SerializesModels;
 
     protected string $filepath;
 
@@ -31,14 +34,17 @@ class ImportAnnotation implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $filepath, int $assemblyID, int $taxonID, string $name, $user, $is_repeatmasker = false, $category = 'Annotations')
+    public function __construct(int $userJobId, string $filepath, int $assemblyID, int $taxonID, string $name, $is_repeatmasker = false, $category = 'Annotations')
     {
         //
+        parent::__construct($userJobId);
+
         $this->filepath = $filepath;
         $this->assemblyID = $assemblyID;
         $this->taxonID = $taxonID;
         $this->name = $name;
-        $this->user = $user;
+        $job = UserJob::where('id', $userJobId)->first();
+        $this->user = User::where('id', $job->user_id)->first();
         $this->is_repeatmasker = $is_repeatmasker;
         $this->category = $category;
     }
@@ -48,11 +54,13 @@ class ImportAnnotation implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->markRunning();
+
         //
         $annotation = new genomicAnnotation;
         $annotation->assembly_id = $this->assemblyID;
         $annotation->name = $this->name;
-        $annotation->user_id = $this->user->getAuthIdentifier();
+        $annotation->user_id = $this->user->id;
         $annotation->path = '';
         $annotation->featureCount = 0;
 
@@ -89,8 +97,13 @@ class ImportAnnotation implements ShouldQueue
             Storage::disk('vault')->put($targetPath, $local->get($this->filepath));
         }
 
+        Log::info("[$this->userJobId] Annotation files copied");
+        $this->setProgress(25);
         $this->prepareJBrowse($targetPath);
 
+        // Clean up
+        // Storage::delete($local->get($this->filepath));
+        $this->markCompleted();
     }
 
     public function prepareJBrowse(string $path): void
@@ -99,34 +112,38 @@ class ImportAnnotation implements ShouldQueue
 
         // Sort GFF file
         $script = base_path('resources/scripts/gff3sort/gff3sort.pl');
-        $result = Process::run("$script ".escapeshellarg($vault->path($path)).' > '.escapeshellarg($vault->path($path.'.sorted.gff3')));
+        $result = Process::timeout(1500)->run("$script ".escapeshellarg($vault->path($path)).' > '.escapeshellarg($vault->path($path.'.sorted.gff3')));
         if ($result->failed()) {
-            Log::critical('genometools failed: '.$result->errorOutput());
-            $this->fail('Failed while sorting file!');
+            Log::error('GFF Error: '."$script ".escapeshellarg($vault->path($path)).' > '.escapeshellarg($vault->path($path.'.sorted.gff3')));
+            throw new \Exception('genometools failed: '.$result->errorOutput());
         }
         $this->filepath = $path.'.sorted.gff3';
+        Log::debug("[$this->userJobId] Passed GFF sort");
+        $this->setProgress(50);
 
         // Compress sorted GFF file
-        $result = Process::run('bgzip --force '.escapeshellarg($vault->path($this->filepath)));
+        $result = Process::timeout(1500)->run('bgzip --force '.escapeshellarg($vault->path($this->filepath)));
         if ($result->failed()) {
-            Log::critical('bgzip failed: '.$result->errorOutput());
-            $this->fail('Failed while compressing file!');
+            Log::error("[$this->userJobId] Failed Compression -> ".$result->command()."\n -> ".$result->errorOutput());
+            throw new \Exception('bgzip failed: '.$result->errorOutput());
         }
         $this->filepath = $this->filepath.'.gz';
+        Log::debug("[$this->userJobId] Passed Compression");
+        $this->setProgress(75);
 
         // Generate Tabix
-        $result = Process::run('tabix -p gff '.escapeshellarg($vault->path($this->filepath)));
+        $result = Process::timeout(1500)->run('tabix -p gff '.escapeshellarg($vault->path($this->filepath)));
         if ($result->failed()) {
             Log::critical('tabix failed: '.$result->errorOutput());
-            $this->fail('Failed while generating Index!');
+            throw new \RuntimeException('tabix failed: '.$result->errorOutput());
         }
-
+        Log::debug("[$this->userJobId] Passed tabix");
+        $this->setProgress(95);
     }
 
-    public function middleware(): array
+    public function failed(\Throwable $e): void
     {
-        return [
-            (new WithoutOverlapping("status:{$this->assemblyID}"))->shared(),
-        ];
+        Log::critical($e->getMessage());
+        $this->markFailed($e);
     }
 }

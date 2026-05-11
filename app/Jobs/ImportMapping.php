@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Models\genomicMapping;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -108,12 +107,5 @@ class ImportMapping implements ShouldQueue
             Log::critical('samtools failed while indexing: '.$result->errorOutput());
             $this->fail('Failed while compressing file!');
         }
-    }
-
-    public function middleware(): array
-    {
-        return [
-            (new WithoutOverlapping("status:{$this->assemblyID}"))->shared(),
-        ];
     }
 }

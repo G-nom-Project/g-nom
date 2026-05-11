@@ -44,6 +44,7 @@ export default function Bookmarks({ assemblies }: { assemblies: PaginatedAssembl
                                 taxaminers={each.taxaminer_analyses_count}
                                 taxon_updated_at={each.updated_at}
                                 is_bookmarked={true}
+                                taxon_name={each.taxon.scientificName}
                             />
                         </Col>
                     );
