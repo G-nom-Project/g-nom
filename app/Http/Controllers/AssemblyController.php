@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Jobs\Concerns\DispatchesTrackableJobs;
 use App\Jobs\ImportMapping;
 use App\Models\Assembly;
+use App\Models\TaxaminerAnalysis;
+use App\Models\TaxaminerDiamondRecord;
 use App\Models\Taxon;
 use App\Notifications\UploadComplete;
+use App\Services\WikidataService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +23,7 @@ class AssemblyController extends Controller
 {
     use DispatchesTrackableJobs;
 
-    public function index(Request $request): Response
+    public function index(Request $request, WikidataService $wikidata): Response
     {
         $search = $request->input('search');
 
@@ -50,7 +53,40 @@ class AssemblyController extends Controller
             }])
             ->with('taxon.infos')
             ->paginate(12)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($assembly) use ($wikidata) {
+                $ncbiId = $assembly->taxon_ncbiTaxonID;
+                $assembly->conservation_status = null;
+                if ($ncbiId) {
+                    $status = $wikidata->getConservationStatusByNcbiId((string) $ncbiId);
+                    $assembly->conservation_status = $status['status_label'] ?? null;
+                }
+
+                return $assembly;
+            })
+            ->through(function ($assembly) use ($wikidata) {
+
+                static $cache = [];
+                if (! $assembly->taxon) {
+                    return $assembly;
+                }
+                $ncbiId = $assembly->taxon_ncbiTaxonID;
+
+                if (! isset($cache[$ncbiId])) {
+                    $cache[$ncbiId] = $wikidata->getTaxonInfoByNcbiId((string) $ncbiId);
+                }
+
+                $info = $cache[$ncbiId];
+                if (isset($info['wikipedia_summary'])) {
+                    $assembly->wikipedia_summary = $info['wikipedia_summary'];
+                }
+
+                if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
+                    $assembly->wiki_image = $info['image'];
+                }
+
+                return $assembly;
+            });
 
         return Inertia::render('Assemblies', [
             'assemblies' => $assemblies,
@@ -74,9 +110,21 @@ class AssemblyController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function show($id): Response
+    public function show($id, WikidataService $wikidata): Response
     {
-        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'fcatAnalyses', 'taxaminerAnalyses', 'taxon'])->findOrFail($id);
+        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'fcatAnalyses', 'taxaminerAnalyses', 'taxon'])
+            ->findOrFail($id);
+
+        $info = $wikidata->getTaxonInfoByNcbiId((string) $assembly->taxon_ncbiTaxonID);
+
+        if (isset($info['wikipedia_summary'])) {
+            $assembly->wikipedia_summary = $info['wikipedia_summary'];
+        }
+
+        if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
+            $assembly->wiki_image = $info['image'];
+        }
+
         $this->authorize('view', $assembly);
 
         return Inertia::render('Assembly', [
@@ -330,6 +378,31 @@ class AssemblyController extends Controller
             'totalAssemblies' => $totalAssemblies,
             'taxaWithAssemblies' => $taxaWithAssemblies,
             'rootUpdate' => $rootUpdate,
+        ]);
+    }
+
+    public function taxonomicAssignmentStats(Request $request, $assemblyID)
+    {
+        $assembly = Assembly::findOrFail($assemblyID);
+        $analysis = TaxaminerAnalysis::where('assembly_id', $assemblyID)->first();
+
+        if (! $analysis) {
+            return response()->json([
+                'data' => null,
+                'message' => 'No taxaminer analysis found for assembly '.$assemblyID.'.',
+            ]);
+        }
+
+        // Pull diamond records and group by / count by taxon label
+        $counts = TaxaminerDiamondRecord::where('taxaminer_analysis_id', $analysis->id)
+            ->select('ssciname')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('ssciname')
+            ->pluck('count', 'ssciname');
+
+        return response()->json([
+            'data' => $counts,
+            'message' => 'Taxonomic assignments extracted from taXaminer analysis'.$analysis->id,
         ]);
     }
 }

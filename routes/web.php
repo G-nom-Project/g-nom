@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies')->middleware(['auth']);
 Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show')->middleware(['auth']);
+Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 'taxonomicAssignmentStats'])->name('assemblies.taxonStats')->middleware(['auth']);
 
 Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser')->middleware(['auth']);
 Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser')->middleware(['auth']);
@@ -109,8 +110,8 @@ Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
 
-Route::get('/jobs', [\App\Http\Controllers\JobController::class, 'index'])->name('jobs')->middleware(['auth']);
-Route::get('/job/{job_id}', [\App\Http\Controllers\JobController::class, 'details'])->name('job.details')->middleware(['auth']);
+Route::get('/jobs', [JobController::class, 'index'])->name('jobs')->middleware(['auth']);
+Route::get('/job/{job_id}', [JobController::class, 'details'])->name('job.details')->middleware(['auth']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');

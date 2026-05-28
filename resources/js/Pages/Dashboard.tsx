@@ -3,23 +3,29 @@ import { Card, Col, Row } from 'react-bootstrap';
 
 export default function Dashboard() {
     return (
-            <>
+        <>
             <Head title="Dashboard" />
             <div className="container py-4">
                 <Row className="g-4">
                     <Col md={4}>
                         <Card>
                             <Card.Body>
-                                <Card.Title>Card 1</Card.Title>
+                                <Card.Title>Bookmarked assemblies</Card.Title>
                                 <Card.Text>Placeholder content for your dashboard widget.</Card.Text>
+                                <a className="btn btn-primary" href="/bookmarks">
+                                    Manage Bookmarks
+                                </a>
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col md={4}>
                         <Card>
                             <Card.Body>
-                                <Card.Title>Card 2</Card.Title>
+                                <Card.Title>Jobs</Card.Title>
                                 <Card.Text>Another dashboard placeholder card.</Card.Text>
+                                <a className="btn btn-primary" href="/jobs">
+                                    Manage Jobs
+                                </a>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -30,12 +36,13 @@ export default function Dashboard() {
                             <Card.Body>
                                 <Card.Title>API Tokens</Card.Title>
                                 <Card.Text>Generate and manage API tokens for external apps.</Card.Text>
-                                <a className="btn btn-primary" href="/api-tokens">Manage Tokens</a>
+                                <a className="btn btn-primary" href="/api-tokens">
+                                    Manage Tokens
+                                </a>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
-
 
                 <Row className="mt-4">
                     <Col>

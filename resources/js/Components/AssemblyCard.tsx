@@ -1,6 +1,9 @@
 import { Badge, Button, Card, Col, ListGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import axios from 'axios';
 import { useState } from 'react';
+import ConservationLevelBadge from '@/Components/ConservationLevelBadge';
+import { truncateAtWord } from '@/utils/text';
+import { router } from '@inertiajs/react';
 
 interface Props {
     assemblyName: string;
@@ -19,6 +22,9 @@ interface Props {
     taxon_updated_at: string;
     is_bookmarked: boolean | null;
     taxon_name: string;
+    conservation_status: string|null;
+    wiki_image: string | null;
+    is_wiki_text: boolean | null;
 }
 
 
@@ -35,12 +41,13 @@ const AssemblyCard = (props: Props) => {
         axios.delete(`/assemblies/${props.assemblyID}/bookmark`).then(() => setIsBookmarked(false));
     };
 
+
     return (
-        <Card className="md-2 assembly-card m-2" style={{ width: '100%', maxHeight: '600px' }}>
+        <Card className="md-2 assembly-card m-3" style={{ width: '100%', maxHeight: '750px' }}>
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
-                src={`/taxon/${props.ncbiID}/image?updated=${props.taxon_updated_at}`}
+                src={props.wiki_image || `/taxon/${props.ncbiID}/image?updated=${props.taxon_updated_at}`}
                 style={{
                     height: '200px',
                     objectFit: 'cover',
@@ -50,30 +57,40 @@ const AssemblyCard = (props: Props) => {
             <Card.Body>
                 <Card.Title>
                     <a className="text-decoration-none" href={`/assemblies/${props.assemblyID}`}>
-                        {props.assemblyName}
+                        {props.taxon_name}
                     </a>
                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{(props.public && 'Public access') || 'Internal use only'}</Tooltip>}>
                         <Badge className="mx-2" bg={(props.public && 'success') || 'secondary'}>
                             <i className={(props.public && 'bi bi-unlock-fill') || 'bi bi-lock-fill'}></i>
                         </Badge>
                     </OverlayTrigger>
+                    {<ConservationLevelBadge status={props.conservation_status}></ConservationLevelBadge>}
                 </Card.Title>
-                <Card.Subtitle className="text-muted mb-2"><i>{props.taxon_name}</i> ({props.ncbiID})</Card.Subtitle>
+                <Card.Subtitle className="text-muted mb-2">
+                    <i>{props.assemblyName}</i> (NCBI: {props.ncbiID})
+                </Card.Subtitle>
                 <Card.Text style={{ maxHeight: '300px' }}>
-                    {props.info_text || (
+                    {(props.info_text && truncateAtWord(props.info_text, 500)) || (
                         <p className="text-muted">
                             <b>No info text available.</b>
                         </p>
+                    )}
+                    {props.is_wiki_text && (
+                        <Badge>
+                            <i className="bi bi-wikipedia"></i>
+                        </Badge>
                     )}
                 </Card.Text>
             </Card.Body>
             <ListGroup className="list-group-flush">
                 <ListGroup.Item>
-                    <Button onClick={!isBookmarked && (() => setBookmark()) || (() => deleteBookmark())}
-                            variant={isBookmarked ? 'danger' : 'primary'}>
+                    <Button
+                        onClick={(!isBookmarked && (() => setBookmark())) || (() => deleteBookmark())}
+                        variant={isBookmarked ? 'danger' : 'primary'}
+                    >
                         <i className={!isBookmarked ? 'bi bi-bookmark-plus' : 'bi bi-bookmark-dash'}></i>
                     </Button>
-                    <Button className="m-2" href={`/assemblies/${props.assemblyID}`}>
+                    <Button className="m-2" onClick={() => router.visit(`/assemblies/${props.assemblyID}`)}>
                         Show details <i className="bi bi-arrow-right-circle"></i>
                     </Button>
                 </ListGroup.Item>

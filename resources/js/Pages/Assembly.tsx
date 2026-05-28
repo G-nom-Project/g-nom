@@ -28,6 +28,7 @@ import {
     Tab,
     Tabs,
 } from 'react-bootstrap';
+import TaxonomicDistributionPlot from '@/Components/AssemblyPage/TaxonomicDistributionPlot';
 
 
 export default function Assemblies({ assembly } : { assembly: Assembly }) {
@@ -42,6 +43,32 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
     const [taxonHeadline, setTaxonHeadline] = useState<string>("");
     const [taxonInfo, setTaxonInfo] = useState<string>("");
 
+    const [assignmentStats, setAssignmentStats] = useState(null);
+
+    /**
+     * When loading the page, pull the first taXaminer analyses and use the plot labels as compressed taxonomic assignment
+     * for the overview plot. This plot will be replaced by taxSun in the future and this Effect will be removed.
+     */
+    useEffect(() => {
+        if (assembly.taxaminer_analyses.length > 0) {
+            axios.get(`/plugins/taxaminer/${assembly.taxon_ncbiTaxonID}/${assembly.id}/${assembly.taxaminer_analyses[0].id}/scatter`)
+                .then((response) => response.data)
+                .then((data) => {
+                    let transformed = data.map((trace) => {
+                        const name = trace[0].plot_label;
+                        const value = trace.length;
+
+                        return { name: name, value: value };
+                    });
+                    transformed = transformed.filter((each) => each.name != "Unassigned");
+                    transformed.sort(function(a, b) {
+                        return b.value - a.value;
+                    });
+                    setAssignmentStats(transformed);
+                });
+        }
+    }, [assembly])
+
 
     useEffect(() => {
         const fetchTaxonData = async () => {
@@ -51,7 +78,12 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                     setTaxonInfo(info_response.data.infos[0]?.text);
                     setTaxonHeadline(info_response.data.infos[0]?.headline);
                 } else {
-                    setTaxonHeadline('No Taxon headline available');
+                    if (assembly.wikipedia_summary) {
+                        setTaxonHeadline(assembly.wikipedia_summary);
+                    } else {
+                        setTaxonHeadline('No Taxon headline available');
+                    }
+
                     setTaxonInfo('No Taxon infos provided');
                 }
 
@@ -165,7 +197,10 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                     <Card className="m-1 shadow" style={{ minHeight: '300px' }}>
                                         <Card.Img
                                             className="img-fluid rounded-top"
-                                            src={`/taxon/${assembly.taxon.ncbiTaxonID}/image?updated=${assembly.taxon.updated_at}`}
+                                            src={
+                                                assembly.wiki_image ||
+                                                `/taxon/${assembly.taxon.ncbiTaxonID}/image?updated=${assembly.taxon.updated_at}`
+                                            }
                                             alt="Card image"
                                             style={{
                                                 height: '400px',
@@ -173,7 +208,20 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                                 backgroundColor: '#D1D5DB',
                                             }}
                                         />
-                                        <Card.Body>Image Credit: {assembly.taxon.imageCredit}</Card.Body>
+                                        <Card.Body>
+                                            {(assembly.wiki_image && (
+                                                <Button
+                                                    href={
+                                                        'https://commons.wikimedia.org/wiki/File:' +
+                                                        assembly.wiki_image.split('/')[assembly.wiki_image.split('/').length - 1]
+                                                    }
+                                                    variant="secondary"
+                                                >
+                                                    <i className="bi bi-wikipedia" style={{ color: 'black' }}></i> Commons
+                                                </Button>
+                                            )) ||
+                                                'Image credit: ' + assembly.taxon.imageCredit}
+                                        </Card.Body>
                                     </Card>
                                 </Tab>
                                 <Tab title="Map" eventKey="overview-map">
@@ -193,7 +241,7 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                             <Card.Body>
                                 <Card.Title className="capitalize">{assembly.taxon.commonName || assembly.taxon.scientificName}</Card.Title>
                                 <Card.Text>
-                                    {<p>{taxonHeadline}</p> || (
+                                    {<p>{taxonHeadline || assembly.wikipedia_summary}</p> || (
                                         <Placeholder as="p" animation="glow">
                                             <Placeholder xs={12} />
                                             <Placeholder xs={5} />
@@ -324,20 +372,13 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                                         value={assembly && assembly.cumulativeSequenceLength}
                                                         readOnly={true}
                                                     />
-                                                    <InputGroup.Text id="info-number-seqs">Type</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="DNA"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.sequenceType}
-                                                        readOnly={true}
-                                                    />
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
                                                     <InputGroup.Text id="info-longest-seqs">Longest</InputGroup.Text>
                                                     <Form.Control
                                                         placeholder="Assembly"
                                                         contentEditable={false}
-                                                        value={assembly && assembly.largestSequence}
+                                                        value={assembly && assembly.longestSequence}
                                                         readOnly={true}
                                                     />
                                                     <InputGroup.Text id="info-shortest-seqs">Shortest</InputGroup.Text>
@@ -391,7 +432,9 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                     <Col xs={6}>
                                         <Card className="shadow" style={{ height: '50vh' }}>
                                             <Card.Header>TaxSun Placeholder</Card.Header>
-                                            <Card.Body></Card.Body>
+                                            <Card.Body>
+                                                {assignmentStats && <TaxonomicDistributionPlot taxa={assignmentStats} />}
+                                            </Card.Body>
                                         </Card>
                                     </Col>
                                     <Col>

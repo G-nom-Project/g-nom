@@ -17,6 +17,7 @@ export interface Assembly {
     gcPercent: number;
     gcPercentMasked: number;
     lengthDistributionString: string;
+    longestSequence: number;
     charCount: string;
     label: string | null;
     created_at: string;
@@ -24,7 +25,17 @@ export interface Assembly {
     mappings_count?: number;
     taxon: TaxonData;
     genomic_annotations: Annotation[];
-    mappings: Mapping[]
+
+    mappings: Mapping[];
+    // Analyses
+    busco_analyses: [];
+    fcat_analyses: [];
+    repeatmasker_analyses: [];
+    taxaminer_analyses: [];
+
+    // Optional infos federated via wikidata
+    wikipedia_summary: string | null;
+    wiki_image: string | null;
 }
 
 export interface AggregatedAssembly {
@@ -55,6 +66,10 @@ export interface AggregatedAssembly {
     busco_analyses_count: number;
     repeatmasker_analyses_count: number;
     taxaminer_analyses_count: number;
+    wikipedia_summary: string | null;
+    is_bookmarked: boolean;
+    conservation_status: string | null;
+    wiki_image: string | null;
 }
 
 export interface TaxonInfos {
@@ -76,6 +91,7 @@ export interface TaxonData {
     taxonRank: string;
     updated_at: string;
     infos: TaxonInfos[] | null;
+    phylopic: boolean;
 }
 
 export interface Annotation {

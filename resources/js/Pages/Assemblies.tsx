@@ -76,7 +76,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                                 assemblyName={each.name}
                                 assemblyID={each.id}
                                 ncbiID={each.taxon.ncbiTaxonID}
-                                info_text={each.taxon.infos[0]?.headline}
+                                info_text={each.taxon.infos[0]?.headline || each.wikipedia_summary}
                                 last_update={'Never'}
                                 public={true}
                                 mappings={each.mappings_count}
@@ -89,6 +89,9 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                                 taxon_updated_at={each.taxon.updated_at}
                                 is_bookmarked={each.is_bookmarked}
                                 taxon_name={each.taxon.scientificName}
+                                conservation_status={each.conservation_status}
+                                wiki_image={each.wiki_image}
+                                is_wiki_text={each.wikipedia_summary && !each.taxon.infos[0]?.headline}
                             />
                         </Col>
                     ))}
