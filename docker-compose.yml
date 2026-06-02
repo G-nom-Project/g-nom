@@ -118,7 +118,7 @@ services:
             dockerfile: qlever.Dockerfile
         volumes:
             - /etc/localtime:/etc/localtime:ro
-            - ./storage/private/vault/qlever:/index
+            - ./storage/app/vault/qlever:/index
         ports:
             - 8888
         environment:

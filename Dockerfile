@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm
 
 # Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
@@ -68,5 +68,5 @@ USER www
 EXPOSE 9000
 CMD ["php-fpm"]
 
-# This command will file if composer packages are missing of php extensions fail to load
+# This command will fail if composer packages are missing of php extensions fail to load
 HEALTHCHECK CMD php artisan about || exit 1
