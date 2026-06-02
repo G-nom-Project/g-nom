@@ -24,7 +24,7 @@
         "@typescript-eslint/parser": "^8.42.0",
         "@vitejs/plugin-react": "^4.2.0",
         "autoprefixer": "^10.4.12",
-        "axios": "^1.7.4",
+        "axios": "^1.15.2",
         "concurrently": "^9.0.1",
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
