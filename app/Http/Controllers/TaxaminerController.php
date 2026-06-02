@@ -9,6 +9,7 @@ use App\Models\TaxaminerDiamondRecord;
 use App\Notifications\UploadComplete;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Response;
@@ -196,6 +197,23 @@ class TaxaminerController extends Controller
         }
 
         return response()->json($final_lines);
+    }
+
+    public function fetchTaxSun()
+    {
+        $vault = Storage::disk('vault');
+        $file = $vault->path('taxa/103933/6/taxaminerAnalyses/7/gene_table_taxon_assignment.csv');
+        $response = Http::attach(
+            'file',
+            fopen($file, 'r'),
+            'gene_table_taxon_assignment.csv'
+        )->post('http://172.17.99.102:1234/load_tsv_data');
+
+        $data = $response->json();
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
     public function uploadTaxaminer(Request $request)

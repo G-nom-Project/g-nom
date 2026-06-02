@@ -7,8 +7,11 @@ use App\Models\TaxonGeneralInfo;
 use App\Models\TaxonGeoData;
 use App\Notifications\UploadComplete;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -213,7 +216,7 @@ class TaxonController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|object
+     * @return ResponseFactory|Application|Response|object
      */
     public function showIcon($taxonID)
     {

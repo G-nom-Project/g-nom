@@ -7,6 +7,7 @@ use App\Models\Assembly;
 use App\Models\UserJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class JobController extends Controller
@@ -28,7 +29,7 @@ class JobController extends Controller
     {
         $user = auth()->user();
         $job = $user->jobs()->find($id);
-        $vault = \Illuminate\Support\Facades\Storage::disk('vault');
+        $vault = Storage::disk('vault');
         if (! $job) {
             return 404;
         }

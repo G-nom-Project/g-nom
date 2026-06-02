@@ -1,5 +1,6 @@
 <?php
 
+use App\Logging\AddContainerProcessor;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -55,7 +56,7 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),
-            'tap' => [App\Logging\AddContainerProcessor::class],
+            'tap' => [AddContainerProcessor::class],
             'ignore_exceptions' => false,
         ],
 

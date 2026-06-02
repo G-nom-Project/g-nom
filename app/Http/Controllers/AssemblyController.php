@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\Concerns\DispatchesTrackableJobs;
+use App\Jobs\ImportAnnotation;
 use App\Jobs\ImportMapping;
+use App\Jobs\ImportRepeatmasker;
 use App\Models\Assembly;
 use App\Models\TaxaminerAnalysis;
 use App\Models\TaxaminerDiamondRecord;
@@ -11,6 +13,7 @@ use App\Models\Taxon;
 use App\Notifications\UploadComplete;
 use App\Services\WikidataService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -143,7 +146,7 @@ class AssemblyController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      *
      * @throws AuthorizationException
      */
@@ -184,7 +187,7 @@ class AssemblyController extends Controller
     /**
      * Annotations are always associated with an assembly and thus stored here.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      *
      * @throws AuthorizationException
      */
@@ -343,11 +346,11 @@ class AssemblyController extends Controller
         // Handle files and database entry
         $this->dispatchTrackableChain([
             [
-                'class' => \App\Jobs\ImportRepeatmasker::class,
+                'class' => ImportRepeatmasker::class,
                 'payload' => ["uploads/$uniqueName", $assemblyID, $taxonID],
             ],
             [
-                'class' => \App\Jobs\ImportAnnotation::class,
+                'class' => ImportAnnotation::class,
                 'payload' => ["uploads/$uniqueName.tbl.gff", $assemblyID, $taxonID, 'Repeatmasker', true],
             ],
         ], queue: 'long');
