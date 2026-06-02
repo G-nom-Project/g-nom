@@ -139,19 +139,19 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                         <Nav.Item>
                             <h1 className="band-header text-white">
                                 <b className="capitalize">{assembly.taxon.scientificName}</b>{' '}
+                                {assembly.taxon.phylopic && (
+                                    <img
+                                        src={`/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
+                                        alt="Taxon Icon"
+                                        style={{
+                                            filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
+                                            height: '1em',
+                                            width: '1em',
+                                            verticalAlign: 'center',
+                                        }}
+                                    />
+                                )}
                             </h1>
-                        </Nav.Item>
-                        <Nav.Item>
-                            {assembly.taxon.phylopic && (
-                                <img
-                                    src={`/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
-                                    alt="Taxon Icon"
-                                    style={{
-                                        height: '2rem',
-                                        filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
-                                    }}
-                                />
-                            )}
                         </Nav.Item>
                         <Nav.Item>
                             <h1 className="band-header text-white">
@@ -432,9 +432,7 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                     <Col xs={6}>
                                         <Card className="shadow" style={{ height: '50vh' }}>
                                             <Card.Header>TaxSun Placeholder</Card.Header>
-                                            <Card.Body>
-                                                {assignmentStats && <TaxonomicDistributionPlot taxa={assignmentStats} />}
-                                            </Card.Body>
+                                            <Card.Body>{assignmentStats && <TaxonomicDistributionPlot taxa={assignmentStats} />}</Card.Body>
                                         </Card>
                                     </Col>
                                     <Col>

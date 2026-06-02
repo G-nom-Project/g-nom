@@ -5,6 +5,7 @@ use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SparqlController;
 use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
@@ -44,20 +45,6 @@ Route::get('/import', function () {
     return Inertia::render('Import');
 })->name('import')->middleware('auth');
 
-/**
-Route::middleware(['auth'])->any('/plugin/taxaminer/{any?}', function (Request $request, $any = '') {
-    $proxyUrl = "http://gdock.izn-ffm.intern:1234/{$any}";
-
-    $response = Http::withHeaders($request->headers->all())
-        ->send($request->method(), $proxyUrl, [
-            'query' => $request->query(),
-            'body' => $request->getContent(),
-        ]);
-
-    return response($response->body(), $response->status())
-        ->withHeaders($response->headers());
-})->where('any', '.*');
- **/
 Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/scatter', [TaxaminerController::class, 'scatterData'])->name('taxaminer.scatter');
 Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/pca', [TaxaminerController::class, 'fetchPCA'])->name('taxaminer.pca');
 Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/config', [TaxaminerController::class, 'fetchUserConfig'])->name('taxaminer.userconfig');
@@ -118,5 +105,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
     Route::delete('/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
 });
+
+Route::post('/sparql/query', [SparqlController::class, 'query'])->middleware('auth');
+Route::get('/sparql', [SparqlController::class, 'queryPage'])->name('sparql')->middleware('auth');
 
 require __DIR__.'/auth.php';

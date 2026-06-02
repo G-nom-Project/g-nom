@@ -112,6 +112,20 @@ services:
             timeout: 3s
             retries: 3
 
+    qlever:
+        build:
+            context: .
+            dockerfile: qlever.Dockerfile
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - ./storage/private/vault/qlever:/index
+        ports:
+            - 8888
+        environment:
+            ACCESS_TOKEN: <TOKEN>
+        networks:
+            - gnom-network
+
 networks:
     gnom-network:
         driver: bridge

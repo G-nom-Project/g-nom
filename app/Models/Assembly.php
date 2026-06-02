@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\RdfService;
 use Illuminate\Database\Eloquent\Model;
 
 class Assembly extends Model
@@ -72,5 +73,43 @@ class Assembly extends Model
     public function shard()
     {
         return $this->belongsTo(Shard::class);
+    }
+
+    public function toRdfRecord(RdfService $rdf)
+    {
+        $subject = $rdf->assemblyUri($this->id);
+        $triples = [];
+        // Triple: Type
+        $triples[] = $rdf->tripleUri(
+            $subject,
+            "{$rdf->rdf}type",
+            "{$rdf->gnom}Assembly"
+        );
+        // Triple: Internal ID
+        $triples[] = $rdf->tripleLiteral(
+            $subject,
+            "{$rdf->gnom}id",
+            $this->id,
+            "{$rdf->xsd}integer"
+        );
+        // Triple: Label
+        if ($this->name !== null) {
+            $name = $rdf->escapeLiteral($this->name);
+            $triples[] = $rdf->tripleLiteral(
+                $subject,
+                "{$rdf->rdfs}label",
+                $name
+            );
+        }
+        // Triple: Taxon
+        if ($this->taxon_ncbiTaxonID !== null) {
+            $triples[] = $rdf->tripleUri(
+                $subject,
+                "{$rdf->gnom}in_taxon",
+                $rdf->taxonUri($this->taxon_ncbiTaxonID)
+            );
+        }
+
+        return $triples;
     }
 }
