@@ -78,6 +78,17 @@ export interface TaxonInfos {
     text: string | null;
 }
 
+export interface Taxon {
+    assemblies: Assembly[];
+    conservation_status: string | null;
+    infos: TaxonInfos[] | null;
+    wikipedia_summary: string | null;
+    wiki_image: string | null;
+    ncbiTaxonID: number;
+    scientificName: string | null;
+    taxonRank: string;
+    updated_at: string;
+}
 export interface TaxonData {
     assemblies: Assembly[];
     commonName: string | null;

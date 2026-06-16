@@ -37,10 +37,6 @@ Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 
 Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser')->middleware(['auth']);
 Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser')->middleware(['auth']);
 
-Route::get('/tol', function () {
-    return Inertia::render('TreeOfLife');
-})->name('tol')->middleware(['auth']);
-
 Route::get('/import', function () {
     return Inertia::render('Import');
 })->name('import')->middleware('auth');
@@ -54,6 +50,7 @@ Route::post('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/seq', [Taxam
 
 // Taxon Page
 Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon')->middleware(['auth']);
+Route::post('/taxon-by-name', [TaxonController::class, 'getTaxonByName'])->name('taxon-by-name')->middleware(['auth']);
 
 // Taxon Information
 Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies')->middleware(['auth']);
@@ -108,5 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::post('/sparql/query', [SparqlController::class, 'query'])->middleware('auth');
 Route::get('/sparql', [SparqlController::class, 'queryPage'])->name('sparql')->middleware('auth');
+
+Route::get('/tol', [TaxonController::class, 'getTol'])->name('tol')->middleware('auth');
 
 require __DIR__.'/auth.php';

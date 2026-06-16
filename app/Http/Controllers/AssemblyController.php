@@ -28,7 +28,7 @@ class AssemblyController extends Controller
 
     public function index(Request $request, WikidataService $wikidata): Response
     {
-        $search = $request->input('search');
+        $search = request('search') ?? request('query');
 
         $assemblies = Assembly::query()
             ->visibleTo($request->user())

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assembly;
 use App\Models\Taxon;
 use App\Models\TaxonGeneralInfo;
 use App\Models\TaxonGeoData;
 use App\Notifications\UploadComplete;
+use App\Services\WikidataService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
@@ -61,6 +63,148 @@ class TaxonController extends Controller
         });
 
         return response()->json(array_reverse($value));
+    }
+
+    /**
+     * Pull the lineage from the NCBI taxonomy for a given taxonID
+     */
+    private function getLineageArray(int $ncbiTaxonID): array
+    {
+        $lineage = [];
+        while ($taxon = Taxon::where('ncbiTaxonID', $ncbiTaxonID)->first()) {
+            $lineage[] = $taxon;
+
+            if (
+                $taxon->ncbiTaxonID === 1 ||
+                $taxon->parentNcbiTaxonID === $taxon->ncbiTaxonID
+            ) {
+                break;
+            }
+            $ncbiTaxonID = $taxon->parentNcbiTaxonID;
+        }
+
+        return array_reverse($lineage);
+    }
+
+    /**
+     * Generate a taxonomy tree from a given array of taxonIDs
+     */
+    private function buildTree(array $taxonIds): array
+    {
+        $root = [
+            'name' => 'root',
+            'children' => [],
+        ];
+
+        foreach ($taxonIds as $taxonId) {
+            $lineage = $this->getLineageArray($taxonId);
+            $node = &$root;
+            foreach ($lineage as $taxon) {
+                $id = $taxon->ncbiTaxonID;
+                if (! isset($node['children'][$id])) {
+                    $node['children'][$id] = [
+                        'name' => $taxon->scientificName,
+                        'children' => [],
+                    ];
+                }
+                $node = &$node['children'][$id];
+            }
+        }
+
+        return $root;
+    }
+
+    /**
+     * Converts a array representation of a tree into valid Newick
+     */
+    private function toNewick(array $node): string
+    {
+        $children = $node['children'];
+
+        if (empty($children)) {
+            return $this->escapeNewick($node['name']);
+        }
+
+        $parts = [];
+
+        foreach ($children as $child) {
+            $parts[] = $this->toNewick($child);
+        }
+
+        $label = $node['name'] !== 'root'
+            ? $this->escapeNewick($node['name'])
+            : '';
+
+        return '('.implode(',', $parts).')'.$label;
+    }
+
+    /**
+     * Helper function to strip chars which overlap with restricted chars in the Newick tree representation scheme.
+     */
+    private function escapeNewick(string $name): string
+    {
+        return str_replace(
+            [' ', '(', ')', ':', ';', ','],
+            ' ',
+            $name
+        );
+    }
+
+    /**
+     * Builds internal taxonomic tree and renders the tree of life page.
+     *
+     * @return \Inertia\Response
+     */
+    public function getTol(Request $request)
+    {
+        $newick_tree = Cache::remember('tree_of_life_newick', now()->addDay(), function () {
+            $taxa_ids = Assembly::pluck('taxon_ncbiTaxonID')->all();
+            $tree = $this->buildTree($taxa_ids);
+
+            return $this->toNewick($tree);
+        });
+
+        return Inertia::render('TreeOfLife', [
+            'newick_tree' => $newick_tree,
+        ]);
+    }
+
+    /**
+     * Matches a given string against Taxa in the database.
+     *
+     * @return JsonResponse
+     */
+    public function getTaxonByName(Request $request, WikidataService $wikidata)
+    {
+        $validated = $request->validate([
+            'taxon_name' => 'string',
+        ]);
+
+        $search = $validated['taxon_name'];
+        $taxon = Taxon::where('scientificName', $search)
+            ->with('infos')
+            ->with('assemblies')
+            ->first();
+
+        // Attach conservation status
+        if ($taxon->ncbiTaxonID) {
+            $status = $wikidata->getConservationStatusByNcbiId((string) $taxon->ncbiTaxonID);
+            $taxon->conservation_status = $status['status_label'] ?? null;
+        }
+
+        // Attach Wikipedia federated data
+        $info = $wikidata->getTaxonInfoByNcbiId((string) $taxon->ncbiTaxonID);
+        if (isset($info['wikipedia_summary'])) {
+            $taxon->wikipedia_summary = $info['wikipedia_summary'];
+        }
+        if (! $taxon['imageCredit'] && isset($info['image'])) {
+            $taxon->wiki_image = $info['image'];
+        }
+
+        return response()->json([
+            'search' => $search,
+            'taxon' => $taxon,
+        ]);
     }
 
     public function getGeoData(int $ncbiTaxonID): JsonResponse
