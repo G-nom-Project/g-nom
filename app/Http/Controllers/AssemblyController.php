@@ -288,7 +288,7 @@ class AssemblyController extends Controller
         // Store in upload directory
         $file = $request->file('summary');
         $originalExtension = $file->getClientOriginalExtension();
-        $uniqueName = Str::random(20);  // Generate a random string for uniqueness
+        $uniqueName = Str::random(20);
 
         // Store the file with a unique name and the original extension
         $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
@@ -307,6 +307,46 @@ class AssemblyController extends Controller
 
         return response()->json([
             'message' => 'BUSCO upload complete. Dispatching import Job.',
+            'jobID' => $job->id,
+        ]);
+    }
+
+    public function uploadFcat(Request $request)
+    {
+        $request->validate([
+            'summary' => 'required|file',
+            'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
+            'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
+            'name' => 'required|string|max:255',
+        ]);
+
+        // Enforce assembly policy on BUSCO imports
+        $assemblyID = $request->input('assemblyID');
+        $assembly = Assembly::where('id', $assemblyID)->first();
+        $this->authorize('update', $assembly);
+
+        // Store in upload directory
+        $file = $request->file('summary');
+        $originalExtension = $file->getClientOriginalExtension();
+        $uniqueName = Str::random(20);
+
+        // Store the file with a unique name and the original extension
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
+        $assemblyID = $request->input('assemblyID');
+        $taxonID = $request->input('taxonID');
+        $name = $request->input('name');
+        $user = Auth::user();
+
+        if ($user) {
+            $user->notify(new UploadComplete($path));
+        }
+
+        Log::info('Dispatching fCat Import Job @ '.$path);
+        // Handle files and database entry
+        $job = $this->dispatchTrackable('\App\Jobs\ImportFcat', payload: [$path, $assemblyID, $taxonID, $name, $user], queue: 'default');
+
+        return response()->json([
+            'message' => 'fCat upload complete. Dispatching import Job.',
             'jobID' => $job->id,
         ]);
     }
