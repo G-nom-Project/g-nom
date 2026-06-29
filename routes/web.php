@@ -77,6 +77,7 @@ Route::middleware([
     Route::post('/upload-annotation', [AssemblyController::class, 'uploadAnnotation']);
     Route::post('/upload-mapping', [AssemblyController::class, 'uploadMapping']);
     Route::post('/upload-busco', [AssemblyController::class, 'uploadBusco']);
+    Route::post('/upload-fcat', [AssemblyController::class, 'uploadFcat']);
     Route::post('/upload-repeatmasker', [AssemblyController::class, 'uploadRepeatmasker']);
     Route::post('/upload-taxaminer', [TaxaminerController::class, 'uploadTaxaminer']);
 });

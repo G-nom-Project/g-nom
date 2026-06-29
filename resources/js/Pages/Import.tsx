@@ -47,6 +47,9 @@ export default function Import() {
     // BUSCO Import
     const [buscoName, setBuscoName] = useState<string>();
     const [buscoSummary, setBuscoSummary] = useState<File | null>(null);
+    // fCat Import
+    const [fcatName, setfcatName] = useState<string>();
+    const [fcatSummary, setfcatSummary] = useState<File | null>(null);
     // RepeatMasker Import
     const [repeatName, setRepeatName] = useState<string>();
     const [repeatSummary, setRepeatSummary] = useState<File | null>(null);
@@ -105,10 +108,10 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True;
+            return true;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False;
+            return false;
         }
     };
 
@@ -128,10 +131,10 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True;
+            return true;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False;
+            return false;
         }
     };
 
@@ -151,10 +154,33 @@ export default function Import() {
                 },
             });
             console.log('Upload success:', response.data);
-            return True;
+            return true;
         } catch (error) {
             console.error('Upload failed:', error);
-            return False;
+            return false;
+        }
+    };
+
+    const handleFcatUpload = async () => {
+        if (!fcatSummary) return;
+
+        const formData = new FormData();
+        formData.append('summary', fcatSummary);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', taxonID);
+        formData.append('name', fcatName);
+
+        try {
+            const response = await axios.post('/upload-fcat', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return true;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return false;
         }
     };
 
@@ -205,6 +231,7 @@ export default function Import() {
     };
 
     const handleUpload = async () => {
+        console.log("bing")
         if (assemblyName) {
             await handleAssemblyUpload();
         } else {
@@ -218,6 +245,10 @@ export default function Import() {
             }
             if (buscoName) {
                 const success = await handleBuscoUpload();
+                return success;
+            }
+            if (fcatName) {
+                const success = await handleFcatUpload();
                 return success;
             }
             if (taxaminerName) {
@@ -398,6 +429,25 @@ export default function Import() {
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="fcat">
                                             <Accordion.Header>fCat</Accordion.Header>
+                                            <Accordion.Body>
+                                                <Form.Label>Select fCat summary file</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".txt"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                        setfcatSummary(e.target.files?.[0] ?? null)
+                                                    }
+                                                />
+                                                <br />
+                                                <Form.Label>Name fCat Analysis</Form.Label>
+                                                <Form.Control
+                                                    placeholder="Enter a custom name for this analysis"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setfcatName(e.target.value);
+                                                    }}
+                                                />
+                                                <br />
+                                            </Accordion.Body>
                                         </Accordion.Item>
                                         <Accordion.Item eventKey="repeatmasker">
                                             <Accordion.Header>Repeatmasker</Accordion.Header>
@@ -414,9 +464,7 @@ export default function Import() {
                                                 <Form.Control
                                                     type="file"
                                                     accept=".out"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                                        setRepeatOut(e.target.files?.[0] ?? null)
-                                                    }
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRepeatOut(e.target.files?.[0] ?? null)}
                                                 />
                                                 <br />
                                                 <Form.Label>Name Repeatmasker Analysis</Form.Label>
