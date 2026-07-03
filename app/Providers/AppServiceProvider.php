@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Bookmark;
 use App\Models\User;
+use App\Ontology\LinkMLOntology;
 use App\Policies\BookmarkPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
@@ -17,6 +18,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->singleton(LinkMLOntology::class, function () {
+            return new LinkMLOntology(
+                base_path('schema.yaml')
+            );
+        });
     }
 
     /**
