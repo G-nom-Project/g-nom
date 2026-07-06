@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use App\Models\BuscoAnalysis;
-use App\Models\genomicMapping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -21,13 +20,14 @@ class BUSCOController extends Controller
 
         BuscoAnalysis::destroy($id);
 
-        // BAM File
+        // Summary file
         if ($vault->exists("taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/analyses/BUSCO/{$id}_summary.txt")) {
             $vault->delete("taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/analyses/BUSCO/{$id}_summary.txt");
             Log::info("Deleting taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/analyses/BUSCO/{$id}_summary.txt");
         }
 
         Log::info("Deleted BUSCO {$id} for {$assembly->id}");
+
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }

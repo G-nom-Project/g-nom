@@ -36,6 +36,7 @@ class AnnotationController extends Controller
         }
 
         Log::info("Deleted Annotation {$id} for {$assembly->id}");
+
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }

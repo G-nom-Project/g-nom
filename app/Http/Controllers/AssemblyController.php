@@ -453,7 +453,8 @@ class AssemblyController extends Controller
      * Assembly Edit Methods
      */
 
-    public function editDashboard(Request $request, $assemblyID) {
+    public function editDashboard(Request $request, $assemblyID)
+    {
 
         // Authorize user
         $assembly = Assembly::with([

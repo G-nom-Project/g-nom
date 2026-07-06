@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Services\RdfService;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Taxon extends Model
 {
+    use HasFactory;
+
     protected $table = 'taxa';
 
     protected $primaryKey = 'ncbiTaxonID';
@@ -32,36 +35,36 @@ class Taxon extends Model
     public function toRdfRecord(RdfService $rdf): array
     {
         $triples = [];
+
         $subject = $rdf->taxonUri($this->ncbiTaxonID);
-        // Triple: Taxon Type
+
+        /*
+        -------------------------------------------------
+        TYPE
+        -------------------------------------------------
+        */
+
         $triples[] = $rdf->tripleUri(
             $subject,
             "{$rdf->rdf}type",
             "{$rdf->biolink}OrganismTaxon"
         );
 
-        // Triple: NCBI ID
-        $triples[] = $rdf->tripleLiteral(
-            $subject,
-            "{$rdf->gnom}ncbi_id",
-            $this->ncbiTaxonID,
-            "{$rdf->xsd}integer"
-        );
+        if ($this->scientificName !== null) {
+            $name = $rdf->escapeLiteral($this->scientificName);
 
-        // Triple: Label
-        $name = $rdf->escapeLiteral($this->scientificName);
-        $triples[] = $rdf->tripleLiteral(
-            $subject,
-            "{$rdf->rdfs}label",
-            $name
-        );
+            $triples[] = $rdf->tripleLiteral(
+                $subject,
+                "{$rdf->rdfs}label",
+                $name
+            );
+        }
 
-        // Triple: name
-        $triples[] = $rdf->tripleLiteral(
-            $subject,
-            "{$rdf->biolink}name",
-            $name
-        );
+        /*
+        -------------------------------------------------
+        TAXON HIERARCHY
+        -------------------------------------------------
+        */
 
         if ($this->parentNcbiTaxonID !== null) {
             $triples[] = $rdf->tripleUri(
