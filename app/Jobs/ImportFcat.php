@@ -23,7 +23,6 @@ class ImportFcat extends TrackableJob
 
     protected $user;
 
-
     /**
      * Create a new job instance.
      */
@@ -37,6 +36,7 @@ class ImportFcat extends TrackableJob
         $this->name = $name;
         $this->user = $user;
     }
+
     /**
      * Execute the job.
      */
@@ -46,7 +46,7 @@ class ImportFcat extends TrackableJob
         $local = Storage::disk('local');
         $sourcePath = $local->path($this->filepath);
         $analysis = $this->parseFcat($sourcePath, $this->assemblyID);
-        $this->markCompleted(["Parsed" => $analysis]);
+        $this->markCompleted(['Parsed' => $analysis]);
     }
 
     public function parseFcat(string $path, int $assemblyId): FcatAnalysis
@@ -59,7 +59,7 @@ class ImportFcat extends TrackableJob
 
         // Skip header
         fgetcsv($handle, separator: "\t");
-        $analysis = new FcatAnalysis();
+        $analysis = new FcatAnalysis;
         $analysis->assembly_id = $assemblyId;
 
         while (($row = fgetcsv($handle, separator: "\t")) !== false) {
@@ -79,20 +79,20 @@ class ImportFcat extends TrackableJob
 
             $prefix = "m{$modeNumber}_";
 
-            $analysis->{$prefix . 'similar'} = $similar;
-            $analysis->{$prefix . 'similarPercent'} = $similar / $total * 100;
+            $analysis->{$prefix.'similar'} = $similar;
+            $analysis->{$prefix.'similarPercent'} = $similar / $total * 100;
 
-            $analysis->{$prefix . 'dissimilar'} = $dissimilar;
-            $analysis->{$prefix . 'dissimilarPercent'} = $dissimilar / $total * 100;
+            $analysis->{$prefix.'dissimilar'} = $dissimilar;
+            $analysis->{$prefix.'dissimilarPercent'} = $dissimilar / $total * 100;
 
-            $analysis->{$prefix . 'duplicated'} = $duplicated;
-            $analysis->{$prefix . 'duplicatedPercent'} = $duplicated / $total * 100;
+            $analysis->{$prefix.'duplicated'} = $duplicated;
+            $analysis->{$prefix.'duplicatedPercent'} = $duplicated / $total * 100;
 
-            $analysis->{$prefix . 'missing'} = $missing;
-            $analysis->{$prefix . 'missingPercent'} = $missing / $total * 100;
+            $analysis->{$prefix.'missing'} = $missing;
+            $analysis->{$prefix.'missingPercent'} = $missing / $total * 100;
 
-            $analysis->{$prefix . 'ignored'} = $ignored;
-            $analysis->{$prefix . 'ignoredPercent'} = $ignored / $total * 100;
+            $analysis->{$prefix.'ignored'} = $ignored;
+            $analysis->{$prefix.'ignoredPercent'} = $ignored / $total * 100;
 
             // Same for every row
             $analysis->genomeID = $genomeID;
@@ -101,6 +101,7 @@ class ImportFcat extends TrackableJob
 
         fclose($handle);
         $analysis->save();
+
         return $analysis;
     }
 

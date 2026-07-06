@@ -3,12 +3,20 @@
 namespace App\Models;
 
 use App\Services\RdfService;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Assembly extends Model
 {
     //
+    use HasFactory;
+
     protected $table = 'assemblies';
+
+    protected $casts = [
+        'lengthDistributionString' => 'array',
+        'charCount' => 'array',
+    ];
 
     /**
      * Limit visibility to public assemblies or assemblies owned by a user
@@ -75,33 +83,25 @@ class Assembly extends Model
         return $this->belongsTo(Shard::class);
     }
 
-    public function toRdfRecord(RdfService $rdf)
+    public function toRdfRecord(RdfService $rdf): array
     {
         $subject = $rdf->assemblyUri($this->id);
         $triples = [];
-        // Triple: Type
+
         $triples[] = $rdf->tripleUri(
             $subject,
             "{$rdf->rdf}type",
             "{$rdf->gnom}Assembly"
         );
-        // Triple: Internal ID
-        $triples[] = $rdf->tripleLiteral(
-            $subject,
-            "{$rdf->gnom}id",
-            $this->id,
-            "{$rdf->xsd}integer"
-        );
-        // Triple: Label
+
         if ($this->name !== null) {
-            $name = $rdf->escapeLiteral($this->name);
             $triples[] = $rdf->tripleLiteral(
                 $subject,
                 "{$rdf->rdfs}label",
-                $name
+                $rdf->escapeLiteral($this->name)
             );
         }
-        // Triple: Taxon
+
         if ($this->taxon_ncbiTaxonID !== null) {
             $triples[] = $rdf->tripleUri(
                 $subject,

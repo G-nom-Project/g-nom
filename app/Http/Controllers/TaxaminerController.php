@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Concerns\DispatchesTrackableJobs;
 use App\Models\Assembly;
+use App\Models\TaxaminerAnalysis;
 use App\Models\TaxaminerConfig;
 use App\Models\TaxaminerDiamondRecord;
 use App\Notifications\UploadComplete;
@@ -260,5 +261,25 @@ class TaxaminerController extends Controller
             'message' => 'Taxaminer Import started',
             'path' => $path,
         ]);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $vault = Storage::disk('vault');
+        $analysis = TaxaminerAnalysis::where('id', $id)->firstOrFail();
+        $assembly = Assembly::where('id', $analysis->assembly_id)->firstOrFail();
+        $this->authorize('update', $assembly);
+
+        TaxaminerAnalysis::destroy($id);
+
+        // BAM File
+        if ($vault->exists("taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/taxaminerAnalyses/{$analysis->id}")) {
+            $vault->deleteDirectory("taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/taxaminerAnalyses/{$analysis->id}");
+            Log::info("Deleting taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/taxaminerAnalyses/{$analysis->id}");
+        }
+
+        Log::info("Deleted taXaminer Analysis {$id} for {$assembly->id}");
+
+        return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }
