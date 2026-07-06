@@ -29,6 +29,7 @@ import {
     Tabs,
 } from 'react-bootstrap';
 import TaxonomicDistributionPlot from '@/Components/AssemblyPage/TaxonomicDistributionPlot';
+import { router } from '@inertiajs/react';
 
 
 export default function Assemblies({ assembly } : { assembly: Assembly }) {
@@ -164,7 +165,11 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                         <Nav.Link>
                             <ButtonToolbar aria-label="Toolbar with button groups">
                                 <ButtonGroup className="me-2">
-                                    <Button size="lg">
+                                    <Button
+                                        size="lg"
+                                        href={`/assemblies/${assembly.id}/edit`}
+                                        onClick={() => router.visit(`/assemblies/${assembly.id}/edit`)}
+                                    >
                                         <i className="bi bi-wrench"></i>
                                     </Button>
                                     <Button

@@ -448,4 +448,26 @@ class AssemblyController extends Controller
             'message' => 'Taxonomic assignments extracted from taXaminer analysis'.$analysis->id,
         ]);
     }
+
+    /***
+     * Assembly Edit Methods
+     */
+
+    public function editDashboard(Request $request, $assemblyID) {
+
+        // Authorize user
+        $assembly = Assembly::with([
+            'mappings',
+            'genomicAnnotations',
+            'buscoAnalyses',
+            'repeatmaskerAnalyses',
+            'fcatAnalyses',
+            'taxaminerAnalyses',
+            'taxon'])
+            ->findOrFail($assemblyID);
+        $this->authorize('update', $assembly);
+
+        return Inertia::render('EditAssembly', ['assembly' => $assembly]);
+
+    }
 }
