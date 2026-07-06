@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assembly;
-use App\Models\genomicAnnotation;
 use App\Models\RepeatmaskerAnalysis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

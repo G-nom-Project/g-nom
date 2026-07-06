@@ -38,6 +38,9 @@ jobs:
       - name: Lint Frontend
         run: yarn run lint
 
+      - name: Run Pest
+        run: ./vendor/bin/pest --ci
+
       # - name: Commit Changes
       #   uses: stefanzweifel/git-auto-commit-action@v5
       #   with:

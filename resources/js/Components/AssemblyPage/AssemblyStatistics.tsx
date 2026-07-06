@@ -13,7 +13,7 @@ const AssemblyStatistics = ({ assembly }: { assembly: Assembly }) => {
     }, [assembly]);
 
     const getData = () => {
-        const length_distribution = JSON.parse(assembly.lengthDistributionString);
+        const length_distribution = assembly.lengthDistributionString;
         const sequence_length = length_distribution[0]['l'];
 
         let cumulativeLengths: { x: number; y: number }[] = [];

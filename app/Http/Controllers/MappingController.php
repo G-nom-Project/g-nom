@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assembly;
-use App\Models\genomicAnnotation;
 use App\Models\genomicMapping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +32,7 @@ class MappingController extends Controller
         }
 
         Log::info("Deleted Mapping {$id} for {$assembly->id}");
+
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class genomicAnnotation extends Model
 {
     //
+    use HasFactory;
+
     protected $table = 'genomic_annotations';
 
     public function feature()

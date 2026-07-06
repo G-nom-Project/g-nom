@@ -279,6 +279,7 @@ class TaxaminerController extends Controller
         }
 
         Log::info("Deleted taXaminer Analysis {$id} for {$assembly->id}");
+
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }
