@@ -49,7 +49,7 @@ class ImportBigWig extends TrackableJob
 
         $vault = Storage::disk('vault');
         $local = Storage::disk('local');
-        $sourcePath = $local->path($this->filepath.'.bw');
+        $sourcePath = $local->path($this->filepath);
 
         if (! file_exists($sourcePath)) {
             throw new \RuntimeException("BigWig file not found: {$sourcePath}");

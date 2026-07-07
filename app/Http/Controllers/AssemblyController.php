@@ -137,7 +137,7 @@ class AssemblyController extends Controller
 
     public function browser($id): Response
     {
-        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'repeatmaskerAnalyses'])->findOrFail($id);
+        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'repeatmaskerAnalyses', 'wiggleTracks'])->findOrFail($id);
         $this->authorize('view', $assembly);
 
         return Inertia::render('GenomeBrowser', [

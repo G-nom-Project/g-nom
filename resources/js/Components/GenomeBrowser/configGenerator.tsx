@@ -31,6 +31,23 @@ const generateConfig = (assembly: Assembly, location_string: string | undefined)
         };
     });
 
+    const wiggle_tracks = assembly.wiggle_tracks.map((annotation) => {
+        return {
+            type: 'QuantitativeTrack',
+            trackId: 'track_wiggle_' + annotation.id,
+            name: annotation.name,
+            category: ['Quantitative Tracks'],
+            assemblyNames: [assembly.name],
+            adapter: {
+                type: 'BigWigAdapter',
+                bigWigLocation: {
+                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${assembly.taxon_ncbiTaxonID}/${assembly.id}/wiggle_tracks/${annotation.id}.bw`,
+                    locationType: 'UriLocation',
+                },
+            },
+        };
+    });
+
     const repeatmasker_annot = [
         {
             type: 'FeatureTrack',
@@ -161,7 +178,7 @@ const generateConfig = (assembly: Assembly, location_string: string | undefined)
                 },
             },
         ],
-        tracks: [gc_track, ...repeatmasker_annot, ...annotations, ...mappings],
+        tracks: [gc_track, ...repeatmasker_annot, ...annotations, ...mappings, ...wiggle_tracks],
         defaultSession: {
             name: assembly.name + ' - default',
             drawerPosition: 'right',

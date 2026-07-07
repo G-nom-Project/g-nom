@@ -16,8 +16,7 @@ export interface Assembly {
     meanSequence: number;
     gcPercent: number;
     gcPercentMasked: number;
-    lengthDistributionString: string;
-    longestSequence: number;
+    lengthDistributionString: string | object;
     charCount: string;
     label: string | null;
     created_at: string;
@@ -25,7 +24,7 @@ export interface Assembly {
     mappings_count?: number;
     taxon: TaxonData;
     genomic_annotations: Annotation[];
-
+    wiggle_tracks: WiggleTrack[];
     mappings: Mapping[];
     // Analyses
     busco_analyses: [];
@@ -114,6 +113,14 @@ export interface Annotation {
     path: string;
     featureCount: string;
     username: string;
+    label?: string;
+}
+
+export interface WiggleTrack {
+    created_at: Date;
+    assemblyID: number;
+    id: number;
+    name: string;
     label?: string;
 }
 

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import { Button, Card, Container } from 'react-bootstrap';
 import { Assembly } from '@/types/data';
 import TopNavBar from '@/Components/TopNavBar';
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\SparqlController;
 use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
+use App\Http\Controllers\WiggleTrackController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -75,6 +76,7 @@ Route::middleware([
 ])->group(function () {
     Route::post('/upload-assembly', [AssemblyController::class, 'uploadAssembly']);
     Route::post('/upload-annotation', [AssemblyController::class, 'uploadAnnotation']);
+    Route::post('/upload-bigwig', [WiggleTrackController::class, 'importWiggleTrack']);
     Route::post('/upload-mapping', [AssemblyController::class, 'uploadMapping']);
     Route::post('/upload-busco', [AssemblyController::class, 'uploadBusco']);
     Route::post('/upload-fcat', [AssemblyController::class, 'uploadFcat']);

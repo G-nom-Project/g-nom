@@ -44,6 +44,9 @@ export default function Import() {
     // Mapping Import
     const [mappingName, setMappingName] = useState<string>();
     const [mappingFile, setMappingFile] = useState<File | null>(null);
+    // BigWig
+    const [wiggleName, setWiggleName] = useState<string>();
+    const [wiggleFile, setWiggleFile] = useState<File | null>(null);
     // BUSCO Import
     const [buscoName, setBuscoName] = useState<string>();
     const [buscoSummary, setBuscoSummary] = useState<File | null>(null);
@@ -103,6 +106,29 @@ export default function Import() {
 
         try {
             const response = await axios.post('/upload-annotation', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return true;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return false;
+        }
+    };
+
+    const handleWiggleUpload = async () => {
+        if (!wiggleFile) return;
+
+        const formData = new FormData();
+        formData.append('wiggle', wiggleFile);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', taxonID);
+        formData.append('name', wiggleName);
+
+        try {
+            const response = await axios.post('/upload-bigwig', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -231,7 +257,6 @@ export default function Import() {
     };
 
     const handleUpload = async () => {
-        console.log("bing")
         if (assemblyName) {
             await handleAssemblyUpload();
         } else {
@@ -241,6 +266,10 @@ export default function Import() {
             }
             if (mappingName) {
                 const success = await handleMappingUpload();
+                return success;
+            }
+            if (wiggleName) {
+                const success = await handleWiggleUpload();
                 return success;
             }
             if (buscoName) {
@@ -385,6 +414,26 @@ export default function Import() {
                                                 <br />
                                             </Accordion.Body>
                                         </Accordion.Item>
+                                        <Accordion.Item eventKey="wiggle">
+                                            <Accordion.Header>Wiggle Track</Accordion.Header>
+                                            <Accordion.Body>
+                                                <Form.Label>Select BigWig file</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".bw"
+                                                    onChange={(e) => setWiggleFile(e.target.files?.[0] ?? null)}
+                                                />
+                                                <br />
+                                                <Form.Label>Name wiggle track</Form.Label>
+                                                <Form.Control
+                                                    placeholder="Enter a custom name for this annotation"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setWiggleName(e.target.value);
+                                                    }}
+                                                />
+                                                <br />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
                                         <Accordion.Item eventKey="mapping">
                                             <Accordion.Header>Mapping</Accordion.Header>
                                             <Accordion.Body>
@@ -434,9 +483,7 @@ export default function Import() {
                                                 <Form.Control
                                                     type="file"
                                                     accept=".txt"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                                        setfcatSummary(e.target.files?.[0] ?? null)
-                                                    }
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setfcatSummary(e.target.files?.[0] ?? null)}
                                                 />
                                                 <br />
                                                 <Form.Label>Name fCat Analysis</Form.Label>

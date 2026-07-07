@@ -38,6 +38,11 @@ class Assembly extends Model
         return $this->hasMany(genomicMapping::class);
     }
 
+    public function wiggleTracks()
+    {
+        return $this->hasMany(WiggleTrack::class);
+    }
+
     public function genomicAnnotations()
     {
         return $this->hasMany(genomicAnnotation::class);
