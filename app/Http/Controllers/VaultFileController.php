@@ -25,7 +25,7 @@ class VaultFileController extends Controller
         }
 
         // Only allow certain file extensions
-        $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi', 'bam', 'bai'];
+        $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi', 'bam', 'bai', 'bw'];
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
         if (! in_array($extension, $allowedExtensions)) {
@@ -46,7 +46,6 @@ class VaultFileController extends Controller
 
         // Find real path - or not
         $filePath = storage_path("app/vault/{$path}");
-        Log::info($filePath);
         if (! file_exists($filePath)) {
             abort(404, 'File not found');
         }
@@ -63,6 +62,7 @@ class VaultFileController extends Controller
             'fa.gz' => 'application/x-gzip',
             'fasta' => 'text/plain',
             'fasta.gz' => 'application/x-gzip',
+            'bw' => 'application/octet-stream',
         ];
 
         $position = strpos($path, '.');

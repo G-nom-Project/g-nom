@@ -460,6 +460,7 @@ class AssemblyController extends Controller
         $assembly = Assembly::with([
             'mappings',
             'genomicAnnotations',
+            'wiggleTracks',
             'buscoAnalyses',
             'repeatmaskerAnalyses',
             'fcatAnalyses',
