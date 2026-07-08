@@ -21,6 +21,9 @@ export interface Assembly {
     label: string | null;
     created_at: string;
     updated_at: string;
+
+    coverage: {frequencies: number[], buckets: number[]} | null;
+
     mappings_count?: number;
     taxon: TaxonData;
     genomic_annotations: Annotation[];

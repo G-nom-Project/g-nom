@@ -80,6 +80,7 @@ Route::middleware([
     'auth',
 ])->group(function () {
     Route::post('/upload-assembly', [AssemblyController::class, 'uploadAssembly']);
+    Route::post('/upload-coverage', [AssemblyController::class, 'uploadCoverage']);
     Route::post('/upload-annotation', [AssemblyController::class, 'uploadAnnotation']);
     Route::post('/upload-bigwig', [WiggleTrackController::class, 'importWiggleTrack']);
     Route::post('/upload-mapping', [AssemblyController::class, 'uploadMapping']);

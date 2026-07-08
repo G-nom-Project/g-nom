@@ -15,6 +15,7 @@ class Assembly extends Model
 
     protected $casts = [
         'lengthDistributionString' => 'array',
+        'coverage' => 'array',
         'charCount' => 'array',
     ];
 
