@@ -1,10 +1,15 @@
 <?php
 
+use App\Http\Controllers\AnnotationController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\BUSCOController;
+use App\Http\Controllers\FCatController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\MappingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RepeatmaskerController;
 use App\Http\Controllers\SparqlController;
 use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
@@ -82,6 +87,19 @@ Route::middleware([
     Route::post('/upload-fcat', [AssemblyController::class, 'uploadFcat']);
     Route::post('/upload-repeatmasker', [AssemblyController::class, 'uploadRepeatmasker']);
     Route::post('/upload-taxaminer', [TaxaminerController::class, 'uploadTaxaminer']);
+});
+
+// Deleting data
+Route::middleware([
+    'auth',
+])->group(function () {
+    Route::delete('/annotations/{id}', [AnnotationController::class, 'destroy'])->name('annotation.destroy');
+    Route::delete('/bigwigs/{id}', [WiggleTrackController::class, 'destroy'])->name('wiggle.destroy');
+    Route::delete('/mappings/{id}', [MappingController::class, 'destroy'])->name('mapping.destroy');
+    Route::delete('/buscos/{id}', [BuscoController::class, 'destroy'])->name('busco.destroy');
+    Route::delete('/fcats/{id}', [FCatController::class, 'destroy'])->name('fcat.destroy');
+    Route::delete('/repeatmaskers/{id}', [RepeatmaskerController::class, 'destroy'])->name('repeatmasker.destroy');
+    Route::delete('/taxaminer/{id}', [TaxaminerController::class, 'destroy'])->name('taxaminer.destroy');
 });
 
 // Jobs
