@@ -13,7 +13,7 @@ export default function GenomeBrowser({ assembly }:{assembly: Assembly}) {
     const [viewState, setViewState] = useState<ViewModel>();
 
     useEffect(() => {
-         
+
         ;(async () => {
             // Check for URL search parameters indicating a desired locus
             const params = new URL(location.href).searchParams;

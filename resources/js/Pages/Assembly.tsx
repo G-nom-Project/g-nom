@@ -30,6 +30,8 @@ import {
 } from 'react-bootstrap';
 import TaxonomicDistributionPlot from '@/Components/AssemblyPage/TaxonomicDistributionPlot';
 import { router } from '@inertiajs/react';
+import CoveragePlot from '@/Components/AssemblyPage/CoveragePlot';
+import CoverageThresholdsPlot from '@/Components/AssemblyPage/CoverageThresholdsPlot';
 
 
 export default function Assemblies({ assembly } : { assembly: Assembly }) {
@@ -39,6 +41,7 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
     const [lineage, setLineage] = useState<TaxonData[] | null>(null);
     const [geoData, setGeoData] = useState([]);
     const [activeTab, setActiveTab] = useState('image');
+    const [coverageTab, setCoverageTab] = useState(1);
 
     // Taxon Information
     const [taxonHeadline, setTaxonHeadline] = useState<string>("");
@@ -442,7 +445,42 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                     </Col>
                                     <Col>
                                         <Card className="shadow" style={{ height: '50vh' }}>
-                                            <Card.Header>Assembly Headers Placeholder</Card.Header>
+                                            <Card.Header className="d-flex align-items-center gap-2 py-1">
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => setCoverageTab(1)}
+                                                    variant={(coverageTab != 1 && 'outline-primary') || 'primary'}
+                                                >
+                                                    1
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => setCoverageTab(2)}
+                                                    variant={(coverageTab != 2 && 'outline-primary') || 'primary'}
+                                                >
+                                                    2
+                                                </Button>
+                                                <span>
+                                                    Read Coverage (
+                                                    <a
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        href="https://deeptools.readthedocs.io/en/stable/content/tools/plotCoverage.html"
+                                                    >
+                                                        deeptools{' '}
+                                                        <sup>
+                                                            <i className="bi bi-box-arrow-up-right"></i>
+                                                        </sup>
+                                                    </a>
+                                                    )
+                                                </span>
+                                            </Card.Header>
+                                            <Card.Body>
+                                                {assembly.coverage &&
+                                                    ((coverageTab == 1 && <CoveragePlot coverage_data={assembly.coverage} />) || (
+                                                        <CoverageThresholdsPlot coverage_data={assembly.coverage} />
+                                                    ))}
+                                            </Card.Body>
                                         </Card>
                                     </Col>
                                 </Row>

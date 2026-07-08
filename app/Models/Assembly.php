@@ -15,6 +15,7 @@ class Assembly extends Model
 
     protected $casts = [
         'lengthDistributionString' => 'array',
+        'coverage' => 'array',
         'charCount' => 'array',
     ];
 
@@ -36,6 +37,11 @@ class Assembly extends Model
     public function mappings()
     {
         return $this->hasMany(genomicMapping::class);
+    }
+
+    public function wiggleTracks()
+    {
+        return $this->hasMany(WiggleTrack::class);
     }
 
     public function genomicAnnotations()

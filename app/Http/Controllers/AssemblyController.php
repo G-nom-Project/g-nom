@@ -18,9 +18,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 class AssemblyController extends Controller
 {
@@ -137,7 +139,7 @@ class AssemblyController extends Controller
 
     public function browser($id): Response
     {
-        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'repeatmaskerAnalyses'])->findOrFail($id);
+        $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'repeatmaskerAnalyses', 'wiggleTracks'])->findOrFail($id);
         $this->authorize('view', $assembly);
 
         return Inertia::render('GenomeBrowser', [
@@ -460,6 +462,7 @@ class AssemblyController extends Controller
         $assembly = Assembly::with([
             'mappings',
             'genomicAnnotations',
+            'wiggleTracks',
             'buscoAnalyses',
             'repeatmaskerAnalyses',
             'fcatAnalyses',
@@ -470,5 +473,79 @@ class AssemblyController extends Controller
 
         return Inertia::render('EditAssembly', ['assembly' => $assembly]);
 
+    }
+
+    public function uploadCoverage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:txt,tab',
+            'assemblyID' => 'required|integer|exists:assemblies,id', // Ensure assembly exists
+            'taxonID' => 'required|integer|exists:taxa,ncbiTaxonID', // Ensure taxon ID exists
+        ]);
+
+        // Enforce assembly policy
+        $assemblyID = $request->input('assemblyID');
+        $assembly = Assembly::where('id', $assemblyID)->first();
+        $this->authorize('update', $assembly);
+
+        // Store in upload directory
+        $file = $request->file('file');
+        $originalExtension = $file->getClientOriginalExtension();
+        $uniqueName = Str::random(20);  // Generate a random string for uniqueness
+
+        // Store the file with a unique name and the original extension
+        $path = $file->storeAs('uploads', $uniqueName.'.'.$originalExtension);
+        $local = Storage::disk('local');
+        $user = Auth::user();
+
+        if ($user) {
+            $user->notify(new UploadComplete($path));
+        }
+
+        $handle = fopen($local->path($path), 'r');
+        if ($handle === false) {
+            throw new RuntimeException("Could not open coverage file!");
+        }
+
+        while (($line = fgets($handle)) !== false) {
+            if ($line[0] === '#') {
+                continue;
+            }
+
+            $fields = preg_split('/\s+/', trim($line));
+            if (count($fields) < 4) {
+                continue;
+            }
+
+            $value = (float) $fields[3];
+
+            if (!isset($counts[$value])) {
+                $counts[$value] = 0;
+            }
+
+            $counts[$value]++;
+        }
+
+        fclose($handle);
+
+        // Sort buckets
+        ksort($counts, SORT_NUMERIC);
+        // Split into two arrays
+        $buckets = [];
+        $frequencies = [];
+
+        foreach ($counts as $bucket => $count) {
+            $buckets[] = (float) $bucket;
+            $frequencies[] = $count;
+        }
+
+        $assembly->coverage = ['buckets' => $buckets, 'frequencies' => $frequencies];
+        $assembly->save();
+
+        return response()->json([
+            'message' => 'Coverage information uploaded successfully.',
+            'buckets' => $buckets,
+            'frequencies' => $frequencies,
+        ]);
     }
 }

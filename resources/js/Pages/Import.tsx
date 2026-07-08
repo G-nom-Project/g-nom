@@ -38,12 +38,18 @@ export default function Import() {
     // Existing assemblies
     const [assemblyID, setAssemblyID] = useState<number>(-1);
 
+    // Coverage report import
+    const [covFile, setCovFile] = useState<File | null>(null);
+
     // Annotation import
     const [annotationName, setAnnotationName] = useState<string>();
     const [annotationFile, setAnnotationFile] = useState<File | null>(null);
     // Mapping Import
     const [mappingName, setMappingName] = useState<string>();
     const [mappingFile, setMappingFile] = useState<File | null>(null);
+    // BigWig
+    const [wiggleName, setWiggleName] = useState<string>();
+    const [wiggleFile, setWiggleFile] = useState<File | null>(null);
     // BUSCO Import
     const [buscoName, setBuscoName] = useState<string>();
     const [buscoSummary, setBuscoSummary] = useState<File | null>(null);
@@ -92,6 +98,28 @@ export default function Import() {
         }
     };
 
+    const handleCoverageUpload = async () => {
+        if (!covFile) return;
+
+        const formData = new FormData();
+        formData.append('file', covFile);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', taxonID);
+
+        try {
+            const response = await axios.post('/upload-coverage', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return true;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return false;
+        }
+    };
+
     const handleAnnotationUpload = async () => {
         if (!annotationFile) return;
 
@@ -103,6 +131,29 @@ export default function Import() {
 
         try {
             const response = await axios.post('/upload-annotation', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+            return true;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            return false;
+        }
+    };
+
+    const handleWiggleUpload = async () => {
+        if (!wiggleFile) return;
+
+        const formData = new FormData();
+        formData.append('wiggle', wiggleFile);
+        formData.append('assemblyID', assemblyID);
+        formData.append('taxonID', taxonID);
+        formData.append('name', wiggleName);
+
+        try {
+            const response = await axios.post('/upload-bigwig', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -231,16 +282,23 @@ export default function Import() {
     };
 
     const handleUpload = async () => {
-        console.log("bing")
         if (assemblyName) {
             await handleAssemblyUpload();
         } else {
+            if (covFile) {
+                const success = await handleCoverageUpload();
+                return success;
+            }
             if (annotationName) {
                 const success = await handleAnnotationUpload();
                 return success;
             }
             if (mappingName) {
                 const success = await handleMappingUpload();
+                return success;
+            }
+            if (wiggleName) {
+                const success = await handleWiggleUpload();
                 return success;
             }
             if (buscoName) {
@@ -365,6 +423,46 @@ export default function Import() {
                                         Select analysis to import below. Analysis imports are only available for existing assemblies.
                                     </Card.Text>
                                     <Accordion>
+                                        <Accordion.Item eventKey="coverage">
+                                            <Accordion.Header>Coverage Information</Accordion.Header>
+                                            <Accordion.Body>
+                                                <p>
+                                                    In order to produce coverage information, map the read set to the genome assembly and use the
+                                                    resulting BAM file for deeptools{' '}
+                                                    <a
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        href="https://deeptools.readthedocs.io/en/stable/content/tools/plotCoverage.html"
+                                                    >
+                                                        plotCoverage
+                                                        <sup>
+                                                            <i className="bi bi-box-arrow-up-right"></i>
+                                                        </sup>
+                                                    </a>
+                                                    . Use the option <code>--outRawCounts</code> to produce a table of read count per sampled bp and
+                                                    upload the resulting file here. Only one coverage analysis is supported per assembly, uploading a
+                                                    revised version will <b>override</b> the previous one. You may also generate a coverage wiggle
+                                                    track using{' '}
+                                                    <a
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        href="https://deeptools.readthedocs.io/en/stable/content/tools/bamCoverage.html"
+                                                    >
+                                                        bamCoverage
+                                                        <sup>
+                                                            <i className="bi bi-box-arrow-up-right"></i>
+                                                        </sup>
+                                                    </a> and upload it separately in the section below.
+                                                </p>
+                                                <Form.Label>Select plotCoverage output file</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept=".txt,.tab"
+                                                    onChange={(e) => setCovFile(e.target.files?.[0] ?? null)}
+                                                />
+                                                <br />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
                                         <Accordion.Item eventKey="annotation">
                                             <Accordion.Header>Annotation</Accordion.Header>
                                             <Accordion.Body>
@@ -380,6 +478,22 @@ export default function Import() {
                                                     placeholder="Enter a custom name for this annotation"
                                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                         setAnnotationName(e.target.value);
+                                                    }}
+                                                />
+                                                <br />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                        <Accordion.Item eventKey="wiggle">
+                                            <Accordion.Header>Wiggle Track</Accordion.Header>
+                                            <Accordion.Body>
+                                                <Form.Label>Select BigWig file</Form.Label>
+                                                <Form.Control type="file" accept=".bw" onChange={(e) => setWiggleFile(e.target.files?.[0] ?? null)} />
+                                                <br />
+                                                <Form.Label>Name wiggle track</Form.Label>
+                                                <Form.Control
+                                                    placeholder="Enter a custom name for this annotation"
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setWiggleName(e.target.value);
                                                     }}
                                                 />
                                                 <br />
@@ -434,9 +548,7 @@ export default function Import() {
                                                 <Form.Control
                                                     type="file"
                                                     accept=".txt"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                                        setfcatSummary(e.target.files?.[0] ?? null)
-                                                    }
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setfcatSummary(e.target.files?.[0] ?? null)}
                                                 />
                                                 <br />
                                                 <Form.Label>Name fCat Analysis</Form.Label>

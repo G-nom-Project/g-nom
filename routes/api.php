@@ -4,6 +4,7 @@ use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
+use App\Http\Controllers\WiggleTrackController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::put('/taxon/{taxonID}/add-geodata', [TaxonController::class, 'uploadGeoData']);
@@ -13,6 +14,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/assembly/import-busco', [AssemblyController::class, 'uploadBusco']);
     Route::post('/assembly/import-fcat', [AssemblyController::class, 'uploadFcat']);
     Route::post('/assembly/import-taxaminer', [TaxaminerController::class, 'uploadTaxaminer']);
+    Route::post('/upload-bigwig', [WiggleTrackController::class, 'importWiggleTrack'])->name('upload-bigwig');
 
     Route::get('/jobs/{id}/to-assembly', [JobController::class, 'map_job_to_assembly']);
 });

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import { Button, Card, Container } from 'react-bootstrap';
 import { Assembly } from '@/types/data';
 import TopNavBar from '@/Components/TopNavBar';
 
@@ -12,7 +12,7 @@ interface SimpleData {
 export default function AssemblyEditPage({ assembly }: { assembly: Assembly }) {
 
     const handleDelete = async (id: number, type: string) => {
-        await axios.delete(`/${type}/${id}/delete`, {});
+        await axios.delete(`/${type}/${id}`, {});
     };
 
     const simple_table = (simple_data: SimpleData[], type: string) => {
