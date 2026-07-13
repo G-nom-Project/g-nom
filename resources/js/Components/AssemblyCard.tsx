@@ -1,9 +1,10 @@
 import { Badge, Button, Card, Col, ListGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import axios from 'axios';
 import { useState } from 'react';
-import ConservationLevelBadge from '@/Components/ConservationLevelBadge';
+import ConservationLevelBadge from '@/Components/Badges/ConservationLevelBadge';
 import { truncateAtWord } from '@/utils/text';
 import { router } from '@inertiajs/react';
+import CollectionsBadge from '@/Components/Badges/CollectionsBadge';
 
 interface Props {
     assemblyName: string;
@@ -25,6 +26,7 @@ interface Props {
     conservation_status: string|null;
     wiki_image: string | null;
     is_wiki_text: boolean | null;
+    collections: [];
 }
 
 
@@ -59,18 +61,21 @@ const AssemblyCard = (props: Props) => {
                     <a className="text-decoration-none" href={`/assemblies/${props.assemblyID}`}>
                         {props.taxon_name}
                     </a>
+                    <br />
                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{(props.public && 'Public access') || 'Internal use only'}</Tooltip>}>
-                        <Badge className="mx-2" bg={(props.public && 'success') || 'secondary'}>
+                        <Badge bg={(props.public && 'success') || 'secondary'}>
                             <i className={(props.public && 'bi bi-unlock-fill') || 'bi bi-lock-fill'}></i>
                         </Badge>
-                    </OverlayTrigger>
+                    </OverlayTrigger>{' '}
+                    <CollectionsBadge collections={props.collections}/>
+                    {' '}
                     {<ConservationLevelBadge status={props.conservation_status}></ConservationLevelBadge>}
                 </Card.Title>
                 <Card.Subtitle className="text-muted mb-2">
                     <i>{props.assemblyName}</i> (NCBI: {props.ncbiID})
                 </Card.Subtitle>
                 <Card.Text style={{ maxHeight: '300px' }}>
-                    {(props.info_text && truncateAtWord(props.info_text, 500)) || (
+                    {(props.info_text && truncateAtWord(props.info_text, 450)) || (
                         <p className="text-muted">
                             <b>No info text available.</b>
                         </p>

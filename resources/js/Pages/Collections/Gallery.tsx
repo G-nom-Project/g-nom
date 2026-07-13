@@ -1,10 +1,10 @@
+import TopNavBar from '@/Components/TopNavBar';
+import { Button, Col, Container, Form, InputGroup, Nav, Navbar, Row } from 'react-bootstrap';
+import { AggregatedAssembly, Collection } from '@/types/data';
+import React, { FormEvent } from 'react';
 import AssemblyCard from '@/Components/AssemblyCard';
 import Pagination from '@/Components/Pagination';
-import TopNavBar from '@/Components/TopNavBar';
-import { AggregatedAssembly } from '@/types/data';
 import { useForm } from '@inertiajs/react';
-import React, { FormEvent } from 'react';
-import { Button, Col, Container, Form, InputGroup, Nav, Navbar, Row } from 'react-bootstrap';
 
 interface PaginatedAssemblies {
     data: AggregatedAssembly[];
@@ -18,31 +18,27 @@ interface PaginatedAssemblies {
 interface Filters {
     search: string;
 }
-
-export default function Assemblies({ assemblies, filters }: { assemblies: PaginatedAssemblies; filters: Filters }) {
-    // Handle filters
+export default function CollectionPage({collection, assemblies, filters} : {collection: Collection, assemblies: PaginatedAssemblies, filters: Filters}) {
     const { data, setData, get } = useForm<{ search: string }>({
         search: filters.search || '',
     });
-    console.log(assemblies)
-
+    console.log(assemblies);
     // Submit filters and reload assemblies
     function submit(e: FormEvent) {
         e.preventDefault();
-        get(route('assemblies'));
+        get(route('collections.gallery', {id: collection.id}));
     }
-
     return (
         <>
             <TopNavBar />
             <Navbar bg="secondary" expand="lg">
                 <Container fluid>
                     <Nav className="m-1">
-                        <Nav.Item>
-                            <h1 className="band-header text-white">Search assemblies</h1>
+                        <Nav.Item style={{width: "25vw"}}>
+                            <h2 className="band-header text-white">Browse {collection.name} (collection)</h2>
                         </Nav.Item>
                     </Nav>
-                    <Nav className="m-1" style={{ width: '50%' }}>
+                    <Nav className="m-1" style={{ width: '50vw' }}>
                         <Nav.Link style={{ width: '100%' }}>
                             <InputGroup>
                                 <Form onSubmit={submit} style={{ width: '100%' }}>
@@ -56,7 +52,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                                 </Form>
                             </InputGroup>
                         </Nav.Link>
-                        <Nav.Link>
+                        <Nav.Link  style={{ width: '25vw' }}>
                             <Button onClick={submit}>
                                 <i className="bi bi-search"></i>
                             </Button>
@@ -64,7 +60,7 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                     </Nav>
                     <Nav>
                         <Nav.Link>
-                            <Button>Advanced filters</Button>
+                            <Button disabled>Advanced filters</Button>
                         </Nav.Link>
                     </Nav>
                 </Container>

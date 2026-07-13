@@ -34,6 +34,11 @@ class Assembly extends Model
         }
     }
 
+    public function collections()
+    {
+        return $this->belongsToMany(AssemblyCollection::class, 'collection_assembly', 'assembly_id', 'collection_id');
+    }
+
     public function mappings()
     {
         return $this->hasMany(genomicMapping::class);

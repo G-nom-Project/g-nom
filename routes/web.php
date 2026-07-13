@@ -5,6 +5,7 @@ use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\BUSCOController;
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\FCatController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\MappingController;
@@ -34,6 +35,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::put('/collections', [CollectionController::class, 'create'])->name('collections.create');
+    Route::get('/collections', [CollectionController::class, 'index'])->name('collections.index');
+    Route::get('/collections/{id}', [CollectionController::class, 'view'])->name('collections.view');
+    Route::get('/collections/{id}/gallery', [CollectionController::class, 'gallery'])->name('collections.gallery');
+    Route::post('/collections/{id}/remove-assembly', [CollectionController::class, 'remove_assembly'])->name('collections.remove_assembly');
+    Route::post('/collections/{id}/add-assembly', [CollectionController::class, 'add_assembly'])->name('collections.add_assembly');
+    Route::delete('/collections/{id}', [CollectionController::class, 'delete'])->name('collections.delete');
 });
 
 Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies')->middleware(['auth']);
@@ -97,7 +108,7 @@ Route::middleware([
     Route::delete('/annotations/{id}', [AnnotationController::class, 'destroy'])->name('annotation.destroy');
     Route::delete('/bigwigs/{id}', [WiggleTrackController::class, 'destroy'])->name('wiggle.destroy');
     Route::delete('/mappings/{id}', [MappingController::class, 'destroy'])->name('mapping.destroy');
-    Route::delete('/buscos/{id}', [BuscoController::class, 'destroy'])->name('busco.destroy');
+    Route::delete('/buscos/{id}', [BUSCOController::class, 'destroy'])->name('busco.destroy');
     Route::delete('/fcats/{id}', [FCatController::class, 'destroy'])->name('fcat.destroy');
     Route::delete('/repeatmaskers/{id}', [RepeatmaskerController::class, 'destroy'])->name('repeatmasker.destroy');
     Route::delete('/taxaminer/{id}', [TaxaminerController::class, 'destroy'])->name('taxaminer.destroy');

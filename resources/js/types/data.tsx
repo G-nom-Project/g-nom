@@ -72,6 +72,14 @@ export interface AggregatedAssembly {
     is_bookmarked: boolean;
     conservation_status: string | null;
     wiki_image: string | null;
+    collections: Collection[]
+}
+
+export interface Collection {
+    id: number;
+    name: string;
+    is_public: boolean;
+    user_id: number;
 }
 
 export interface TaxonInfos {
