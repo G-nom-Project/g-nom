@@ -80,6 +80,13 @@ export interface Collection {
     name: string;
     is_public: boolean;
     user_id: number;
+    users: CollectionUser[];
+}
+
+export interface CollectionUser {
+    id: number;
+    name: string;
+    pivot: {collection_id: number, user_id: number, role: 'admin' | 'editor' | 'viewer'};
 }
 
 export interface TaxonInfos {

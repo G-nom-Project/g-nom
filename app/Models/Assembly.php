@@ -25,13 +25,19 @@ class Assembly extends Model
      * @param  $user  User
      * @return mixed
      */
-    public function scopeVisibleTo($query, $user)
+    public function scopeVisibleTo($query, User $user)
     {
-        if ($user->role === 'admin') {
+        if ($user->is_admin) {
             return $query;
-        } else {
-            return $query->where('user_id', $user->id)->orWhere('public', true);
         }
+
+        return $query->where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->orWhere('public', true)
+                ->orWhereHas('collections.users', function ($query) use ($user) {
+                    $query->where('users.id', $user->id);
+                });
+        });
     }
 
     public function collections()

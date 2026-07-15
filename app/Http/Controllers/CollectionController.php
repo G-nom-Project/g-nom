@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use App\Models\AssemblyCollection;
+use App\Services\WikidataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -27,28 +28,38 @@ class CollectionController extends Controller
     public function view(Request $request, $id): Response
     {
         // Fetch collection
-        $collection = AssemblyCollection::where('id', $id)->with('assemblies')->firstOrFail();
+        $collection = AssemblyCollection::where('id', $id)
+            ->with('users:id,name')
+            ->firstOrFail();
+
+        $this->authorize('view', $collection);
 
         $assemblies = Assembly::query()
             ->visibleTo($request->user())
             ->whereHas('collections', function ($q) use ($id) {
                 $q->where('collections.id', $id);
-            })->get();
+            })
+            ->with('taxon')
+            ->orderBy('created_at')
+            ->get();
 
         $admin = Auth::user()->id === $collection->user_id;
-        $this->authorize('view', $collection);
+        $currentUser = $collection->users->firstWhere('id', Auth::id());
+        $role = $currentUser?->pivot->role;
 
         // Pass the data to the Inertia component
         return Inertia::render('Collections/CollectionPage', [
             'collection' => $collection,
             'assemblies' => $assemblies,
             'is_admin' => $admin,
+            'role' => $role,
         ]);
     }
 
-    public function gallery(Request $request, $id)
+    public function gallery(Request $request, $id, WikidataService $wikidata)
     {
         $collection = AssemblyCollection::findOrFail($id);
+        $this->authorize('view', $collection);
         $search = request('search') ?? request('query');
 
         $assemblies = Assembly::query()
@@ -80,7 +91,40 @@ class CollectionController extends Controller
             ->whereHas('collections', function ($q) use ($id) {
                 $q->where('collections.id', $id);
             })
-            ->paginate(12);
+            ->paginate(12)
+            ->through(function ($assembly) use ($wikidata) {
+                $ncbiId = $assembly->taxon_ncbiTaxonID;
+                $assembly->conservation_status = null;
+                if ($ncbiId) {
+                    $status = $wikidata->getConservationStatusByNcbiId((string) $ncbiId);
+                    $assembly->conservation_status = $status['status_label'] ?? null;
+                }
+
+                return $assembly;
+            })
+            ->through(function ($assembly) use ($wikidata) {
+
+                static $cache = [];
+                if (! $assembly->taxon) {
+                    return $assembly;
+                }
+                $ncbiId = $assembly->taxon_ncbiTaxonID;
+
+                if (! isset($cache[$ncbiId])) {
+                    $cache[$ncbiId] = $wikidata->getTaxonInfoByNcbiId((string) $ncbiId);
+                }
+
+                $info = $cache[$ncbiId];
+                if (isset($info['wikipedia_summary'])) {
+                    $assembly->wikipedia_summary = $info['wikipedia_summary'];
+                }
+
+                if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
+                    $assembly->wiki_image = $info['image'];
+                }
+
+                return $assembly;
+            });
 
         return Inertia::render('Collections/Gallery', [
             'collection' => $collection,
@@ -107,7 +151,31 @@ class CollectionController extends Controller
         $collection->user_id = $request->user()->id;
         $collection->save();
 
-        return json_encode(['collection' => $collection]);
+        // Automatically set the creator as admin
+        $collection->users()->attach($request->user()->id, ['role' => 'admin']);
+
+        return response()->json([
+            'collection' => $collection,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'is_public' => 'required|boolean',
+        ]);
+
+        $collection = AssemblyCollection::where('id', $id)->with('assemblies')->firstOrFail();
+        $this->authorize('admin', $collection);
+
+        $collection->name = $validated['name'];
+        $collection->is_public = $validated['is_public'];
+        $collection->save();
+
+        return response()->json([
+            'collection' => $collection,
+        ]);
     }
 
     public function remove_assembly(Request $request, $id)
@@ -135,7 +203,27 @@ class CollectionController extends Controller
         $assembly = Assembly::where('id', $validated['assemblyID'])->firstOrFail();
         $this->authorize('update', $collection);
         $this->authorize('view', $assembly);
-        $collection->assemblies()->attach($validated['assemblyID']);
+        $collection->assemblies()->attach($validated['assemblyID'], ['created_at' => now()]);
+
+        return redirect("/collections/{$id}");
+    }
+
+    public function add_user(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'userID' => 'required|integer|exists:users,id',
+            'role' => 'required|string|in:editor,viewer',
+        ]);
+
+        $collection = AssemblyCollection::findOrFail($id);
+
+        $this->authorize('admin', $collection);
+
+        $collection->users()->syncWithoutDetaching([
+            $validated['userID'] => [
+                'role' => $validated['role'],
+            ],
+        ]);
 
         return redirect("/collections/{$id}");
     }

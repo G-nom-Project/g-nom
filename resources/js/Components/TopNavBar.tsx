@@ -17,6 +17,7 @@ const TopBar = () => {
                 <Navbar.Collapse>
                     <Nav className="me-auto">
                         <Nav.Link href={route('assemblies')}>Assemblies</Nav.Link>
+                        <Nav.Link href={route('collections.index')}>Collections</Nav.Link>
                         <Nav.Link href={route('bookmarks.get')}>Dashboard</Nav.Link>
                         <Nav.Link href={route('browser')}>Genome Browser</Nav.Link>
                         <Nav.Link href={route('tol')}>Tree of life</Nav.Link>

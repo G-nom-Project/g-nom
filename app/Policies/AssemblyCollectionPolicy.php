@@ -20,7 +20,11 @@ class AssemblyCollectionPolicy
      */
     public function view(User $user, AssemblyCollection $assemblyCollection): bool
     {
-        return $assemblyCollection->is_public || $user->id === $assemblyCollection->user_id || $user->is_admin;
+        return $assemblyCollection->is_public
+            || $user->is_admin
+            || $assemblyCollection->users()
+                ->where('users.id', $user->id)
+                ->exists();
     }
 
     /**
@@ -35,6 +39,17 @@ class AssemblyCollectionPolicy
      * Determine whether the user can update the model.
      */
     public function update(User $user, AssemblyCollection $assemblyCollection): bool
+    {
+        $currentUser = $assemblyCollection->users->firstWhere('id', $user->id);
+        $role = $currentUser?->pivot->role;
+
+        return $user->id === $assemblyCollection->user_id || $user->is_admin || $role === 'editor';
+    }
+
+    /**
+     * Determine whether the user can update the model with advanced permissions.
+     */
+    public function admin(User $user, AssemblyCollection $assemblyCollection): bool
     {
         return $user->id === $assemblyCollection->user_id || $user->is_admin;
     }

@@ -1,5 +1,5 @@
 import TopNavBar from '@/Components/TopNavBar';
-import { Button, Container, Form, Table } from 'react-bootstrap';
+import { Badge, Button, Container, Form, Table } from 'react-bootstrap';
 import { Collection } from '@/types/data';
 import { useState } from 'react';
 import axios from 'axios';
@@ -8,12 +8,12 @@ import { router } from '@inertiajs/react';
 export default function CollectionsPage({collections, can_create, user_id} : {collections: Collection[], can_create: boolean, user_id: number}) {
 
     const [currName, setCurrName] = useState();
-    const [isPublic, setIsPublic] = useState<string>("off");
+    const [isPublic, setIsPublic] = useState<boolean>(false);
 
     const handleCreateCollection = (e) => {
         e.preventDefault();
         axios
-            .put('/collections/', { name: currName, public: isPublic === 'on' })
+            .put('/collections/', { name: currName, public: isPublic })
             .then((response) => response.data)
             .then((data) => router.visit('/collections/' + data.collection.id));
     };
@@ -40,7 +40,21 @@ export default function CollectionsPage({collections, can_create, user_id} : {co
                         {collections.map((each) => (
                             <tr>
                                 <td>{each.id}</td>
-                                <td>{each.name}</td>
+                                <td>
+                                    {each.name}
+                                    <br/>
+                                    <Badge>
+                                        {(each.is_public && (
+                                            <>
+                                                <i className="bi bi-eye"></i> public
+                                            </>
+                                        )) || (
+                                            <>
+                                                <i className="bi bi-eye-slash"></i> private
+                                            </>
+                                        )}
+                                    </Badge>
+                                </td>
                                 <td>
                                     <Button href={`/collections/${each.id}`}>
                                         <i className="bi bi-search"></i>
@@ -55,27 +69,26 @@ export default function CollectionsPage({collections, can_create, user_id} : {co
                         ))}
                     </tbody>
                 </Table>
-                <hr/>
-                {
-                    can_create && (
-                        <Form onSubmit={(e) => handleCreateCollection(e)}>
-                            <Form.Group className="mb-3" controlId="formBasicPassword">
-                                <Form.Label>Create new collection</Form.Label>
-                                <Form.Control type="name" placeholder="Collection Name" onChange={(e) => setCurrName(e.target.value)}/>
-                                <Form.Check // prettier-ignore
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Set as public"
-                                    className="mt-2"
-                                    onChange={(e) => setIsPublic(e.target.value)}
-                                />
-                            </Form.Group>
-                            <Button variant="primary" type="submit" disabled={!currName}>
-                                Submit
-                            </Button>
-                        </Form>
-                    )
-                }
+                <hr />
+                {can_create && (
+                    <Form onSubmit={(e) => handleCreateCollection(e)}>
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Create new collection</Form.Label>
+                            <Form.Control type="name" placeholder="Collection Name" onChange={(e) => setCurrName(e.target.value)} />
+                            <Form.Check // prettier-ignore
+                                type="switch"
+                                id="custom-switch"
+                                label="Set as public"
+                                className="mt-2"
+                                checked={isPublic}
+                                onChange={(e) => setIsPublic(e.target.checked)}
+                            />
+                        </Form.Group>
+                        <Button variant="primary" type="submit" disabled={!currName}>
+                            Submit
+                        </Button>
+                    </Form>
+                )}
             </Container>
         </>
     );

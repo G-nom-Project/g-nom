@@ -39,11 +39,13 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::put('/collections', [CollectionController::class, 'create'])->name('collections.create');
+    Route::post('/collections/{id}', [CollectionController::class, 'update'])->name('collections.update');
     Route::get('/collections', [CollectionController::class, 'index'])->name('collections.index');
     Route::get('/collections/{id}', [CollectionController::class, 'view'])->name('collections.view');
     Route::get('/collections/{id}/gallery', [CollectionController::class, 'gallery'])->name('collections.gallery');
     Route::post('/collections/{id}/remove-assembly', [CollectionController::class, 'remove_assembly'])->name('collections.remove_assembly');
     Route::post('/collections/{id}/add-assembly', [CollectionController::class, 'add_assembly'])->name('collections.add_assembly');
+    Route::post('/collections/{id}/add-user', [CollectionController::class, 'add_user'])->name('collections.add_user');
     Route::delete('/collections/{id}', [CollectionController::class, 'delete'])->name('collections.delete');
 });
 

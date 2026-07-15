@@ -17,10 +17,22 @@ class AssemblyPolicy
     public function view(User $user, Assembly $assembly): bool
     {
         if ($this->tokenAllows($user, 'read:assemblies')) {
-            return $assembly->public || $user->id === $assembly->user_id || $user->is_admin;
+            return $this->canViewAssembly($user, $assembly);
         }
 
-        return $assembly->public || $user->id === $assembly->user_id || $user->is_admin;
+        return $this->canViewAssembly($user, $assembly);
+    }
+
+    protected function canViewAssembly(User $user, Assembly $assembly): bool
+    {
+        return $assembly->public
+            || $assembly->user_id === $user->id
+            || $user->is_admin
+            || $assembly->collections()
+                ->whereHas('users', function ($query) use ($user) {
+                    $query->where('users.id', $user->id);
+                })
+                ->exists();
     }
 
     public function create(User $user): bool

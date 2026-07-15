@@ -2,20 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AssemblyCollection extends Model
 {
     //
+    use HasFactory;
+
     protected $table = 'collections';
 
-    public function scopeVisibleTo($query, $user)
+    protected $fillable = [
+        'name',
+        'description',
+        'is_public',
+        'user_id',
+    ];
+
+    public function scopeVisibleTo($query, User $user)
     {
-        if ($user->role === 'admin') {
+        if ($user->is_admin) {
             return $query;
-        } else {
-            return $query->where('user_id', $user->id)->orWhere('is_public', true);
         }
+
+        return $query->where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->orWhere('is_public', true)
+                ->orWhereHas('users', fn ($q) => $q->whereKey($user->id));
+        });
     }
 
     public function assemblies()
@@ -30,6 +44,11 @@ class AssemblyCollection extends Model
 
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(
+            User::class,
+            'collection_user',
+            'collection_id',
+            'user_id'
+        )->withPivot('role');
     }
 }
