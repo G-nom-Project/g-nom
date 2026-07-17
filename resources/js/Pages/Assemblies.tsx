@@ -24,7 +24,6 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
     const { data, setData, get } = useForm<{ search: string }>({
         search: filters.search || '',
     });
-    console.log(assemblies)
 
     // Submit filters and reload assemblies
     function submit(e: FormEvent) {
@@ -43,24 +42,19 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                         </Nav.Item>
                     </Nav>
                     <Nav className="m-1" style={{ width: '50%' }}>
-                        <Nav.Link style={{ width: '100%' }}>
-                            <InputGroup>
-                                <Form onSubmit={submit} style={{ width: '100%' }}>
-                                    <Form.Control
-                                        type="text"
-                                        value={data.search}
-                                        placeholder={'Enter an assembly name, taxon name or NCBI Taxon ID'}
-                                        // @ts-expect-error Type mismatch to TFrom, simply not inferred correctly
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('search', e.target.value as string)}
-                                    />
-                                </Form>
-                            </InputGroup>
-                        </Nav.Link>
-                        <Nav.Link>
+                        <Nav.Item style={{ width: '100%' }}>
+                            <Form onSubmit={submit}>
+                                <InputGroup>
+                                    <Form.Control value={data.search} onChange={(e) => setData('search', e.target.value)} />
+                                </InputGroup>
+                            </Form>
+                        </Nav.Item>
+
+                        <Nav.Item>
                             <Button onClick={submit}>
-                                <i className="bi bi-search"></i>
+                                <i className="bi bi-search" />
                             </Button>
-                        </Nav.Link>
+                        </Nav.Item>
                     </Nav>
                     <Nav>
                         <Nav.Link>
@@ -70,9 +64,9 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                 </Container>
             </Navbar>
             <Container fluid>
-                <Row className="row-cols-1 row-cols-md-4">
+                <Row className="row-cols-1 row-cols-md-4 mt-3">
                     {assemblies.data.map((each: AggregatedAssembly) => (
-                        <Col key={each.id} className="d-flex align-items-stretch mb-3">
+                        <Col key={each.id} xs={12} sm={6} lg={6} xl={4} xxl={3} className="d-flex mb-3">
                             <AssemblyCard
                                 assemblyName={each.name}
                                 assemblyID={each.id}

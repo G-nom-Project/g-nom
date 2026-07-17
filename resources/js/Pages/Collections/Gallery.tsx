@@ -34,7 +34,7 @@ export default function CollectionPage({collection, assemblies, filters} : {coll
             <Navbar bg="secondary" expand="lg">
                 <Container fluid>
                     <Nav className="m-1">
-                        <Nav.Item style={{width: "25vw"}}>
+                        <Nav.Item style={{ width: '25vw' }}>
                             <h2 className="band-header text-white">Browse {collection.name} (collection)</h2>
                         </Nav.Item>
                     </Nav>
@@ -52,7 +52,7 @@ export default function CollectionPage({collection, assemblies, filters} : {coll
                                 </Form>
                             </InputGroup>
                         </Nav.Link>
-                        <Nav.Link  style={{ width: '25vw' }}>
+                        <Nav.Link style={{ width: '25vw' }}>
                             <Button onClick={submit}>
                                 <i className="bi bi-search"></i>
                             </Button>
@@ -66,9 +66,9 @@ export default function CollectionPage({collection, assemblies, filters} : {coll
                 </Container>
             </Navbar>
             <Container fluid>
-                <Row className="row-cols-1 row-cols-md-4">
+                <Row className="row-cols-1 row-cols-md-4 mt-3">
                     {assemblies.data.map((each: AggregatedAssembly) => (
-                        <Col key={each.id} className="d-flex align-items-stretch mb-3">
+                        <Col key={each.id} xs={12} sm={6} lg={6} xl={4} xxl={3} className="d-flex mb-3">
                             <AssemblyCard
                                 assemblyName={each.name}
                                 assemblyID={each.id}

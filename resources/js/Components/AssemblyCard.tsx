@@ -45,7 +45,13 @@ const AssemblyCard = (props: Props) => {
 
 
     return (
-        <Card className="md-2 assembly-card m-3" style={{ width: '100%', maxHeight: '750px' }}>
+        <Card
+            className="h-100"
+            style={{
+                width: '100%',
+                minWidth: '280px',
+            }}
+        >
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
@@ -67,19 +73,18 @@ const AssemblyCard = (props: Props) => {
                             <i className={(props.public && 'bi bi-unlock-fill') || 'bi bi-lock-fill'}></i>
                         </Badge>
                     </OverlayTrigger>{' '}
-                    <CollectionsBadge collections={props.collections}/>
-                    {' '}
+                    <CollectionsBadge collections={props.collections} />{' '}
                     {<ConservationLevelBadge status={props.conservation_status}></ConservationLevelBadge>}
                 </Card.Title>
                 <Card.Subtitle className="text-muted mb-2">
                     <i>{props.assemblyName}</i> (NCBI: {props.ncbiID})
                 </Card.Subtitle>
-                <Card.Text style={{ maxHeight: '300px' }}>
+                <Card.Text style={{ height: '18rem' }}>
                     {(props.info_text && truncateAtWord(props.info_text, 450)) || (
                         <p className="text-muted">
                             <b>No info text available.</b>
                         </p>
-                    )}
+                    )}{' '}
                     {props.is_wiki_text && (
                         <Badge>
                             <i className="bi bi-wikipedia"></i>
@@ -120,7 +125,7 @@ const AssemblyCard = (props: Props) => {
                         <Col>
                             BUSCO:{' '}
                             {(props.buscos === 0 && <b className="text-danger">Not available</b>) || (
-                                <b className="text-muted">{Math.round(props.maxBuscoScore * 10) / 10}</b>
+                                <b className="text-success">{props.buscos} available</b>
                             )}
                         </Col>
                         <Col>
@@ -135,7 +140,9 @@ const AssemblyCard = (props: Props) => {
                     <Row>
                         <Col>
                             Repeatmasker:{' '}
-                            {(props.repeatmaskers === 0 && <b className="text-danger">Not available</b>) || <b className="text-success">Available</b>}
+                            {(props.repeatmaskers === 0 && (
+                                <i className="bi bi-x-lg text-danger"/>
+                            )) || <i className="bi bi-check-lg text-success"/>}
                         </Col>
                         <Col>
                             taXaminer:{' '}

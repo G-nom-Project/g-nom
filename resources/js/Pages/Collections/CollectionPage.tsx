@@ -1,8 +1,9 @@
 import TopNavBar from '@/Components/TopNavBar';
-import { Badge, Button, Container, Form, OverlayTrigger, Table, Tooltip } from 'react-bootstrap';
+import { Badge, Button, Col, Container, Form, OverlayTrigger, Row, Table, Tooltip } from 'react-bootstrap';
 import { Assembly, Collection } from '@/types/data';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
+import TreeOfLife from '@/Components/TreeOfLife';
 
 export default function CollectionPage({collection, is_admin, assemblies, role} : {collection: Collection, is_admin: boolean, assemblies: Assembly[], role: string}) {
     console.log(assemblies);
@@ -12,6 +13,7 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
 
     const [currName, setCurrName] = useState(collection.name);
     const [currPublic, setCurrPublic] = useState(collection.is_public);
+    const [newick, setNewick] = useState();
 
     const handleRemoveAssembly = async (assembly_id: number) => {
         await axios.post(`/collections/${collection.id}/remove-assembly`, { assemblyID: assembly_id });
@@ -40,6 +42,12 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
         router.visit(`/collections/${collection.id}`);
     };
 
+    useEffect(() => {
+        axios.get(`/collections/${collection.id}/tree`)
+            .then((res) => res.data)
+            .then((data) => setNewick(data))
+    })
+
     return (
         <>
             <TopNavBar />
@@ -64,6 +72,16 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
                             <i className="bi bi-images"></i> Browse Gallery
                         </Button>
                     </div>
+                    <Row>
+                        <Col xs={2} />
+                        <Col>
+                            <div>
+                                {newick && <TreeOfLife newick={newick} pass_query={null} search_query={null} />}
+                            </div>
+                        </Col>
+                        <Col xs={2} />
+                    </Row>
+
                     <Table striped bordered hover>
                         <thead>
                             <tr>
@@ -78,8 +96,7 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
                                 <tr>
                                     <td>{ass.id}</td>
                                     <td>
-                                        <a href={"/assemblies/" + ass.id}>{ass.name }</a>
-                                        {' '}
+                                        <a href={'/assemblies/' + ass.id}>{ass.name}</a>{' '}
                                         <OverlayTrigger
                                             overlay={
                                                 <Tooltip id="tooltip-disabled">{(ass.public && 'Public access') || 'Internal use only'}</Tooltip>
