@@ -79,7 +79,7 @@ const AssemblyCard = (props: Props) => {
                 <Card.Subtitle className="text-muted mb-2">
                     <i>{props.assemblyName}</i> (NCBI: {props.ncbiID})
                 </Card.Subtitle>
-                <Card.Text style={{ height: '18rem' }}>
+                <Card.Text style={{ height: '14rem' }}>
                     {(props.info_text && truncateAtWord(props.info_text, 450)) || (
                         <p className="text-muted">
                             <b>No info text available.</b>

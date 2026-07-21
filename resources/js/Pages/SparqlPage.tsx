@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import TopNavBar from '@/Components/TopNavBar';
-import { Button, Container, OverlayTrigger, Spinner, Table, Tooltip } from 'react-bootstrap';
+import { Alert, Button, Container, OverlayTrigger, Spinner, Table, Tooltip } from 'react-bootstrap';
 import { sparql } from 'codemirror-lang-sparql';
 import CodeMirror from '@uiw/react-codemirror';
 
@@ -38,10 +38,16 @@ interface QleverResults {
     results: {bindings: QleverRow[]};
 }
 
+interface QLeverError {
+    exception: string;
+    metadata: {line: number};
+}
+
 export default function SparqlPage({stats}:{stats: QleverStats}) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<QleverResults | null>(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<QLeverError | null>(null);
 
     /**
      * Prettify known results i.e. IRI of entities constrained by the G-nom ontology. Returns React Node or the plain
@@ -49,6 +55,11 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
      * @param data string
      */
     const mapToSpecial = (data: string) => {
+
+        if (data.endsWith(".svg")) {
+            return <img alt={data} src={data}/>
+        }
+
         if (data.match('^.*\\/assemblies\\/*')) {
             return data.split('/')[data.split('/').length - 1];
         } else if (data.match('^https://w3id.org/gnom/*')) {
@@ -72,13 +83,18 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
 
     async function execute() {
         setResults(null);
+        setError(null);
         setLoading(true);
-        try {
-            const response = await axios.post('/sparql/query', { query });
-            setResults(response.data);
-        } finally {
-            setLoading(false);
-        }
+
+        axios.post('/sparql/query', { query })
+            .then((response) => {
+                setResults(response.data);
+
+            })
+            .catch((error) => {
+                setError(error.response.data);
+            });
+        setLoading(false);
     }
 
     return (
@@ -109,6 +125,15 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
                     {(loading && <Spinner animation="border" size="sm" />) || <i className="bi bi-lightning-charge-fill"></i>} Execute Query
                 </Button>
                 <hr />
+                { error &&
+                    <Alert variant="danger">
+                        <b>Could not execute Query</b>
+                        <p>
+                            { error.exception && <><b>Exception:</b> {error.exception}</>}
+                            <br/>
+                            {error.metadata && <><b>Line:</b> {error.metadata.line}</>}
+                        </p>
+                    </Alert>}
                 {results && (
                     <>
                         <p>
@@ -127,11 +152,13 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
                                     <tr key={rowIndex}>
                                         {results.head.vars.map(
                                             (col: string) =>
-                                                (row[col].type === 'uri' && (
+                                                ( row[col] &&
+                                                    row[col].type === 'uri' && (
                                                     <td key={col}>
                                                         <a href={row[col]?.value as string}>{mapToSpecial(row[col]?.value as string) ?? ''}</a>
                                                     </td>
-                                                )) || <td key={col}>{row[col]?.value ?? ''}</td>,
+                                                )
+                                                ) || <td key={col}>{row[col]?.value ?? ''}</td>,
                                         )}
                                     </tr>
                                 ))}

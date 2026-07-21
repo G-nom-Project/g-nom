@@ -123,6 +123,9 @@ class AssemblyController extends Controller
     public function show($id, WikidataService $wikidata): Response
     {
         $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'fcatAnalyses', 'taxaminerAnalyses', 'taxon'])
+            ->withExists(['bookmarks as is_bookmarked' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])
             ->findOrFail($id);
 
         $info = $wikidata->getTaxonInfoByNcbiId((string) $assembly->taxon_ncbiTaxonID);

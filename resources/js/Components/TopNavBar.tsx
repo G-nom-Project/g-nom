@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Button, Container, Nav, Navbar } from 'react-bootstrap';
 import gnom_logo from '../../static/logo/gnom.png';
 
@@ -18,15 +18,26 @@ const TopBar = () => {
                     <Nav className="me-auto">
                         <Nav.Link href={route('assemblies')}>Assemblies</Nav.Link>
                         <Nav.Link href={route('collections.index')}>Collections</Nav.Link>
-                        <Nav.Link href={route('bookmarks.get')}>Dashboard</Nav.Link>
                         <Nav.Link href={route('browser')}>Genome Browser</Nav.Link>
                         <Nav.Link href={route('tol')}>Tree of life</Nav.Link>
                     </Nav>
                     <Nav>
                         <Nav.Link>
-                            <Button>
+                            <Button href={route('dashboard')} onClick={() => router.visit('/dashboard')}>
                                 <i className="bi bi-person-circle" /> {(user && user.name) || 'Not logged in'}
-                            </Button>
+                            </Button>{' '}
+                            {user && (
+                                <>
+                                    <Button href={route('bookmarks.get')} onClick={() => router.visit('/bookmarks')}>
+                                        <i className="bi bi-bookmark"></i>
+                                    </Button>{' '}
+                                    <Link href={'/logout'} method={'post'} as={'b'}>
+                                        <Button href={route('logout')} variant={'danger'}>
+                                            <i className="bi bi-door-open"></i>
+                                        </Button>
+                                    </Link>
+                                </>
+                            )}
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>

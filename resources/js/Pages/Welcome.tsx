@@ -11,7 +11,7 @@ export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdat
             <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
                 <Container fluid className="bg-light py-5 text-center">
                     <h1 className="display-4 fw-bold mb-3">G-nom</h1>
-                    <p className="lead text-muted mb-4">From sequence to function — explore the genome with ease.</p>
+                    <p className="lead text-muted mb-4">From sequence to function</p>
 
                     <Row className="justify-content-center mb-4">
                         <Col md={4}>

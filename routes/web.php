@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies')->middleware(['auth']);
 Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show')->middleware(['auth']);
+Route::get('/assemblies/{id}/edit', [AssemblyController::class, 'editDashboard'])->name('assemblies.edit')->middleware(['auth']);
 Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 'taxonomicAssignmentStats'])->name('assemblies.taxonStats')->middleware(['auth']);
 
 Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser')->middleware(['auth']);

@@ -7,6 +7,7 @@ use App\Models\AssemblyCollection;
 use App\Services\WikidataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -188,7 +189,7 @@ class CollectionController extends Controller
         $collection = AssemblyCollection::where('id', $id)->with('assemblies')->firstOrFail();
         $this->authorize('update', $collection);
         $collection->assemblies()->detach($validated['assemblyID']);
-
+        Cache::forget("collection_tree_{$collection->id}");
         return redirect("/collections/{$id}");
     }
 
@@ -204,8 +205,10 @@ class CollectionController extends Controller
         $this->authorize('update', $collection);
         $this->authorize('view', $assembly);
         $collection->assemblies()->attach($validated['assemblyID'], ['created_at' => now()]);
-
-        return redirect("/collections/{$id}");
+        Cache::forget("collection_tree_{$collection->id}");
+        return response()->json([
+            'message' => "Assembly added successfully.",
+        ]);
     }
 
     public function add_user(Request $request, $id)
@@ -233,7 +236,7 @@ class CollectionController extends Controller
         $collection = AssemblyCollection::where('id', $id)->firstOrFail();
         $this->authorize('delete', $collection);
         $collection->delete();
-
+        Cache::forget("collection_tree_{$collection->id}");
         return 200;
     }
 }
