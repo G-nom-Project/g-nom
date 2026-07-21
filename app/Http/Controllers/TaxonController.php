@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assembly;
+use App\Models\AssemblyCollection;
 use App\Models\Taxon;
 use App\Models\TaxonGeneralInfo;
 use App\Models\TaxonGeoData;
@@ -167,6 +168,27 @@ class TaxonController extends Controller
         return Inertia::render('TreeOfLife', [
             'newick_tree' => $newick_tree,
         ]);
+    }
+
+    public function getCollectionTol(Request $request, $id)
+    {
+        $collection = AssemblyCollection::findOrFail($id);
+        $this->authorize('view', $collection);
+
+        return Cache::remember("collection_tree_{$collection->id}", now()->addDays(7), function () use ($request, $id) {
+            $assemblies = Assembly::query()
+                ->visibleTo($request->user())
+                ->whereHas('collections', function ($q) use ($id) {
+                    $q->where('collections.id', $id);
+                })
+                ->get();
+
+            $taxaIds = $assemblies->pluck('taxon_ncbiTaxonID')->all();
+
+            $tree = $this->buildTree($taxaIds);
+
+            return $this->toNewick($tree);
+        });
     }
 
     /**

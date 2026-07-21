@@ -57,6 +57,11 @@ class AssemblyController extends Controller
                 $query->where('user_id', Auth::id());
             }])
             ->with('taxon.infos')
+            ->with([
+                'collections' => function ($query) use ($request) {
+                    $query->visibleTo($request->user());
+                },
+            ])
             ->paginate(12)
             ->withQueryString()
             ->through(function ($assembly) use ($wikidata) {
@@ -118,6 +123,9 @@ class AssemblyController extends Controller
     public function show($id, WikidataService $wikidata): Response
     {
         $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'buscoAnalyses', 'repeatmaskerAnalyses', 'fcatAnalyses', 'taxaminerAnalyses', 'taxon'])
+            ->withExists(['bookmarks as is_bookmarked' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])
             ->findOrFail($id);
 
         $info = $wikidata->getTaxonInfoByNcbiId((string) $assembly->taxon_ncbiTaxonID);
@@ -504,7 +512,7 @@ class AssemblyController extends Controller
 
         $handle = fopen($local->path($path), 'r');
         if ($handle === false) {
-            throw new RuntimeException("Could not open coverage file!");
+            throw new RuntimeException('Could not open coverage file!');
         }
 
         while (($line = fgets($handle)) !== false) {
@@ -519,7 +527,7 @@ class AssemblyController extends Controller
 
             $value = (float) $fields[3];
 
-            if (!isset($counts[$value])) {
+            if (! isset($counts[$value])) {
                 $counts[$value] = 0;
             }
 

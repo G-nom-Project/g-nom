@@ -1,4 +1,4 @@
-import ConservationLevelBadge from '@/Components/ConservationLevelBadge';
+import ConservationLevelBadge from '@/Components/Badges/ConservationLevelBadge';
 import { truncateAtWord } from '@/utils/text';
 import { router } from '@inertiajs/react';
 import { Badge, Button, Card, Col, ListGroup, Row} from 'react-bootstrap';

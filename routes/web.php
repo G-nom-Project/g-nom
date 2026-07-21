@@ -5,6 +5,7 @@ use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\BUSCOController;
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\FCatController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\MappingController;
@@ -36,8 +37,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::put('/collections', [CollectionController::class, 'create'])->name('collections.create');
+    Route::post('/collections/{id}', [CollectionController::class, 'update'])->name('collections.update');
+    Route::get('/collections', [CollectionController::class, 'index'])->name('collections.index');
+    Route::get('/collections/{id}', [CollectionController::class, 'view'])->name('collections.view');
+    Route::get('/collections/{id}/tree', [TaxonController::class, 'getCollectionTol'])->name('collections.tol');
+    Route::get('/collections/{id}/gallery', [CollectionController::class, 'gallery'])->name('collections.gallery');
+    Route::post('/collections/{id}/remove-assembly', [CollectionController::class, 'remove_assembly'])->name('collections.remove_assembly');
+    Route::post('/collections/{id}/add-assembly', [CollectionController::class, 'add_assembly'])->name('collections.add_assembly');
+    Route::post('/collections/{id}/add-user', [CollectionController::class, 'add_user'])->name('collections.add_user');
+    Route::delete('/collections/{id}', [CollectionController::class, 'delete'])->name('collections.delete');
+});
+
 Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies')->middleware(['auth']);
 Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show')->middleware(['auth']);
+Route::get('/assemblies/{id}/edit', [AssemblyController::class, 'editDashboard'])->name('assemblies.edit')->middleware(['auth']);
 Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 'taxonomicAssignmentStats'])->name('assemblies.taxonStats')->middleware(['auth']);
 
 Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser')->middleware(['auth']);
@@ -97,7 +112,7 @@ Route::middleware([
     Route::delete('/annotations/{id}', [AnnotationController::class, 'destroy'])->name('annotation.destroy');
     Route::delete('/bigwigs/{id}', [WiggleTrackController::class, 'destroy'])->name('wiggle.destroy');
     Route::delete('/mappings/{id}', [MappingController::class, 'destroy'])->name('mapping.destroy');
-    Route::delete('/buscos/{id}', [BuscoController::class, 'destroy'])->name('busco.destroy');
+    Route::delete('/buscos/{id}', [BUSCOController::class, 'destroy'])->name('busco.destroy');
     Route::delete('/fcats/{id}', [FCatController::class, 'destroy'])->name('fcat.destroy');
     Route::delete('/repeatmaskers/{id}', [RepeatmaskerController::class, 'destroy'])->name('repeatmasker.destroy');
     Route::delete('/taxaminer/{id}', [TaxaminerController::class, 'destroy'])->name('taxaminer.destroy');

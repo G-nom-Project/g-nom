@@ -209,7 +209,9 @@ const TreeOfLife = ({ newick, search_query, pass_query }) => {
                     taxon_name = each.data.name
                 }
             });
-            pass_query(taxon_name);
+            if (pass_query) {
+                pass_query(taxon_name);
+            }
         }
 
 

@@ -48,6 +48,16 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
     const [taxonInfo, setTaxonInfo] = useState<string>("");
 
     const [assignmentStats, setAssignmentStats] = useState(null);
+    const [isBookmarked, setIsBookmarked] = useState(assembly.is_bookmarked);
+
+    const setBookmark = () => {
+        axios.post(`/assemblies/${assembly.id}/bookmark`)
+            .then(() => setIsBookmarked(true));
+    }
+
+    const deleteBookmark = () => {
+        axios.delete(`/assemblies/${assembly.id}/bookmark`).then(() => setIsBookmarked(false));
+    };
 
     /**
      * When loading the page, pull the first taXaminer analyses and use the plot labels as compressed taxonomic assignment
@@ -186,9 +196,15 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                     </Button>
                                 </ButtonGroup>
                                 <ButtonGroup>
-                                    <Button size="lg">
-                                        <i className="bi bi-bookmark-plus"></i>
-                                    </Button>
+                                    {(isBookmarked && (
+                                        <Button size="lg" variant='danger' onClick={() => deleteBookmark()}>
+                                            <i className="bi bi-bookmark-dash"></i>
+                                        </Button>
+                                    )) || (
+                                        <Button size="lg" onClick={() => setBookmark()}>
+                                            <i className="bi bi-bookmark-plus"></i>
+                                        </Button>
+                                    )}
                                 </ButtonGroup>
                             </ButtonToolbar>
                         </Nav.Link>

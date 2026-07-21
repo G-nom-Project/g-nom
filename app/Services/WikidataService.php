@@ -10,7 +10,7 @@ class WikidataService extends SparqlService
     {
         parent::__construct(
             endpoint: 'https://query.wikidata.org/sparql',
-            defaultCacheTtl: 604800, // 7 days
+            defaultCacheTtl: 1209600, // 14 days
             retries: 3,
             retryDelayMs: 1000
         );
