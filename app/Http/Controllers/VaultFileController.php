@@ -25,7 +25,7 @@ class VaultFileController extends Controller
         }
 
         // Only allow certain file extensions
-        $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi', 'bam', 'bai', 'bw'];
+        $allowedExtensions = ['gz', 'gzi', 'fai', 'tbi', 'bam', 'bai', 'bw', 'json'];
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
         if (! in_array($extension, $allowedExtensions)) {

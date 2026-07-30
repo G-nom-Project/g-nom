@@ -1,4 +1,3 @@
-import AssemblyStatistics from '@/Components/AssemblyPage/AssemblyStatistics';
 import BuscoViewer from '@/Components/AssemblyPage/BuscoViewer';
 import FcatViewer from '@/Components/AssemblyPage/FCatViewer';
 import JBrowseView from '@/Components/AssemblyPage/JBrowseView';

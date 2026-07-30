@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /**
  * The code is this file is an adaptation of the original snail plot by Richard Challis. The original source may be found
  * here: https://doi.org/10.5281/zenodo.322347

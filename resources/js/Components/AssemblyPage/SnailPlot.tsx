@@ -16,7 +16,7 @@ const SnailPlot = ({taxon_id, assembly_id}:{taxon_id: number, assembly_id: numbe
                     <MissingData msg={"Required assembly stats could not be loaded"}/>
                 );
             });
-    }, []);
+    }, [assembly_id, taxon_id]);
     return <div id="assembly_stats" style={{ width: '100%', height: '100%'}}>{errorDiv}</div>;
 }
 

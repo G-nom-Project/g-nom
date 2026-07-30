@@ -112,6 +112,12 @@ class ImportAssembly extends TrackableJob
             $this->fail('Failed while assessing assembly stats');
         }
 
+        $snail_success = $this->parseSnailPlot($targetPath, "taxa/{$this->taxonID}/{$assemblyId}/snail.json");
+        if ($snail_success) {
+            Log::error('Error: '.$stats['error']);
+            $this->fail('Failed while assessing assembly stats for snail plot');
+        }
+
         $assembly->numberOfSequences = $stats['numberOfSequences'];
         $assembly->n50 = $stats['n50'];
         $assembly->n90 = $stats['n90'];
@@ -197,5 +203,31 @@ class ImportAssembly extends TrackableJob
         }
 
         return $output;
+    }
+
+    public function parseSnailPlot(string $filePath, string $outPath)
+    {
+        $vault = Storage::disk('vault');
+        $filePath = $vault->path($filePath);
+        $outPath = $vault->path($outPath);
+
+        if (! file_exists($filePath)) {
+            return false;
+        }
+
+        $script = base_path('resources/scripts/assembly_stats.pl');
+        $result = Process::timeout(600)->run("$script \"$filePath\" > \"$outPath\"");
+
+        if ($result->failed()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        Log::critical($e->getMessage());
+        $this->markFailed($e);
     }
 }
