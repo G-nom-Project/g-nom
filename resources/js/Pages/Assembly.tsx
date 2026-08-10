@@ -1,4 +1,3 @@
-import AssemblyStatistics from '@/Components/AssemblyPage/AssemblyStatistics';
 import BuscoViewer from '@/Components/AssemblyPage/BuscoViewer';
 import FcatViewer from '@/Components/AssemblyPage/FCatViewer';
 import JBrowseView from '@/Components/AssemblyPage/JBrowseView';
@@ -32,6 +31,8 @@ import TaxonomicDistributionPlot from '@/Components/AssemblyPage/TaxonomicDistri
 import { router } from '@inertiajs/react';
 import CoveragePlot from '@/Components/AssemblyPage/CoveragePlot';
 import CoverageThresholdsPlot from '@/Components/AssemblyPage/CoverageThresholdsPlot';
+import SnailPlot from '@/Components/AssemblyPage/SnailPlot';
+import MissingData from '@/Components/MissingData';
 
 
 export default function Assemblies({ assembly } : { assembly: Assembly }) {
@@ -197,7 +198,7 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                 </ButtonGroup>
                                 <ButtonGroup>
                                     {(isBookmarked && (
-                                        <Button size="lg" variant='danger' onClick={() => deleteBookmark()}>
+                                        <Button size="lg" variant="danger" onClick={() => deleteBookmark()}>
                                             <i className="bi bi-bookmark-dash"></i>
                                         </Button>
                                     )) || (
@@ -343,15 +344,17 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                             </Accordion.Header>
                             <Accordion.Body>
                                 <Row>
-                                    <Col>
+                                    <Col xs={6}>
                                         <Card className="shadow">
-                                            <Card.Header>Contig size statistics</Card.Header>
+                                            <Card.Header>Snailplot</Card.Header>
                                             <Card.Body>
-                                                <AssemblyStatistics assembly={assembly} />
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <SnailPlot assembly_id={assembly.id} taxon_id={assembly.taxon_ncbiTaxonID} />
+                                                </div>
                                             </Card.Body>
                                         </Card>
                                     </Col>
-                                    <Col>
+                                    <Col style={{ height: '100%' }}>
                                         <Card className="shadow">
                                             <Card.Header>Assembly statistics</Card.Header>
                                             <Card.Body>
@@ -380,87 +383,33 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                                     </Button>
                                                 </InputGroup>
                                                 <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">Label</InputGroup.Text>
+                                                    <InputGroup.Text id="info-label">Imported into G-nom</InputGroup.Text>
                                                     <Form.Control
-                                                        placeholder="Assembly"
+                                                        placeholder="Imported into G-nom"
                                                         contentEditable={false}
-                                                        value={assembly && assembly.label}
+                                                        value={assembly && assembly.created_at}
                                                         readOnly={true}
                                                     />
-                                                </InputGroup>
-                                                <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">Cumulative sequence length</InputGroup.Text>
+                                                    <InputGroup.Text id="info-label">Last update</InputGroup.Text>
                                                     <Form.Control
-                                                        placeholder="Assembly"
+                                                        placeholder="Updated at"
                                                         contentEditable={false}
-                                                        value={assembly && assembly.cumulativeSequenceLength}
-                                                        readOnly={true}
-                                                    />
-                                                </InputGroup>
-                                                <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-longest-seqs">Longest</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="Assembly"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.longestSequence}
-                                                        readOnly={true}
-                                                    />
-                                                    <InputGroup.Text id="info-shortest-seqs">Shortest</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="Assembly"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.shortestSequence}
-                                                        readOnly={true}
-                                                    />
-                                                </InputGroup>
-                                                <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">Median</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="Assembly"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.medianSequence}
-                                                        readOnly={true}
-                                                    />
-                                                </InputGroup>
-                                                <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-longest-seqs">N50</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="Assembly"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.n50}
-                                                        readOnly={true}
-                                                    />
-                                                    <InputGroup.Text id="info-shortest-seqs">N90</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="Assembly"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.n90}
-                                                        readOnly={true}
-                                                    />
-                                                </InputGroup>
-                                                <InputGroup className="m-2">
-                                                    <InputGroup.Text id="info-number-seqs">%GC content</InputGroup.Text>
-                                                    <Form.Control
-                                                        placeholder="Assembly"
-                                                        contentEditable={false}
-                                                        value={assembly && assembly.gcPercent}
+                                                        value={assembly && assembly.updated_at}
                                                         readOnly={true}
                                                     />
                                                 </InputGroup>
                                             </Card.Body>
                                         </Card>
-                                    </Col>
-                                </Row>
-                                <hr />
-                                <Row className="mb-2">
-                                    <Col xs={6}>
-                                        <Card className="shadow" style={{ height: '50vh' }}>
-                                            <Card.Header>TaxSun Placeholder</Card.Header>
+                                        <Card className="mt-2 shadow" style={{ height: '100%' }}>
+                                            <Card.Header>Taxonomic Profile</Card.Header>
                                             <Card.Body>{assignmentStats && <TaxonomicDistributionPlot taxa={assignmentStats} />}</Card.Body>
                                         </Card>
                                     </Col>
+                                </Row>
+                                <hr />
+                                <Row className="mt-2">
                                     <Col>
-                                        <Card className="shadow" style={{ height: '50vh' }}>
+                                        <Card className="shadow">
                                             <Card.Header className="d-flex align-items-center gap-2 py-1">
                                                 <Button
                                                     size="sm"
@@ -492,10 +441,12 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                                 </span>
                                             </Card.Header>
                                             <Card.Body>
-                                                {assembly.coverage &&
+                                                {(assembly.coverage &&
                                                     ((coverageTab == 1 && <CoveragePlot coverage_data={assembly.coverage} />) || (
                                                         <CoverageThresholdsPlot coverage_data={assembly.coverage} />
-                                                    ))}
+                                                    ))) || (
+                                                    <MissingData/>
+                                                )}
                                             </Card.Body>
                                         </Card>
                                     </Col>
