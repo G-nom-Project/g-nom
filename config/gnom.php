@@ -2,6 +2,7 @@
 
 return [
     'is_readonly' => env('GNOM_READONLY'),
+    'blast' => env('GNOM_BLAST'),
 
     'shard_size' => env('SHARD_SIZE', 20),
     'qlever_host' => env('QLEVER_HOST', 'qlever'),
