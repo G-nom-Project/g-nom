@@ -4,10 +4,26 @@ namespace App\Policies;
 
 use App\Models\Taxon;
 use App\Models\User;
+use App\Services\ApplicationModeService;
 
 class TaxonPolicy
 {
     use HandlesTokenAbilities;
+
+    /**
+     * Enforces read-only config flag
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if (
+            app(ApplicationModeService::class)->isReadOnly()
+            && in_array($ability, ['create', 'update', 'delete', 'restore', 'forceDelete'])
+        ) {
+            return false;
+        }
+
+        return null;
+    }
 
     /**
      * Determine whether the user can view any models.
