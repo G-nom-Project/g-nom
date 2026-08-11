@@ -8,11 +8,12 @@ enum PersistenceMode: string
     case ReadOnly = 'read_only';
 }
 
-enum BlastMode: string
+enum BasicFlag: string
 {
     case Enabled = 'enabled';
     case Disabled = 'disabled';
 }
+
 
 class ApplicationModeService
 {
@@ -24,10 +25,17 @@ class ApplicationModeService
         );
     }
 
-    public function blastMode(): BlastMode
+    public function blastMode(): BasicFlag
     {
-        return BlastMode::from(
+        return BasicFlag::from(
             config('gnom.blast', 'enabled')
+        );
+    }
+
+    public function sparqlConsoleMode(): BasicFlag
+    {
+        return BasicFlag::from(
+            config('gnom.sparql_console', 'enabled')
         );
     }
 
@@ -38,8 +46,11 @@ class ApplicationModeService
 
     public function isBlastEnabled(): bool
     {
-        return $this->blastMode() === BlastMode::Enabled;
+        return $this->blastMode() === BasicFlag::Enabled;
     }
 
-
+    public function isSparqlConsoleEnabled(): bool
+    {
+        return $this->sparqlConsoleMode() === BasicFlag::Enabled;
+    }
 }
