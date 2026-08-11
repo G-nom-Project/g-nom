@@ -75,9 +75,7 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
                     <Row>
                         <Col xs={2} />
                         <Col>
-                            <div>
-                                {newick && <TreeOfLife newick={newick} pass_query={null} search_query={null} />}
-                            </div>
+                            <div>{newick && <TreeOfLife newick={newick} pass_query={null} search_query={null} />}</div>
                         </Col>
                         <Col xs={2} />
                     </Row>
@@ -125,9 +123,10 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
                         </tbody>
                     </Table>
                 </div>
-                <hr />
+
                 {(is_admin || role == 'editor') && (
                     <>
+                        <hr />
                         <p>
                             In order to add a assembly, you need to have at least <b>view</b> permission for the assembly and the <b>editor</b> role
                             for this collection. Please note that added assemblies will be visible to all members of this collection. Viewing
@@ -172,10 +171,10 @@ export default function CollectionPage({collection, is_admin, assemblies, role} 
                                 Update Collection
                             </Button>
                         </Form>
+                        <hr />
                     </>
                 )}
 
-                <hr />
                 <div className="d-flex mb-3 flex-wrap gap-2">
                     {collection.users.map((user) => (
                         <Badge bg="secondary" key={user.id}>

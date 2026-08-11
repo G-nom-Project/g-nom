@@ -35,7 +35,7 @@ import SnailPlot from '@/Components/AssemblyPage/SnailPlot';
 import MissingData from '@/Components/MissingData';
 
 
-export default function Assemblies({ assembly } : { assembly: Assembly }) {
+export default function Assemblies({ assembly, is_read_only } : { assembly: Assembly, is_read_only: boolean }) {
     const [renderCompleteness, setRenderCompleteness] = useState<boolean>(false);
     const [renderRepeats, setRenderRepeats] = useState<boolean>(false);
     const [location, setLocation] = useState<string>('');
@@ -183,6 +183,7 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                         size="lg"
                                         href={`/assemblies/${assembly.id}/edit`}
                                         onClick={() => router.visit(`/assemblies/${assembly.id}/edit`)}
+                                        disabled={is_read_only}
                                     >
                                         <i className="bi bi-wrench"></i>
                                     </Button>
@@ -191,6 +192,7 @@ export default function Assemblies({ assembly } : { assembly: Assembly }) {
                                         target="_blank"
                                         href={`/taxon/${assembly.taxon.ncbiTaxonID}`}
                                         onClick={() => (window.location.href = `/taxon/${assembly.taxon.ncbiTaxonID}`)}
+                                        disabled={is_read_only}
                                     >
                                         {' '}
                                         <i className="bi bi-diagram-2"></i>

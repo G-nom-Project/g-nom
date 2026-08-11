@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use App\Models\AssemblyCollection;
+use App\Services\ApplicationModeService;
 use App\Services\WikidataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +48,9 @@ class CollectionController extends Controller
         $admin = Auth::user()->id === $collection->user_id;
         $currentUser = $collection->users->firstWhere('id', Auth::id());
         $role = $currentUser?->pivot->role;
-
+        if (app(ApplicationModeService::class)->isReadOnly()) {
+            $admin = false;
+        }
         // Pass the data to the Inertia component
         return Inertia::render('Collections/CollectionPage', [
             'collection' => $collection,
