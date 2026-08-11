@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 uses(RefreshDatabase::class);
 
 test('fcat analysis can be deleted', function () {
+    config(['gnom.is_readonly' => 'normal']);
     Log::spy();
 
     $user = User::factory()->create([

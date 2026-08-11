@@ -13,6 +13,7 @@ uses(RefreshDatabase::class);
 
 test('annotation can be deleted', function () {
     Storage::fake('vault');
+    config(['gnom.is_readonly' => 'normal']);
     Log::spy();
 
     $user = User::factory()->create([

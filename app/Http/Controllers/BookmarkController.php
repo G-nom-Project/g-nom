@@ -139,6 +139,7 @@ class BookmarkController extends Controller
     public function destroy(Bookmark $bookmark)
     {
         $bookmark->delete();
+
         return response()->json(['message' => 'Bookmark deleted']);
     }
 }
