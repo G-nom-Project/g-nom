@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Jobs\Concerns\DispatchesTrackableJobs;
 use App\Models\Assembly;
 use App\Models\UserJob;
+use App\Services\ApplicationModeService;
+use App\Services\BlastResultParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -15,10 +17,15 @@ class JobController extends Controller
     //
     use DispatchesTrackableJobs;
 
+    public function __construct(
+        protected BlastResultParser $blastParser
+    ) {}
+
     public function index()
     {
         $user = auth()->user();
-        $jobs = $user->jobs;
+        $jobs = UserJob::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        // $jobs = $user->jobs;
 
         return Inertia::render('Jobs', [
             'jobs' => $jobs,
@@ -31,28 +38,10 @@ class JobController extends Controller
         $job = $user->jobs()->find($id);
         $vault = Storage::disk('vault');
         if (! $job) {
-            return 404;
+            abort(404);
         }
 
         $redirectable_jobs = ["App\Jobs\ImportBusco", "App\Jobs\ImportTaxaminer", "App\Jobs\ImportRepeatMasker"];
-
-        function parseBLAST($path)
-        {
-            $rows = array_map('str_getcsv', file($path), array_fill(0, count(file($path)), "\t"));
-
-            // This is equivalent to outputfmt 6, which is enforced in the BLAST jobs
-            $header = ['qseqid', 'sseqid', 'stitle', 'pident', 'length', 'mismatch', 'gapopen', 'qstart', 'qend', 'sstart', 'send', 'evalue', 'bitscore'];
-
-            $data = array_map(function ($row) use ($header) {
-
-                $mapped = array_combine($header, $row);
-                $mapped['id'] = $mapped['qseqid'].'_'.$mapped['sseqid'];
-
-                return $mapped;
-            }, $rows);
-
-            return $data;
-        }
 
         if (in_array($job->job_class, $redirectable_jobs)) {
             return redirect('/assemblies/'.$job->payload['assemblyID']);
@@ -64,16 +53,22 @@ class JobController extends Controller
             if ($job->status == 'completed') {
                 $path = $vault->path("blast/queries/{$job->result['filename']}");
                 if (file_exists($path)) {
-                    $data = parseBLAST($path);
+                    $data = $this->blastParser->parse($path);
                 }
             }
 
             return Inertia::render('JobResults/Blast', ['job' => $job, 'data' => $data]);
+        } else {
+            abort(404);
         }
     }
 
     public function createBLAST(Request $request)
     {
+        if (!app(ApplicationModeService::class)->isBlastEnabled()) {
+            abort(503, 'BLAST is disabled on this instance');
+        }
+
         // Check DB rebuild lock
         $wait = Cache::get('rebuilding_blast_shard');
 
@@ -82,6 +77,10 @@ class JobController extends Controller
 
     public function dispatchBLAST(Request $request)
     {
+        if (!app(ApplicationModeService::class)->isBlastEnabled()) {
+            abort(503, 'BLAST is disabled on this instance');
+        }
+
         $request->validate([
             'query' => 'required|string|max:2048',
         ]);
@@ -98,7 +97,7 @@ class JobController extends Controller
         $assembly = Assembly::where('id', $assembly_id)->first();
         $this->authorize('update', $assembly);
 
-        return json_encode([
+        return response()->json([
             'jobID' => $id,
             'assemblyID' => $assembly_id,
             'taxonID' => $assembly->taxon_ncbiTaxonID,

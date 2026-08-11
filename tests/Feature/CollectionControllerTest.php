@@ -29,6 +29,7 @@ function attachRole(AssemblyCollection $collection, User $user, string $role): v
 }
 
 beforeEach(function () {
+    config(['gnom.is_readonly' => 'normal']);
     $this->admin = User::factory()->create([
         'role' => 'admin',
     ]);
@@ -240,7 +241,7 @@ describe('add assembly', function () {
         actingAs($this->admin);
         post("/collections/{$this->collection->id}/add-assembly", [
             'assemblyID' => $this->assembly->id,
-        ])->assertRedirect();
+        ])->assertSuccessful();
         expect(
             $this->collection
                 ->fresh()

@@ -1,13 +1,13 @@
-import { Head } from '@inertiajs/react';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Head, router } from '@inertiajs/react';
+import { Button, Card, Col, Row } from 'react-bootstrap';
 import TopNavBar from '@/Components/TopNavBar';
 
-export default function Dashboard() {
+export default function Dashboard({is_read_only}: {is_read_only: boolean}) {
     return (
         <>
             <Head title="Dashboard" />
-            <TopNavBar/>
-            <div className="container py-4" style={{minHeight: "80vh"}}>
+            <TopNavBar />
+            <div className="container py-4" style={{ minHeight: '80vh' }}>
                 <Row className="g-4">
                     <Col md={4}>
                         <Card>
@@ -37,9 +37,9 @@ export default function Dashboard() {
                             <Card.Body>
                                 <Card.Title>API Tokens</Card.Title>
                                 <Card.Text>Generate and manage API tokens for external apps.</Card.Text>
-                                <a className="btn btn-primary" href="/api-tokens">
+                                <Button onClick={() => router.visit('/api-tokens')} disabled={is_read_only}>
                                     Manage Tokens
-                                </a>
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>

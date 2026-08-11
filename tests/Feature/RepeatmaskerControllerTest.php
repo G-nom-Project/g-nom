@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 test('repeatmasker analysis can be deleted', function () {
+    config(['gnom.is_readonly' => 'normal']);
     Storage::fake('vault');
     Log::spy();
 

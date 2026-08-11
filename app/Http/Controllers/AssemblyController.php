@@ -11,6 +11,7 @@ use App\Models\TaxaminerAnalysis;
 use App\Models\TaxaminerDiamondRecord;
 use App\Models\Taxon;
 use App\Notifications\UploadComplete;
+use App\Services\ApplicationModeService;
 use App\Services\WikidataService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -142,6 +143,7 @@ class AssemblyController extends Controller
 
         return Inertia::render('Assembly', [
             'assembly' => $assembly,
+            'is_read_only' => app(ApplicationModeService::class)->isReadOnly(),
         ]);
     }
 

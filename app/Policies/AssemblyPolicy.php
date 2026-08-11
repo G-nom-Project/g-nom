@@ -4,10 +4,26 @@ namespace App\Policies;
 
 use App\Models\Assembly;
 use App\Models\User;
+use App\Services\ApplicationModeService;
 
 class AssemblyPolicy
 {
     use HandlesTokenAbilities;
+
+    /**
+     * Enforces read-only config flag
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if (
+            app(ApplicationModeService::class)->isReadOnly()
+            && in_array($ability, ['create', 'update', 'delete'])
+        ) {
+            return false;
+        }
+
+        return null;
+    }
 
     public function viewAny(User $user): bool
     {

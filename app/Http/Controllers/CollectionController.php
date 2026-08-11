@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use App\Models\AssemblyCollection;
+use App\Services\ApplicationModeService;
 use App\Services\WikidataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +48,9 @@ class CollectionController extends Controller
         $admin = Auth::user()->id === $collection->user_id;
         $currentUser = $collection->users->firstWhere('id', Auth::id());
         $role = $currentUser?->pivot->role;
-
+        if (app(ApplicationModeService::class)->isReadOnly()) {
+            $admin = false;
+        }
         // Pass the data to the Inertia component
         return Inertia::render('Collections/CollectionPage', [
             'collection' => $collection,
@@ -190,6 +193,7 @@ class CollectionController extends Controller
         $this->authorize('update', $collection);
         $collection->assemblies()->detach($validated['assemblyID']);
         Cache::forget("collection_tree_{$collection->id}");
+
         return redirect("/collections/{$id}");
     }
 
@@ -206,8 +210,9 @@ class CollectionController extends Controller
         $this->authorize('view', $assembly);
         $collection->assemblies()->attach($validated['assemblyID'], ['created_at' => now()]);
         Cache::forget("collection_tree_{$collection->id}");
+
         return response()->json([
-            'message' => "Assembly added successfully.",
+            'message' => 'Assembly added successfully.',
         ]);
     }
 
@@ -237,6 +242,7 @@ class CollectionController extends Controller
         $this->authorize('delete', $collection);
         $collection->delete();
         Cache::forget("collection_tree_{$collection->id}");
+
         return 200;
     }
 }
