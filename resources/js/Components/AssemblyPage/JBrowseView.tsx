@@ -1,4 +1,4 @@
-import { createViewState, JBrowseLinearGenomeView } from '@jbrowse/react-linear-genome-view';
+import { createViewState, JBrowseLinearGenomeView } from '@jbrowse/react-linear-genome-view2';
 import { useEffect, useState } from 'react';
 import { Annotation, Assembly, Mapping } from '@/types/data';
 import { ModelCreationType } from 'mobx-state-tree';
