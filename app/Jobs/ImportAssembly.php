@@ -8,6 +8,7 @@ use App\Models\Assembly;
 use App\Models\Shard;
 use App\Models\UserJob;
 use App\Notifications\ImportCompleted;
+use App\Services\ApplicationModeService;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
@@ -113,8 +114,7 @@ class ImportAssembly extends TrackableJob
         }
 
         $snail_success = $this->parseSnailPlot($targetPath, "taxa/{$this->taxonID}/{$assemblyId}/snail.json");
-        if ($snail_success) {
-            Log::error('Error: '.$stats['error']);
+        if (!$snail_success) {
             $this->fail('Failed while assessing assembly stats for snail plot');
         }
 
@@ -140,7 +140,7 @@ class ImportAssembly extends TrackableJob
             ->where('id', '>', $this->userJobId)
             ->get();
 
-        if ($other_imports->count() == 0) {
+        if ($other_imports->count() == 0 && app(ApplicationModeService::class)->isBlastEnabled()) {
             $this->dispatchTrackable('App\Jobs\RebuildBlastShard', [$shard_id], user_id: $this->user->id, queue: 'long');
         }
 

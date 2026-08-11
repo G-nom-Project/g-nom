@@ -28,7 +28,7 @@ class UserJobPolicy
      */
     public function create(User $user, UserJob $job): bool
     {
-        if ($job->job_type == 'SingleBlastQuery') {
+        if ($job->job_class == "App\\Jobs\\SingleBlastQuery") {
             return true;
         }
 
