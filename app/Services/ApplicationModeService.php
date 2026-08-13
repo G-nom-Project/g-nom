@@ -39,6 +39,13 @@ class ApplicationModeService
         );
     }
 
+    public function wikidataMode(): BasicFlag
+    {
+        return BasicFlag::from(
+            config('gnom.wikidata', 'enabled')
+        );
+    }
+
     public function isReadOnly(): bool
     {
         return $this->persistenceMode() === PersistenceMode::ReadOnly;
@@ -52,5 +59,10 @@ class ApplicationModeService
     public function isSparqlConsoleEnabled(): bool
     {
         return $this->sparqlConsoleMode() === BasicFlag::Enabled;
+    }
+
+    public function isWikidataEnabled(): bool
+    {
+        return $this->wikidataMode() === BasicFlag::Enabled;
     }
 }

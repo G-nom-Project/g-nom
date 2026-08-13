@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateBookmarkRequest;
 use App\Models\Assembly;
 use App\Models\Bookmark;
+use App\Services\ApplicationModeService;
 use App\Services\WikidataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,9 +33,11 @@ class BookmarkController extends Controller
                             'taxaminerAnalyses',
                         ])
                         ->with('taxon.infos')
-                        ->withExists(['bookmarks as is_bookmarked' => function ($query) {
-                            $query->where('user_id', Auth::id());
-                        }])
+                        ->withExists([
+                            'bookmarks as is_bookmarked' => function ($query) {
+                                $query->where('user_id', Auth::id());
+                            },
+                        ])
                         ->with([
                             'collections' => function ($query) use ($request) {
                                 $query->visibleTo($request->user());
@@ -42,42 +45,50 @@ class BookmarkController extends Controller
                         ]);
                 },
             ])
-            ->paginate(10)
-            ->through(function ($bookmark) use ($wikidata) {
+            ->paginate(10);
+
+
+
+        if (app(ApplicationModeService::class)->isWikidataEnabled()) {
+            $ids = $bookmarks->getCollection()
+                ->pluck('assembly.taxon_ncbiTaxonID')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            // Batched wikidata request
+            $wikidataInfo = $wikidata->getTaxaInfoChunk($ids) ?? [];
+            $assemblies = $bookmarks->through(function ($bookmark) use ($wikidataInfo) {
                 $assembly = $bookmark->assembly;
-
-                if (! $assembly || ! $assembly->taxon) {
-                    return $bookmark;
-                }
-
-                static $cache = [];
-
                 $ncbiId = $assembly->taxon_ncbiTaxonID;
+                $assembly->conservation_status = null;
 
-                if (! isset($cache[$ncbiId])) {
-                    $cache[$ncbiId] = $wikidata->getTaxonInfoByNcbiId((string) $ncbiId);
+                if ($ncbiId && isset($wikidataInfo[$ncbiId])) {
+                    $info = $wikidataInfo[$ncbiId];
+                    $assembly->conservation_status =
+                        $info['status_label'] ?? null;
+
+                    if (
+                        $assembly->taxon &&
+                        ! $assembly->taxon['imageCredit'] &&
+                        isset($info['image'])
+                    ) {
+                        $assembly->wiki_image = $info['image'];
+                    }
+
+                    if (isset($info['wikipedia_url'])) {
+                        $assembly->wikipedia_url = $info['wikipedia_url'];
+                    }
+
+                    if (isset($info['wikipedia_summary'])) {
+                        $assembly->wikipedia_summary = $info['wikipedia_summary'];
+                    }
                 }
-
-                $info = $cache[$ncbiId];
-
-                // Conservation status
-                $assembly->conservation_status = $info['status_label'] ?? null;
-
-                // Wikipedia summary
-                if (isset($info['wikipedia_summary'])) {
-                    $assembly->wikipedia_summary = $info['wikipedia_summary'];
-                }
-
-                // Image
-                if (! $assembly->taxon->imageCredit && isset($info['image'])) {
-                    $assembly->wiki_image = $info['image'];
-                }
-
-                return $bookmark;
+                return $assembly;
             });
+        }
 
-        // Transform paginated results to extract assemblies while preserving pagination structure
-        $assemblies = $bookmarks->through(fn ($bookmark) => $bookmark->assembly);
 
         return Inertia::render('Bookmarks', [
             'assemblies' => $assemblies,

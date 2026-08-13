@@ -47,15 +47,20 @@ abstract class SparqlService
      * Execute a SELECT query and return normalized rows.
      *
      * @param  int|null  $cacheTtl  Override cache TTL (seconds). Null = default.
+     * @param string|null $overrideCacheKey Override the cache key of the result of the query
      * @return array<int, array<string, mixed>>
      */
-    protected function select(string $query, ?int $cacheTtl = null): array
+    protected function select(string $query, ?int $cacheTtl = null, string $overrideCacheKey = null): array
     {
         $ttl = $cacheTtl ?? $this->defaultCacheTtl;
 
         if ($ttl > 0) {
-            $cacheKey = $this->cacheKey($query);
-
+            if ($overrideCacheKey) {
+                $cacheKey = $overrideCacheKey;
+            } else {
+                $cacheKey = $this->cacheKey($query);
+            }
+            Log::debug("Cached query [$cacheKey] with $overrideCacheKey");
             return Cache::remember($cacheKey, $ttl, function () use ($query) {
                 return $this->runSelect($query);
             });

@@ -70,15 +70,18 @@ class CollectionController extends Controller
             ->visibleTo($request->user())
             ->when($search, function ($query) use ($search) {
                 if (is_numeric($search)) {
-                    return $query->where('taxon_ncbiTaxonID', (int) $search);
-                } else {
-                    return $query
-                        ->where('name', 'LIKE', '%'.$search.'%')
-                        ->orWhereHas('taxon', function ($q) use ($search) {
-                            $q->where('commonName', 'LIKE', '%'.$search.'%')
-                                ->orWhere('scientificName', 'LIKE', '%'.$search.'%');
-                        });
+                    return $query->where(
+                        'taxon_ncbiTaxonID',
+                        (int) $search
+                    );
                 }
+
+                return $query
+                    ->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhereHas('taxon', function ($q) use ($search) {
+                        $q->where('commonName', 'LIKE', '%' . $search . '%')
+                            ->orWhere('scientificName', 'LIKE', '%' . $search . '%');
+                    });
             })
             ->withCount('mappings')
             ->withCount([
@@ -88,7 +91,8 @@ class CollectionController extends Controller
                 'taxaminerAnalyses',
             ])
             ->withExists([
-                'bookmarks as is_bookmarked' => fn ($q) => $q->where('user_id', Auth::id()),
+                'bookmarks as is_bookmarked' => fn ($q) =>
+                $q->where('user_id', Auth::id()),
             ])
             ->with('taxon.infos')
             ->with('collections')
@@ -96,39 +100,50 @@ class CollectionController extends Controller
                 $q->where('collections.id', $id);
             })
             ->paginate(12)
-            ->through(function ($assembly) use ($wikidata) {
+            ->withQueryString();
+
+        if (app(ApplicationModeService::class)->isWikidataEnabled()) {
+            $ids = $assemblies->getCollection()
+                ->pluck('taxon_ncbiTaxonID')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            // Batched wikidata request
+            $wikidataInfo = $wikidata->getTaxaInfoChunk($ids) ?? [];
+            $assemblies->through(function ($assembly) use ($wikidataInfo) {
                 $ncbiId = $assembly->taxon_ncbiTaxonID;
+
                 $assembly->conservation_status = null;
-                if ($ncbiId) {
-                    $status = $wikidata->getConservationStatusByNcbiId((string) $ncbiId);
-                    $assembly->conservation_status = $status['status_label'] ?? null;
-                }
 
-                return $assembly;
-            })
-            ->through(function ($assembly) use ($wikidata) {
+                if ($ncbiId && isset($wikidataInfo[$ncbiId])) {
+                    $info = $wikidataInfo[$ncbiId];
 
-                static $cache = [];
-                if (! $assembly->taxon) {
-                    return $assembly;
-                }
-                $ncbiId = $assembly->taxon_ncbiTaxonID;
+                    $assembly->conservation_status =
+                        $info['status_label'] ?? null;
 
-                if (! isset($cache[$ncbiId])) {
-                    $cache[$ncbiId] = $wikidata->getTaxonInfoByNcbiId((string) $ncbiId);
-                }
+                    if (
+                        $assembly->taxon &&
+                        ! $assembly->taxon['imageCredit'] &&
+                        isset($info['image'])
+                    ) {
+                        $assembly->wiki_image = $info['image'];
+                    }
 
-                $info = $cache[$ncbiId];
-                if (isset($info['wikipedia_summary'])) {
-                    $assembly->wikipedia_summary = $info['wikipedia_summary'];
-                }
+                    if (isset($info['wikipedia_url'])) {
+                        $assembly->wikipedia_url = $info['wikipedia_url'];
+                    }
 
-                if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
-                    $assembly->wiki_image = $info['image'];
+                    if (isset($info['wikipedia_summary'])) {
+                        $assembly->wikipedia_summary = $info['wikipedia_summary'];
+                    }
                 }
 
                 return $assembly;
             });
+        }
+
 
         return Inertia::render('Collections/Gallery', [
             'collection' => $collection,

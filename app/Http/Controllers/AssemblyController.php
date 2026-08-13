@@ -37,15 +37,18 @@ class AssemblyController extends Controller
             ->visibleTo($request->user())
             ->when($search, function ($query) use ($search) {
                 if (is_numeric($search)) {
-                    return $query->where('taxon_ncbiTaxonID', (int) $search);
-                } else {
-                    return $query
-                        ->where('name', 'LIKE', '%'.$search.'%')
-                        ->orWhereHas('taxon', function ($q) use ($search) {
-                            $q->where('commonName', 'LIKE', '%'.$search.'%')
-                                ->orWhere('scientificName', 'LIKE', '%'.$search.'%');
-                        });
+                    return $query->where(
+                        'taxon_ncbiTaxonID',
+                        (int) $search
+                    );
                 }
+
+                return $query
+                    ->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhereHas('taxon', function ($q) use ($search) {
+                        $q->where('commonName', 'LIKE', '%' . $search . '%')
+                            ->orWhere('scientificName', 'LIKE', '%' . $search . '%');
+                    });
             })
             ->withCount('mappings')
             ->withCount([
@@ -54,9 +57,11 @@ class AssemblyController extends Controller
                 'repeatmaskerAnalyses',
                 'taxaminerAnalyses',
             ])
-            ->withExists(['bookmarks as is_bookmarked' => function ($query) {
-                $query->where('user_id', Auth::id());
-            }])
+            ->withExists([
+                'bookmarks as is_bookmarked' => function ($query) {
+                    $query->where('user_id', Auth::id());
+                },
+            ])
             ->with('taxon.infos')
             ->with([
                 'collections' => function ($query) use ($request) {
@@ -64,40 +69,48 @@ class AssemblyController extends Controller
                 },
             ])
             ->paginate(12)
-            ->withQueryString()
-            ->through(function ($assembly) use ($wikidata) {
+            ->withQueryString();
+
+        $ids = $assemblies->getCollection()
+            ->pluck('taxon_ncbiTaxonID')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (app(ApplicationModeService::class)->isWikidataEnabled()) {
+            // Batched wikidata request
+            $wikidataInfo = $wikidata->getTaxaInfoChunk($ids) ?? [];
+            $assemblies->through(function ($assembly) use ($wikidataInfo) {
                 $ncbiId = $assembly->taxon_ncbiTaxonID;
+
                 $assembly->conservation_status = null;
-                if ($ncbiId) {
-                    $status = $wikidata->getConservationStatusByNcbiId((string) $ncbiId);
-                    $assembly->conservation_status = $status['status_label'] ?? null;
+
+                if ($ncbiId && isset($wikidataInfo[$ncbiId])) {
+                    $info = $wikidataInfo[$ncbiId];
+
+                    $assembly->conservation_status =
+                        $info['status_label'] ?? null;
+
+                    if (
+                        $assembly->taxon &&
+                        ! $assembly->taxon['imageCredit'] &&
+                        isset($info['image'])
+                    ) {
+                        $assembly->wiki_image = $info['image'];
+                    }
+
+                    if (isset($info['wikipedia_url'])) {
+                        $assembly->wikipedia_url = $info['wikipedia_url'];
+                    }
+
+                    if (isset($info['wikipedia_summary'])) {
+                        $assembly->wikipedia_summary = $info['wikipedia_summary'];
+                    }
                 }
-
-                return $assembly;
-            })
-            ->through(function ($assembly) use ($wikidata) {
-
-                static $cache = [];
-                if (! $assembly->taxon) {
-                    return $assembly;
-                }
-                $ncbiId = $assembly->taxon_ncbiTaxonID;
-
-                if (! isset($cache[$ncbiId])) {
-                    $cache[$ncbiId] = $wikidata->getTaxonInfoByNcbiId((string) $ncbiId);
-                }
-
-                $info = $cache[$ncbiId];
-                if (isset($info['wikipedia_summary'])) {
-                    $assembly->wikipedia_summary = $info['wikipedia_summary'];
-                }
-
-                if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
-                    $assembly->wiki_image = $info['image'];
-                }
-
                 return $assembly;
             });
+        }
 
         return Inertia::render('Assemblies', [
             'assemblies' => $assemblies,
@@ -129,14 +142,17 @@ class AssemblyController extends Controller
             }])
             ->findOrFail($id);
 
-        $info = $wikidata->getTaxonInfoByNcbiId((string) $assembly->taxon_ncbiTaxonID);
+        if (app(ApplicationModeService::class)->isWikidataEnabled()) {
+            $info = $wikidata->getTaxaInfoChunk([$assembly->taxon_ncbiTaxonID]) ?? [];
+            $info = $info[$assembly->taxon_ncbiTaxonID];
 
-        if (isset($info['wikipedia_summary'])) {
-            $assembly->wikipedia_summary = $info['wikipedia_summary'];
-        }
+            if (isset($info['wikipedia_summary'])) {
+                $assembly->wikipedia_summary = $info['wikipedia_summary'];
+            }
 
-        if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
-            $assembly->wiki_image = $info['image'];
+            if (! $assembly->taxon['imageCredit'] && isset($info['image'])) {
+                $assembly->wiki_image = $info['image'];
+            }
         }
 
         $this->authorize('view', $assembly);
