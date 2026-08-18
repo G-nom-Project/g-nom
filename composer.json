@@ -14,6 +14,7 @@
         "ext-zlib": "*",
         "easyrdf/easyrdf": "^1.1",
         "inertiajs/inertia-laravel": "^2.0",
+        "laravel/ai": "^0.10.3",
         "laravel/framework": "^13.0",
         "laravel/horizon": "^5.45",
         "laravel/octane": "^2.15",
@@ -23,6 +24,7 @@
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^3.6.4",
         "spatie/image": "^3.8",
+        "symfony/yaml": "^8.1",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {

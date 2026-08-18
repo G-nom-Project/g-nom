@@ -14,6 +14,13 @@ enum BasicFlag: string
     case Disabled = 'disabled';
 }
 
+enum AiFlag: string
+{
+    case Internal = 'internal';
+    case BYOM = 'byom';
+    case Disabled = 'disabled';
+}
+
 
 class ApplicationModeService
 {
@@ -46,6 +53,13 @@ class ApplicationModeService
         );
     }
 
+    public function AiMode(): AiFlag
+    {
+        return AiFlag::from(
+            config('gnom.agents', 'enabled')
+        );
+    }
+
     public function isReadOnly(): bool
     {
         return $this->persistenceMode() === PersistenceMode::ReadOnly;
@@ -64,5 +78,10 @@ class ApplicationModeService
     public function isWikidataEnabled(): bool
     {
         return $this->wikidataMode() === BasicFlag::Enabled;
+    }
+
+    public function isAiEnabled(): bool
+    {
+        return $this->aiMode() === AiFlag::Internal || $this->aiMode() === AiFlag::BYOM;
     }
 }

@@ -3,6 +3,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './bootstrap';
 
 import '../css/gnom.css';
+import '../css/assistant.css'
 import '../css/circleplot.css'
 
 import Footer from '@/Components/Footer';

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnotationController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\BUSCOController;
 use App\Http\Controllers\CollectionController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\TaxaminerController;
 use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
 use App\Http\Controllers\WiggleTrackController;
+use App\Http\Middleware\AiMode;
 use App\Http\Middleware\GnomReadOnly;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -154,5 +156,23 @@ Route::post('/sparql/query', [SparqlController::class, 'query'])->middleware('au
 Route::get('/sparql', [SparqlController::class, 'queryPage'])->name('sparql')->middleware('auth');
 
 Route::get('/tol', [TaxonController::class, 'getTol'])->name('tol')->middleware('auth');
+
+Route::middleware(['auth', AiMode::class])->group(function () {
+    Route::get('/assistant', [AssistantController::class, 'index'])
+        ->name('assistant.index');
+
+    Route::get('/assistant/{conversation}', [AssistantController::class, 'show'])
+        ->name('assistant.show');
+    Route::delete('/assistant/{conversation}', [AssistantController::class, 'delete'])
+        ->name('assistant.delete');
+
+    Route::post('/assistant', [AssistantController::class, 'store'])
+        ->name('assistant.store');
+
+    Route::post('/assistant/{conversation}/message', [
+        AssistantController::class,
+        'message',
+    ])->name('assistant.message');
+});
 
 require __DIR__.'/auth.php';
