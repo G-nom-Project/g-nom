@@ -5,6 +5,7 @@ namespace App\Ai\Agents;
 use App\Ai\Tools\AssemblySearchTool;
 use App\Ai\Tools\RetrieveBuscoTool;
 use App\Ai\Tools\RetrieveRepeatmaskerTool;
+use App\Models\GnomKnowledgeBaseEntry;
 use App\Models\User;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Timeout;
@@ -13,12 +14,12 @@ use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
-use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
+use Laravel\Ai\Tools\SimilaritySearch;
 use Stringable;
 
 #[Timeout(120)]
-#[MaxSteps(10)]
+#[MaxSteps(5)]
 class UserAssistant implements Agent, Conversational, HasTools
 {
     use Promptable, RemembersConversations;
@@ -115,6 +116,10 @@ http://{base_url}/assemblies/{id}
 
 The IDs are always numeric.
 
+## G-nom documentation
+
+When users ask questions about G-nom's capabilities or guidance on how to use them, use the G-nom Knowledge Base Tool.
+
 ## Scientific context
 
 Conduct yourself as a research assistant in a scientific context.
@@ -124,16 +129,6 @@ explanations.
 
 
 PROMPT;
-    }
-
-    /**
-     * Get the list of messages comprising the conversation so far.
-     *
-     * @return Message[]
-     */
-    public function messages(): iterable
-    {
-        return [];
     }
 
     /**
@@ -147,6 +142,10 @@ PROMPT;
             new AssemblySearchTool($this->user),
             new RetrieveBuscoTool($this->user),
             new RetrieveRepeatmaskerTool($this->user),
+            SimilaritySearch::usingModel(GnomKnowledgeBaseEntry::class, 'embedding')
+                ->withDescription('Search the G-nom knowledge base for information about G-nom functionality.
+                Use this when users ask questions about G-nom. Contents returned by this tool may contain AsciiDoc
+                syntax.'),
         ];
     }
 }
