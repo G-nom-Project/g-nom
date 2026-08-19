@@ -11,7 +11,6 @@ use Stringable;
 
 class AssemblySearchTool implements Tool
 {
-
     public function __construct(
         protected User $user,
     ) {}

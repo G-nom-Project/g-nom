@@ -2,42 +2,31 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import Chat from './Assistant/Chat'
 import ConversationSidebar from './Assistant/ConversationSidebar';
-import { Conversation, Message } from '@/types/assistant';
+import { Conversation, Message, Model } from '@/types/assistant';
 
 interface Props {
     conversations: Conversation[];
     conversation?: Conversation | null;
     messages?: Message[];
+    models?: Model[]
 }
 
 export default function Index({
     conversations: initialConversations,
     conversation: initialConversation = null,
     messages: initialMessages = [],
+    models
 }: Props) {
     const [conversations, setConversations] = useState(initialConversations);
     const [conversation, setConversation] = useState(initialConversation);
     const [messages, setMessages] = useState(initialMessages);
+    console.log(models)
 
-    const createConversation = async (message: string) => {
-        const response = await axios.post(
-            route('assistant.store'),
-            {
-                message,
-            }
-        );
-
-        router.visit(
-            route(
-                'assistant.show',
-                response.data.conversation_id
-            )
-        );
-    };
 
     const selectConversation = (id: string) => {
         router.visit(route('assistant.show', id));
     };
+
 
     const newConversation = () => {
         router.visit(route('assistant.index'));
@@ -61,7 +50,12 @@ export default function Index({
                 onNewConversation={newConversation}
                 onDelete={deleteConversation}
             />
-            <Chat conversation={conversation} messages={messages} onCreateConversation={createConversation} onMessagesChange={setMessages} />
+            <Chat
+                conversation={conversation}
+                messages={messages}
+                onMessagesChange={setMessages}
+                models={models}
+            />
         </div>
     );
 }

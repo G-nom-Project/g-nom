@@ -12,7 +12,6 @@ use Stringable;
 
 class RetrieveBuscoTool implements Tool
 {
-
     public function __construct(
         protected User $user,
     ) {}
@@ -58,16 +57,16 @@ class RetrieveBuscoTool implements Tool
     public function handle(Request $request): Stringable|string
     {
         //
-        $assembly = Assembly::where('id', (int)$request['value'])->first();
-        if(!$assembly){
-            return "This assembly ID does not exist.";
+        $assembly = Assembly::where('id', (int) $request['value'])->first();
+        if (! $assembly) {
+            return 'This assembly ID does not exist.';
         }
 
         if ($this->user->cannot('view', $assembly)) {
-            return "The requested assembly is not available to this user. NOTIFY THE USER!";
+            return 'The requested assembly is not available to this user. NOTIFY THE USER!';
         }
 
-        return BuscoAnalysis::where('assembly_id', (int)$request['value'])->get();
+        return BuscoAnalysis::where('assembly_id', (int) $request['value'])->get();
 
     }
 

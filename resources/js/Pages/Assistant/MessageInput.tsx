@@ -45,7 +45,7 @@ export default function MessageInput({ onSend, disabled = false }: Props) {
                     <textarea
                         className="form-control"
                         rows={2}
-                        placeholder="Ask G-nom Assistant..."
+                        placeholder="Ask G-nom..."
                         value={message}
                         disabled={disabled}
                         onChange={(event) => setMessage(event.target.value)}
@@ -57,7 +57,7 @@ export default function MessageInput({ onSend, disabled = false }: Props) {
                     </button>
                 </div>
 
-                <small className="text-muted">Enter to send · Shift+Enter for a new line</small>
+                <small className="text-muted">Enter to send · Shift+Enter for a new line · Information not obtained from tools or context may not be based on the G-nom database</small>
             </form>
         </div>
     );

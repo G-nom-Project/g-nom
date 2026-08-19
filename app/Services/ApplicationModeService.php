@@ -18,13 +18,12 @@ enum AiFlag: string
 {
     case Internal = 'internal';
     case BYOM = 'byom';
+    case BYOM_and_Internal = 'byom+internal';
     case Disabled = 'disabled';
 }
 
-
 class ApplicationModeService
 {
-
     public function persistenceMode(): PersistenceMode
     {
         return PersistenceMode::from(
@@ -82,6 +81,16 @@ class ApplicationModeService
 
     public function isAiEnabled(): bool
     {
-        return $this->aiMode() === AiFlag::Internal || $this->aiMode() === AiFlag::BYOM;
+        return $this->aiMode() === AiFlag::Internal || $this->aiMode() === AiFlag::BYOM || $this->aiMode() === AiFlag::BYOM_and_Internal;
+    }
+
+    public function isInternalAiEnabled(): bool
+    {
+        return $this->aiMode() === AiFlag::Internal || $this->aiMode() === AiFlag::BYOM_and_Internal;
+    }
+
+    public function isBYOMEnabled(): bool
+    {
+        return $this->aiMode() === AiFlag::BYOM || $this->aiMode() === AiFlag::BYOM_and_Internal;
     }
 }

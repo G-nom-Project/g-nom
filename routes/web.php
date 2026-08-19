@@ -166,6 +166,11 @@ Route::middleware(['auth', AiMode::class])->group(function () {
     Route::delete('/assistant/{conversation}', [AssistantController::class, 'delete'])
         ->name('assistant.delete');
 
+    Route::post('/assistant/model', [AssistantController::class, 'storeModel'])
+        ->name('assistant.store-model');
+    Route::delete('/assistant/model/{id}', [AssistantController::class, 'deleteModel'])
+        ->name('assistant.delete-model');
+
     Route::post('/assistant', [AssistantController::class, 'store'])
         ->name('assistant.store');
 

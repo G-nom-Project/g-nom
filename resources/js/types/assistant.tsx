@@ -27,4 +27,8 @@ export interface Message {
     meta: { model: string };
 }
 
+export interface Model {
+    id: number;
+    name: string;
+}
 
