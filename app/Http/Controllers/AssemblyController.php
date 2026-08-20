@@ -44,10 +44,10 @@ class AssemblyController extends Controller
                 }
 
                 return $query
-                    ->where('name', 'LIKE', '%' . $search . '%')
+                    ->where('name', 'LIKE', '%'.$search.'%')
                     ->orWhereHas('taxon', function ($q) use ($search) {
-                        $q->where('commonName', 'LIKE', '%' . $search . '%')
-                            ->orWhere('scientificName', 'LIKE', '%' . $search . '%');
+                        $q->where('commonName', 'LIKE', '%'.$search.'%')
+                            ->orWhere('scientificName', 'LIKE', '%'.$search.'%');
                     });
             })
             ->withCount('mappings')
@@ -108,6 +108,7 @@ class AssemblyController extends Controller
                         $assembly->wikipedia_summary = $info['wikipedia_summary'];
                     }
                 }
+
                 return $assembly;
             });
         }

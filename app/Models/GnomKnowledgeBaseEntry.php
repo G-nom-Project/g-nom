@@ -32,7 +32,7 @@ class GnomKnowledgeBaseEntry extends Model
 
 
         $response = Embeddings::for([$text])
-            ->dimensions(config('gnom.embedding_dimensions', 1024))
+            ->dimensions(config('ai.context_sizes.embeddings.result', 1024))
             ->generate();
 
         $this->update(['embedding' => $response->embeddings[0]]);

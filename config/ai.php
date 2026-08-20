@@ -13,12 +13,26 @@ return [
     |
     */
 
-    'default' => 'ollama',
+    'default' => 'local',
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',
     'default_for_embeddings' => 'local',
     'default_for_reranking' => 'cohere',
+
+    /*
+     * Here you can provide context sizes for your embedding model.
+     * These determine the chunking strategies when data is imported into the vector store.
+     * Adjust them according to your embedding model (i.e. bge-large:335m has a max context window of 512 tokens)
+     */
+    'context_sizes' => [
+        'embeddings' => [
+            'max' => 512,
+            'target' => 500,
+            'min' => 100,
+            'result' => 1024,
+        ]
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -20,8 +20,6 @@ export default function Index({
     const [conversations, setConversations] = useState(initialConversations);
     const [conversation, setConversation] = useState(initialConversation);
     const [messages, setMessages] = useState(initialMessages);
-    console.log(models)
-
 
     const selectConversation = (id: string) => {
         router.visit(route('assistant.show', id));

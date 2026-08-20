@@ -25,7 +25,9 @@
         "livewire/livewire": "^3.6.4",
         "spatie/image": "^3.8",
         "symfony/yaml": "^8.1",
-        "tightenco/ziggy": "^2.0"
+        "tightenco/ziggy": "^2.0",
+        "ext-simplexml": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

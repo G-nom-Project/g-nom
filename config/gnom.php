@@ -9,5 +9,4 @@ return [
     'qlever_host' => env('QLEVER_HOST', 'qlever'),
     'qlever_access_token' => env('QLEVER_ACCESS_TOKEN'),
     'agents' => env('GNOM_AGENTS', 'disabled'),
-    'embedding_dimensions' => env('GNOM_EMBEDDING_DIMENSIONS', 1536),
 ];
