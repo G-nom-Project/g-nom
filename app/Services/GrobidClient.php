@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class GrobidClient
 {
@@ -12,10 +13,12 @@ class GrobidClient
 
     public function processFulltext(string $path): string
     {
+        $local = Storage::disk('local');
+
         $response = Http::timeout(300)
             ->attach(
                 'input',
-                fopen($path, 'r'),
+                fopen($local->path($path), 'r'),
                 basename($path)
             )
             ->post(

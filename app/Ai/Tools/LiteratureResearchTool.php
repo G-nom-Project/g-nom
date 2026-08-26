@@ -19,8 +19,9 @@ class LiteratureResearchTool implements Tool
         return 'Search the G-nom paper collection (corpus) to answer scientific questions exceeding the information
         available using only the AssemblySearchTool, RetrieveBuscoTool or RetrieveRepeatmaskerTool. Results consist of
         chunks of scientific papers in a JSON schema. Each chunk has a document_id. Mark sentences based of a certain
-        chunk by appending document_id to ¶, resulting in ¶document_id. Do not confuse document_id with chunk_id or
-        chunk_index. Never produce ¶chunk_id or ¶chunk_index. Do not make up document_ids.';
+        chunk by appending document_id to ¶ and adding a markdown link, resulting in [¶document_id](/document/document_id). Do not confuse document_id with chunk_id or
+        chunk_index. Never produce ¶chunk_id or ¶chunk_index. Do not make up document_ids. Only add each document_id
+        once for each paragraph it was used in.';
     }
 
     /**

@@ -10,6 +10,7 @@ class DocumentImporter
 {
     public function __construct(
         private readonly GrobidTeiParser $parser,
+        private readonly int $userID,
     ) {
     }
 
@@ -18,16 +19,14 @@ class DocumentImporter
         ?string $filePath = null,
     ): Document {
         $parsed = $this->parser->parse($teiXml);
-
-        $vault = Storage::disk('vault');
-        $local = Storage::disk('local');
+        $userID = $this->userID;
 
         return DB::transaction(function () use (
-            $local,
             $parsed,
             $filePath,
-            $vault,
+            $userID
         ) {
+            $local = Storage::disk('local');
             $document = Document::create([
                 'title' => $parsed['title'],
                 'abstract' => $parsed['abstract'],
@@ -35,6 +34,7 @@ class DocumentImporter
                 'authors' => $parsed['authors'],
                 'file_path' => $filePath,
                 'file_hash' => md5_file($local->path($filePath)),
+                'user_id' => $userID,
             ]);
 
             $this->storeElements(
@@ -47,7 +47,10 @@ class DocumentImporter
                 $parsed['references'],
             );
 
-            $vault->put("/documents/{$document->id}", $local->get($filePath));
+            if(config('gnom.store_documents', false)) {
+                $vault = Storage::disk('vault');
+                $vault->put("/documents/{$document->id}", $local->get($filePath));
+            }
 
             return $document->fresh([
                 'elements',

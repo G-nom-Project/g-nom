@@ -18,6 +18,7 @@ class Document extends Model
         'section',
         'metadata',
         'doi',
+        'user_id',
     ];
 
     protected $casts = [

@@ -173,3 +173,28 @@ export interface BuscoAnalysis {
     fragmented: number;
     missing: number;
 }
+
+export interface ResearchDocumentReference {
+    id: number;
+    document_id: number;
+    reference_id: number;
+    type: string;
+    content: string;
+}
+
+export interface ResearchDocumentAuthor {
+    first_name: string;
+    last_name: string;
+    full_name: string;
+}
+
+export interface ResearchDocument {
+    id: number;
+    title: string;
+    abstract: string;
+    text: string;
+    authors: ResearchDocumentAuthor[];
+    doi: string|null;
+    file_hash: string;
+    references: ResearchDocumentReference[];
+}

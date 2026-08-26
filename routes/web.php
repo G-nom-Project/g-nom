@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\AssistantMessageCompleted;
 use App\Http\Controllers\AnnotationController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\BUSCOController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FCatController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\MappingController;
@@ -179,5 +181,12 @@ Route::middleware(['auth', AiMode::class])->group(function () {
         'message',
     ])->name('assistant.message');
 });
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/document/{id}', [DocumentController::class, 'view'])->name('document.view');
+    Route::get('/upload-document', [DocumentController::class, 'uploadPage'])->name('document.upload-page');
+    Route::post('/upload-document', [DocumentController::class, 'uploadFiles'])->name('documents.upload');
+});
+
 
 require __DIR__.'/auth.php';

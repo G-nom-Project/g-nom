@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
 import { Conversation, Message, Model } from '@/types/assistant';
 import { Button, Dropdown, DropdownButton, Form, InputGroup, Modal } from 'react-bootstrap';
 import { router } from '@inertiajs/react';
+import echo from '@/echo';
 
 
 interface Props {
@@ -26,6 +27,34 @@ export default function Chat({ conversation, messages, onMessagesChange, models 
     const [newModelName, setNewModelName] = useState('');
     const [newModelURL, setNewModelURL] = useState('');
     const [newModelToken, setNewModelToken] = useState('');
+    const [hasSubscribed, setHasSubscribed] = useState(false);
+
+    useEffect(() => {
+        if (!conversation) {
+            return;
+        }
+
+        const channelName = `conversation.${conversation.id}`;
+        const channel = echo.private(channelName);
+
+        channel.subscribed(() => {
+            console.log('SUCCESSFULLY SUBSCRIBED:', channelName);
+            setHasSubscribed(true);
+        });
+
+        channel.error((error) => {
+            console.error('CHANNEL ERROR:', error);
+        });
+
+        channel.listen('.assistant.message.completed', (event: { conversation_id: number; message: Message }) => {
+            onMessagesChange((current) => [...current, event.message]);
+            setSending(false);
+        });
+
+        return () => {
+            echo.leave(channelName);
+        };
+    }, [conversation?.id]);
 
     const createConversation = async (message: string) => {
         const response = await axios.post(route('assistant.store'), {
@@ -55,27 +84,15 @@ export default function Chat({ conversation, messages, onMessagesChange, models 
                 return;
             }
 
-            const response = await axios.post(route('assistant.message', conversation.id), {
+            await axios.post(route('assistant.message', conversation.id), {
                 message: content,
-                model_id: model.id
+                model_id: model.id,
             });
 
-            const assistantMessage: Message = {
-                id: `temporary-${Date.now()}-assistant`,
-                role: 'assistant',
-                content: response.data.text,
-                created_at: new Date().toISOString(),
-                meta: response.data.meta,
-            };
-
-            onMessagesChange((current) => [...current, assistantMessage]);
         } catch (error) {
             console.error(error);
-
             setError('Something went wrong while sending your message.');
-
             onMessagesChange((current) => current.filter((message) => message.id !== userMessage.id));
-        } finally {
             setSending(false);
         }
     };
@@ -164,7 +181,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models 
                 </Modal.Body>
             </Modal>
 
-            <MessageList messages={messages} sending={sending} />
+            <MessageList messages={messages} sending={sending} has_subscribed={hasSubscribed}/>
 
             {error && <div className="alert alert-danger mx-3 mb-2">{error}</div>}
 

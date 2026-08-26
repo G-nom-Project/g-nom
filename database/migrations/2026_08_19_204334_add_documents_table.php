@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('file_path');
             $table->string('file_hash', 64)->unique();
 
+            $table->foreignId('user_id')->constrained();
+
             // This is reserved for potential later use
             $table->jsonb('metadata')->nullable();
 

@@ -3,9 +3,10 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Tools\AssemblySearchTool;
+use App\Ai\Tools\GnomDocsTool;
+use App\Ai\Tools\LiteratureResearchTool;
 use App\Ai\Tools\RetrieveBuscoTool;
 use App\Ai\Tools\RetrieveRepeatmaskerTool;
-use App\Models\GnomKnowledgeBaseEntry;
 use App\Models\User;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Timeout;
@@ -15,7 +16,6 @@ use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\Tools\SimilaritySearch;
 use Stringable;
 
 #[Timeout(120)]
@@ -142,10 +142,8 @@ PROMPT;
             new AssemblySearchTool($this->user),
             new RetrieveBuscoTool($this->user),
             new RetrieveRepeatmaskerTool($this->user),
-            SimilaritySearch::usingModel(GnomKnowledgeBaseEntry::class, 'embedding')
-                ->withDescription('Search the G-nom knowledge base for information about G-nom functionality.
-                Use this when users ask questions about G-nom. Contents returned by this tool may contain AsciiDoc
-                syntax.'),
+            new LiteratureResearchTool(),
+            new GnomDocsTool(),
         ];
     }
 }

@@ -7,9 +7,10 @@ import { Message } from '@/types/assistant';
 interface Props {
     messages: Message[];
     sending: boolean;
+    has_subscribed: boolean;
 }
 
-export default function MessageList({ messages, sending }: Props) {
+export default function MessageList({ messages, sending, has_subscribed }: Props) {
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -18,7 +19,7 @@ export default function MessageList({ messages, sending }: Props) {
         });
     }, [messages, sending]);
 
-    if (messages.length === 0) {
+    if (!sending && !has_subscribed) {
         return (
             <div className="flex-grow-1 d-flex align-items-center justify-content-center">
                 <div className="text-muted text-center">
@@ -37,7 +38,7 @@ export default function MessageList({ messages, sending }: Props) {
                     <MessageBubble key={message.id} message={message} />
                 ))}
 
-                {sending && (
+                {(sending || messages.length === 0) && (
                     <div className="d-flex mb-4">
                         <div className="bg-light rounded px-3 py-2">
                             <span className="text-muted">Agent is working...</span>
@@ -53,11 +54,14 @@ export default function MessageList({ messages, sending }: Props) {
 
 function MessageBubble({ message }: { message: Message }) {
     const isUser = message.role === 'user';
+    const isSystem = message.is_system;
+
+    const bg = (isSystem && 'bg-danger text-white' || isUser && 'bg-primary text-white' || 'bg-light')
 
     return (
         <div className={['d-flex', 'mb-4', isUser ? 'justify-content-end' : 'justify-content-start'].join(' ')}>
             <div
-                className={['rounded', 'px-3', 'py-2', isUser ? 'bg-primary text-white' : 'bg-light'].join(' ')}
+                className={['rounded', 'px-3', 'py-2', bg].join(' ')}
                 style={{
                     maxWidth: '80%',
                     whiteSpace: 'pre-wrap',
@@ -65,11 +69,20 @@ function MessageBubble({ message }: { message: Message }) {
             >
                 {!isUser && (
                     <div className="fw-bold mb-1">
-                        G-nom Assistant (<code>{message.meta['model']}</code>{' / '}
-                        {message.usage && <code>{message.usage.completion_tokens + message.usage.prompt_tokens} tokens</code>})
+                        {(isSystem && 'G-nom System') || (
+                            <>
+                                G-nom Assistant (<code>{message.meta['model']}</code>
+                                {' / '}
+                                {(message.meta.usage && (
+                                    <code>{message.meta.usage.completion_tokens + message.meta.usage.prompt_tokens} tokens</code>
+                                )) ||
+                                    (message.usage && <code>{message.usage.completion_tokens + message.usage.prompt_tokens} tokens</code>)}
+                                )
+                            </>
+                        )}
                     </div>
                 )}
-                {message.tool_results?.map((toolCall) => (
+                {message.tool_calls?.map((toolCall) => (
                     <ToolCall key={toolCall.id} toolCall={toolCall} />
                 ))}
 

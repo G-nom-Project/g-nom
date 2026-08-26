@@ -13,11 +13,11 @@ return [
     |
     */
 
-    'default' => 'local',
+    'default' => 'anthropic',
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',
-    'default_for_embeddings' => 'local',
+    'default_for_embeddings' => 'ollama',
     'default_for_reranking' => 'cohere',
 
     /*
@@ -68,6 +68,11 @@ return [
             'driver' => 'anthropic',
             'key' => env('ANTHROPIC_API_KEY'),
             'url' => env('ANTHROPIC_URL', 'https://api.anthropic.com/v1'),
+            'models' => [
+                'text' => [
+                    'default' => 'claude-haiku-4-5-20251001',
+                ],
+            ],
         ],
 
         'azure' => [
@@ -126,14 +131,15 @@ return [
             'key' => env('MISTRAL_API_KEY'),
         ],
 
-        // Example config, locally run
+        // Example config with a locally run model handling text embeddings
         'ollama' => [
             'driver' => 'ollama',
             'key' => env('OLLAMA_API_KEY', ''),
             'url' => env('OLLAMA_URL', 'http://ollama:11434'),
             'models' => [
-                'text' => [
-                    'default' => env('OLLAMA_MODEL', 'qwen:0.5b'),
+                'embeddings' => [
+                    'default' => 'bge-m3:567m',
+                    'dimensions' => 1024
                 ],
             ],
         ],
@@ -145,9 +151,6 @@ return [
             'models' => [
                 'text' => [
                     'default' => env('LOCAL_AI_MODEL'),
-                ],
-                'embeddings' => [
-                    'default' => 'bge-large:335m',
                 ],
             ],
         ],

@@ -23,8 +23,10 @@ export interface Message {
     content: string;
     created_at: string;
     tool_results?: ToolCall[];
+    tool_calls: ToolCall[];
     usage?: Usage;
-    meta: { model: string };
+    meta: { model: string; usage: Usage };
+    is_system: boolean | null;
 }
 
 export interface Model {
