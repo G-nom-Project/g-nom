@@ -18,8 +18,6 @@ use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
 use Stringable;
 
-#[Timeout(120)]
-#[MaxSteps(5)]
 class UserAssistant implements Agent, Conversational, HasTools
 {
     use Promptable, RemembersConversations;
@@ -27,6 +25,7 @@ class UserAssistant implements Agent, Conversational, HasTools
     public function __construct(
         // We store the user of the original interaction for the Authorization Gates used in the Tools
         protected User $user,
+        protected $max_steps = 5,
     ) {}
 
     /**

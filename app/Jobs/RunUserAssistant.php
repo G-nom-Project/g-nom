@@ -42,7 +42,9 @@ class RunUserAssistant implements ShouldQueue
         public readonly string $conversationId,
         public readonly int $modelId,
         public readonly string $prompt,
-        public readonly string $tempID = 'None'
+        public readonly string $tempID = 'None',
+        public readonly int $maxSteps = 5,
+        public readonly int $agentTimeout = 60,
     ) {
         $this->onQueue('ai');
     }
@@ -85,12 +87,12 @@ class RunUserAssistant implements ShouldQueue
         ]);
 
         try {
-            $response = (new UserAssistant($user))
+            $response = (new UserAssistant($user, max_steps: $this->maxSteps))
                 ->continue(
                     $this->conversationId,
                     as: $user,
                 )
-                ->prompt($this->prompt);
+                ->prompt($this->prompt, timeout: $this->agentTimeout);
 
             $this->handleResponse($response);
         } catch (Throwable $e) {
@@ -143,7 +145,7 @@ class RunUserAssistant implements ShouldQueue
                 'last_used_at' => now(),
             ])->save();
 
-            $response = (new UserAssistant($user))
+            $response = (new UserAssistant($user, max_steps: $this->maxSteps))
                 ->continue(
                     $this->conversationId,
                     as: $user,
@@ -151,6 +153,7 @@ class RunUserAssistant implements ShouldQueue
                 ->prompt(
                     $this->prompt,
                     provider: $providerName,
+                    timeout: $this->agentTimeout,
                 );
 
             $this->handleResponse($response);

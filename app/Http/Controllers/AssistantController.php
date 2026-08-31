@@ -100,6 +100,8 @@ class AssistantController extends Controller
             conversationId: $conversation->id,
             modelId: $validated['model_id'],
             prompt: $validated['message'],
+            maxSteps: 5,
+            agentTimeout: 120
         );
 
 
@@ -127,6 +129,8 @@ class AssistantController extends Controller
             conversationId: $conversation->id,
             modelId: $validated['model_id'],
             prompt: $validated['message'],
+            maxSteps: 5,
+            agentTimeout: 120
         );
 
         return response()->json([
