@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\Bookmark;
 use App\Models\User;
 use App\Policies\BookmarkPolicy;
+use App\Services\GrobidClient;
+use App\Services\GrobidTeiParser;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -16,7 +18,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+
+        $this->app->singleton(GrobidClient::class, function () {
+            return new GrobidClient(
+                config('services.grobid.url')
+            );
+        });
+
+        $this->app->singleton(GrobidTeiParser::class, function () {
+            return new GrobidTeiParser();
+        });
     }
 
     /**

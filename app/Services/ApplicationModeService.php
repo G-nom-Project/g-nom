@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use phpDocumentor\Reflection\Types\Boolean;
+
 enum PersistenceMode: string
 {
     case Normal = 'normal';
@@ -15,9 +17,16 @@ enum BasicFlag: string
 }
 
 
+enum AiFlag: string
+{
+    case Internal = 'internal';
+    case BYOM = 'byom';
+    case BYOM_and_Internal = 'byom+internal';
+    case Disabled = 'disabled';
+}
+
 class ApplicationModeService
 {
-
     public function persistenceMode(): PersistenceMode
     {
         return PersistenceMode::from(
@@ -46,6 +55,13 @@ class ApplicationModeService
         );
     }
 
+    public function AiMode(): AiFlag
+    {
+        return AiFlag::from(
+            config('gnom.agents', 'enabled')
+        );
+    }
+
     public function isReadOnly(): bool
     {
         return $this->persistenceMode() === PersistenceMode::ReadOnly;
@@ -64,5 +80,24 @@ class ApplicationModeService
     public function isWikidataEnabled(): bool
     {
         return $this->wikidataMode() === BasicFlag::Enabled;
+    }
+
+    public function isAiEnabled(): bool
+    {
+        return config('gnom.agents_enabled', false);
+    }
+
+    public function isInternalAiEnabled(): bool
+    {
+        return $this->aiMode() === AiFlag::Internal || $this->aiMode() === AiFlag::BYOM_and_Internal;
+    }
+
+    public function isBYOMEnabled(): bool
+    {
+        return $this->aiMode() === AiFlag::BYOM || $this->aiMode() === AiFlag::BYOM_and_Internal;
+    }
+
+    public function isPublic() : bool {
+        return config('gnom.public', false);
     }
 }

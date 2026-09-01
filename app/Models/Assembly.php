@@ -25,8 +25,17 @@ class Assembly extends Model
      * @param  $user  User
      * @return mixed
      */
-    public function scopeVisibleTo($query, User $user)
+    public function scopeVisibleTo($query, User | null $user)
     {
+
+        if (!$user) {
+            if (config('gnom.public', false)) {
+                return $query->where('public', true);
+            } else {
+                return false;
+            }
+        }
+
         if ($user->is_admin) {
             return $query;
         }

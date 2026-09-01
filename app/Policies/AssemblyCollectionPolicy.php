@@ -34,8 +34,17 @@ class AssemblyCollectionPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, AssemblyCollection $assemblyCollection): bool
+    public function view(User | null $user, AssemblyCollection $assemblyCollection): bool
     {
+        // If the user is unset, we are dealing with a public G-nom Instance
+        if (!$user) {
+            if (config('gnom.public', false)) {
+                return $assemblyCollection->is_public;
+            } else {
+                return false;
+            }
+        }
+
         return $assemblyCollection->is_public
             || $user->is_admin
             || $assemblyCollection->users()

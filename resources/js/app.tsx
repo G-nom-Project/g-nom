@@ -3,9 +3,9 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './bootstrap';
 
 import '../css/gnom.css';
+import '../css/assistant.css'
 import '../css/circleplot.css'
 
-import Footer from '@/Components/Footer';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
@@ -24,7 +24,6 @@ createInertiaApp({
         root.render(
             <>
                 <App {...props} />
-                <Footer />
             </>,
         );
     },

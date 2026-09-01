@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'grobid' => [
+        'url' => env('GROBID_URL', 'http://grobid:8070'),
+    ],
+
 ];

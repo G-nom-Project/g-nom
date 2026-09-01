@@ -1,0 +1,84 @@
+
+
+.assistant-markdown {
+    line-height: 1.5;
+}
+
+.assistant-markdown > :first-child {
+    margin-top: 0;
+}
+
+.assistant-markdown > :last-child {
+    margin-bottom: 0;
+}
+
+.assistant-markdown p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.assistant-markdown ul {
+    margin-top: -0.25rem;
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.assistant-markdown li {
+    margin-top: -1.5rem;
+    margin-bottom: 0;
+}
+
+.assistant-markdown li > p {
+    margin: 0;
+}
+
+.assistant-markdown h1,
+.assistant-markdown h2,
+.assistant-markdown h3,
+.assistant-markdown h4,
+.assistant-markdown h5,
+.assistant-markdown h6 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.assistant-markdown pre {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
+}
+
+.assistant-markdown {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.assistant-markdown table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.assistant-markdown th,
+.assistant-markdown td {
+    white-space: nowrap;
+    padding-inline: 0.75rem;
+}
+
+.conversation-item {
+    position: relative;
+}
+
+.conversation-delete {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    display: none;
+    z-index: 3;
+}
+
+.conversation-item:hover .conversation-delete {
+    display: block;
+}

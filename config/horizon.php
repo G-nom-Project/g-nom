@@ -212,7 +212,7 @@ return [
         ],
         'supervisor-2' => [
             'connection' => 'redis',
-            'queue' => ['long'],
+            'queue' => ['long', 'ai'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 10,

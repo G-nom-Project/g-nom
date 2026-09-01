@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Assembly;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VaultFileController extends Controller
