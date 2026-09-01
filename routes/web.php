@@ -21,6 +21,7 @@ use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
 use App\Http\Controllers\WiggleTrackController;
 use App\Http\Middleware\AiMode;
+use App\Http\Middleware\GnomPublicInstance;
 use App\Http\Middleware\GnomReadOnly;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,7 +43,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Read-only collections routes
-Route::middleware('auth')->group(function () {
+Route::middleware([GnomPublicInstance::class])->group(function () {
     Route::get('/collections', [CollectionController::class, 'index'])->name('collections.index');
     Route::get('/collections/{id}', [CollectionController::class, 'view'])->name('collections.view');
     Route::get('/collections/{id}/tree', [TaxonController::class, 'getCollectionTol'])->name('collections.tol');
@@ -59,16 +60,21 @@ Route::middleware(['auth', GnomReadOnly::class])->group(function () {
     Route::delete('/collections/{id}', [CollectionController::class, 'delete'])->name('collections.delete');
 });
 
-Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies')->middleware(['auth']);
-Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show')->middleware(['auth']);
+Route::middleware([
+    GnomPublicInstance::class
+])->group(function () {
+    Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies');
+    Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show');
+});
+
 Route::get('/assemblies/{id}/edit', [AssemblyController::class, 'editDashboard'])->name('assemblies.edit')->middleware(['auth', GnomReadOnly::class]);
 Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 'taxonomicAssignmentStats'])->name('assemblies.taxonStats')->middleware(['auth']);
 
-Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser')->middleware(['auth']);
-Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser')->middleware(['auth']);
+Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser');
+Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser');
 
 Route::middleware([
-    'auth',
+    GnomPublicInstance::class
 ])->group(function () {
     Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/scatter', [TaxaminerController::class, 'scatterData'])->name('taxaminer.scatter');
     Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/pca', [TaxaminerController::class, 'fetchPCA'])->name('taxaminer.pca');
@@ -79,7 +85,7 @@ Route::middleware([
 });
 
 Route::middleware([
-    'auth',
+    GnomPublicInstance::class
 ])->group(function () {
     Route::post('/taxon-by-name', [TaxonController::class, 'getTaxonByName'])->name('taxon-by-name');
     Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies');
@@ -140,7 +146,7 @@ Route::middleware([
 });
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
-    ->where('path', '.*')->middleware(['auth']);
+    ->where('path', '.*');
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
 
@@ -157,7 +163,7 @@ Route::middleware(['auth', 'verified', GnomReadOnly::class])->group(function () 
 Route::post('/sparql/query', [SparqlController::class, 'query'])->middleware('auth');
 Route::get('/sparql', [SparqlController::class, 'queryPage'])->name('sparql')->middleware('auth');
 
-Route::get('/tol', [TaxonController::class, 'getTol'])->name('tol')->middleware('auth');
+Route::get('/tol', [TaxonController::class, 'getTol'])->name('tol')->middleware(GnomPublicInstance::class);
 
 Route::middleware(['auth', AiMode::class])->group(function () {
     Route::get('/assistant', [AssistantController::class, 'index'])

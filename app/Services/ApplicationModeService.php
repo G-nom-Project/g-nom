@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use phpDocumentor\Reflection\Types\Boolean;
+
 enum PersistenceMode: string
 {
     case Normal = 'normal';
@@ -13,6 +15,7 @@ enum BasicFlag: string
     case Enabled = 'enabled';
     case Disabled = 'disabled';
 }
+
 
 enum AiFlag: string
 {
@@ -92,5 +95,9 @@ class ApplicationModeService
     public function isBYOMEnabled(): bool
     {
         return $this->aiMode() === AiFlag::BYOM || $this->aiMode() === AiFlag::BYOM_and_Internal;
+    }
+
+    public function isPublic() : bool {
+        return config('gnom.public', false);
     }
 }

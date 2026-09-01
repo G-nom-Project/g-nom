@@ -10,4 +10,5 @@ return [
     'qlever_access_token' => env('QLEVER_ACCESS_TOKEN'),
     'agents' => env('GNOM_AGENTS', 'disabled'),
     'store_documents' => env('GNOM_STORE_DOCUMENTS', false),
+    'public' => env('GNOM_PUBLIC', false),
 ];

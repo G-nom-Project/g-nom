@@ -30,8 +30,17 @@ class AssemblyPolicy
         return false;
     }
 
-    public function view(User $user, Assembly $assembly): bool
+    public function view(User | null $user, Assembly $assembly): bool
     {
+        // If the user is unset, we are dealing with a public G-nom Instance
+        if (!$user) {
+            if (config('gnom.public', false)) {
+                return $assembly->public;
+            } else {
+                return false;
+            }
+        }
+
         if ($this->tokenAllows($user, 'read:assemblies')) {
             return $this->canViewAssembly($user, $assembly);
         }

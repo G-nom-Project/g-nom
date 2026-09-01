@@ -19,11 +19,18 @@ class CollectionController extends Controller
     public function index(Request $request)
     {
         $collections = AssemblyCollection::visibleTo($request->user())->get();
+        $can_create = false;
+        $user_id = -1;
+
+        if (Auth::user()) {
+            $can_create = Auth::user()->can('create', AssemblyCollection::class);
+            $user_id = $request->user()->id;
+        }
 
         return Inertia::render('Collections/CollectionsPage', [
             'collections' => $collections,
-            'can_create' => Auth::user()->can('create', AssemblyCollection::class),
-            'user_id' => $request->user()->id,
+            'can_create' => $can_create,
+            'user_id' => $user_id,
         ]);
     }
 
@@ -45,12 +52,23 @@ class CollectionController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        $admin = Auth::user()->id === $collection->user_id;
-        $currentUser = $collection->users->firstWhere('id', Auth::id());
-        $role = $currentUser?->pivot->role;
-        if (app(ApplicationModeService::class)->isReadOnly()) {
+
+
+        if (Auth::user()) {
+            if (app(ApplicationModeService::class)->isReadOnly()) {
+                $admin = false;
+            } else {
+                $admin = Auth::user()->id === $collection->user_id;
+            }
+
+            $currentUser = $collection->users->firstWhere('id', Auth::id());
+            $role = $currentUser?->pivot->role;
+        } else {
             $admin = false;
+            $currentUser = null;
+            $role = null;
         }
+
         // Pass the data to the Inertia component
         return Inertia::render('Collections/CollectionPage', [
             'collection' => $collection,
@@ -77,10 +95,10 @@ class CollectionController extends Controller
                 }
 
                 return $query
-                    ->where('name', 'LIKE', '%' . $search . '%')
+                    ->where('name', 'LIKE', '%'.$search.'%')
                     ->orWhereHas('taxon', function ($q) use ($search) {
-                        $q->where('commonName', 'LIKE', '%' . $search . '%')
-                            ->orWhere('scientificName', 'LIKE', '%' . $search . '%');
+                        $q->where('commonName', 'LIKE', '%'.$search.'%')
+                            ->orWhere('scientificName', 'LIKE', '%'.$search.'%');
                     });
             })
             ->withCount('mappings')
@@ -91,8 +109,7 @@ class CollectionController extends Controller
                 'taxaminerAnalyses',
             ])
             ->withExists([
-                'bookmarks as is_bookmarked' => fn ($q) =>
-                $q->where('user_id', Auth::id()),
+                'bookmarks as is_bookmarked' => fn ($q) => $q->where('user_id', Auth::id()),
             ])
             ->with('taxon.infos')
             ->with('collections')
@@ -143,7 +160,6 @@ class CollectionController extends Controller
                 return $assembly;
             });
         }
-
 
         return Inertia::render('Collections/Gallery', [
             'collection' => $collection,

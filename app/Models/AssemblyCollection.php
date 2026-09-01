@@ -19,8 +19,18 @@ class AssemblyCollection extends Model
         'user_id',
     ];
 
-    public function scopeVisibleTo($query, User $user)
+    public function scopeVisibleTo($query, User | null $user)
     {
+
+        // If the user is unset, we are dealing with a public G-nom Instance
+        if (!$user) {
+            if (config('gnom.public', false)) {
+                return $query->where('is_public', true);
+            } else {
+                return false;
+            }
+        }
+
         if ($user->is_admin) {
             return $query;
         }
