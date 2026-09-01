@@ -84,7 +84,7 @@ class ApplicationModeService
 
     public function isAiEnabled(): bool
     {
-        return $this->aiMode() === AiFlag::Internal || $this->aiMode() === AiFlag::BYOM || $this->aiMode() === AiFlag::BYOM_and_Internal;
+        return config('gnom.agents_enabled', false);
     }
 
     public function isInternalAiEnabled(): bool
