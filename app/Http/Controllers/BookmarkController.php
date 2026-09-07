@@ -28,11 +28,11 @@ class BookmarkController extends Controller
                         ->withCount([
                             'mappings',
                             'genomicAnnotations',
-                            'buscoAnalyses',
                             'repeatmaskerAnalyses',
                             'taxaminerAnalyses',
                         ])
                         ->with('taxon.infos')
+                        ->with(['buscoAnalyses', 'fcatAnalyses'])
                         ->withExists([
                             'bookmarks as is_bookmarked' => function ($query) {
                                 $query->where('user_id', Auth::id());

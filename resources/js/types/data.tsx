@@ -73,6 +73,9 @@ export interface AggregatedAssembly {
     conservation_status: string | null;
     wiki_image: string | null;
     collections: Collection[]
+
+    busco_analyses: BuscoAnalysis[];
+    fcat_analyses: fCatAnalysis[];
 }
 
 export interface Collection {
@@ -167,11 +170,43 @@ export interface SeqLengthMarker {
 export interface BuscoAnalysis {
     label: string;
     name: string;
+    buscoMode: string;
     dataset: string;
     completeSingle: number;
     completeDuplicated: number;
     fragmented: number;
     missing: number;
+
+    completeSinglePercent: number;
+    completeDuplicatedPercent: number;
+    fragmentedPercent: number;
+    missingPercent: number;
+}
+
+export interface fCatAnalysis {
+    m1_similarPercent: number;
+    m1_duplicatedPercent: number;
+    m1_dissimilarPercent: number;
+    m1_missingPercent: number;
+    m1_ignoredPercent: number;
+
+    m2_similarPercent: number;
+    m2_duplicatedPercent: number;
+    m2_dissimilarPercent: number;
+    m2_missingPercent: number;
+    m2_ignoredPercent: number;
+
+    m3_similarPercent: number;
+    m3_duplicatedPercent: number;
+    m3_dissimilarPercent: number;
+    m3_missingPercent: number;
+    m3_ignoredPercent: number;
+
+    m4_similarPercent: number;
+    m4_duplicatedPercent: number;
+    m4_dissimilarPercent: number;
+    m4_missingPercent: number;
+    m4_ignoredPercent: number;
 }
 
 export interface ResearchDocumentReference {

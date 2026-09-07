@@ -33,7 +33,8 @@ export default function Bookmarks({ assemblies }: { assemblies: PaginatedAssembl
                                 public={each.public}
                                 mappings={each.mappings_count}
                                 annotations={each.genomic_annotations_count}
-                                buscos={each.busco_analyses_count}
+                                buscos={each.busco_analyses}
+                                fcats={each.fcat_analyses}
                                 n50={each.n50}
                                 maxBuscoScore={10}
                                 repeatmaskers={each.repeatmasker_analyses_count}

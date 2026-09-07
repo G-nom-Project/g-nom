@@ -26,7 +26,7 @@ use App\Http\Middleware\GnomReadOnly;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [AssemblyController::class, 'stats']);
+Route::get('/', [AssemblyController::class, 'stats'])->name('welcome');
 
 Route::middleware('auth')->group(function () {
     Route::get('/bookmarks', [BookmarkController::class, 'bookmarkedAssemblies'])->name('bookmarks.get');
@@ -89,10 +89,10 @@ Route::middleware([
 ])->group(function () {
     Route::post('/taxon-by-name', [TaxonController::class, 'getTaxonByName'])->name('taxon-by-name');
     Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies');
-    Route::get('/lineage/{ncbiTaxonID}', [TaxonController::class, 'getLineage']);
-    Route::get('/taxon-geo-data/{ncbiTaxonID}', [TaxonController::class, 'getGeoData']);
-    Route::get('/taxon/infos/{ncbiTaxonID}', [TaxonController::class, 'getInfos']);
-    Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage']);
+    Route::get('/lineage/{ncbiTaxonID}', [TaxonController::class, 'getLineage'])->name('taxon.lineage');
+    Route::get('/taxon-geo-data/{ncbiTaxonID}', [TaxonController::class, 'getGeoData'])->name('taxon.geo-data');
+    Route::get('/taxon/infos/{ncbiTaxonID}', [TaxonController::class, 'getInfos'])->name('taxon.infos');
+    Route::get('/taxon/{taxonID}/image', [TaxonController::class, 'showImage'])->name('taxon.image');
     Route::get('/taxon/{taxonID}/icon', [TaxonController::class, 'showIcon']);
 });
 

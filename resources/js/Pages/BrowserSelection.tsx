@@ -28,7 +28,7 @@ export default function BrowserSelection({ assemblies }) {
                                         ))}
                                 </Form.Select>
                             </Card.Body>
-                            <Button href={'/browser/' + assemblyID} className="m-3" disabled={!assemblyID}>
+                            <Button href={route('assemblies.browser', [assemblyID])} className="m-3" disabled={!assemblyID}>
                                 Launch Browser
                             </Button>
                         </Card>

@@ -73,10 +73,11 @@ export default function Assemblies({ assemblies, filters }: { assemblies: Pagina
                                 ncbiID={each.taxon.ncbiTaxonID}
                                 info_text={each.taxon.infos[0]?.headline || each.wikipedia_summary}
                                 last_update={'Never'}
-                                public={true}
+                                public={each.public}
                                 mappings={each.mappings_count}
                                 annotations={each.genomic_annotations_count}
-                                buscos={each.busco_analyses_count}
+                                buscos={each.busco_analyses}
+                                fcats={each.fcat_analyses}
                                 n50={each.n50}
                                 maxBuscoScore={10}
                                 repeatmaskers={each.repeatmasker_analyses_count}

@@ -15,7 +15,7 @@ export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdat
 
                     <Row className="justify-content-center mb-4">
                         <Col md={4}>
-                            <Button href="/assemblies" variant="primary" size="lg" className="w-100 mb-3">
+                            <Button href={route("assemblies")} variant="primary" size="lg" className="w-100 mb-3">
                                 🔍 Search Assemblies
                             </Button>
                         </Col>

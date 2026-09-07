@@ -108,6 +108,7 @@ class CollectionController extends Controller
                 'repeatmaskerAnalyses',
                 'taxaminerAnalyses',
             ])
+            ->with(['buscoAnalyses', 'fcatAnalyses'])
             ->withExists([
                 'bookmarks as is_bookmarked' => fn ($q) => $q->where('user_id', Auth::id()),
             ])

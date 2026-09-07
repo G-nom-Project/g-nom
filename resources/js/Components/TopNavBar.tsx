@@ -7,7 +7,7 @@ const TopBar = () => {
     return (
         <Navbar bg="dark" variant="dark" expand="lg" data-bs-theme="dark">
             <Container fluid>
-                <a href={'/'}>
+                <a href={route('welcome')}>
                     <Navbar.Brand>
                         <img src={gnom_logo} width={'60vw'} className="logo-gnom d-inline-block align-bottom" alt="G-nom Logo" />
                     </Navbar.Brand>

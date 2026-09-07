@@ -53,7 +53,6 @@ class AssemblyController extends Controller
             ->withCount('mappings')
             ->withCount([
                 'genomicAnnotations',
-                'buscoAnalyses',
                 'repeatmaskerAnalyses',
                 'taxaminerAnalyses',
             ])
@@ -63,6 +62,7 @@ class AssemblyController extends Controller
                 },
             ])
             ->with('taxon.infos')
+            ->with(['buscoAnalyses', 'fcatAnalyses'])
             ->with([
                 'collections' => function ($query) use ($request) {
                     $query->visibleTo($request->user());
