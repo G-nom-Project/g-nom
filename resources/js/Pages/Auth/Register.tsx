@@ -1,9 +1,6 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import gnom_logo from '../../../static/logo/gnom.png'
 import { FormEventHandler } from 'react';
 
 export default function Register() {
@@ -23,91 +20,103 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
+        <Container>
             <Head title="Register" />
+            <Card className="mx-auto mt-5" style={{ maxWidth: '400px' }}>
+                <Card.Body>
+                    <Row>
+                        <Col xs={4}>
+                            <img src={gnom_logo} style={{ width: '100%' }} />
+                        </Col>
+                        <Col>
+                            <h1>Registration</h1>
+                            <hr />
+                            You need enable 🍪 to proceed.
+                        </Col>
+                    </Row>
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <Form onSubmit={submit}>
+                        <Form.Group className="mb-3" controlId="name">
+                            <Form.Label>Name</Form.Label>
 
-                    <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
-                        autoComplete="name"
-                        isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                    />
+                            <Form.Control
+                                type="text"
+                                name="name"
+                                value={data.name}
+                                autoComplete="name"
+                                autoFocus
+                                onChange={(e) => setData('name', e.target.value)}
+                                isInvalid={!!errors.name}
+                                required
+                            />
 
-                    <InputError message={errors.name} className="mt-2" />
-                </div>
+                            <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+                        </Form.Group>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                        <Form.Group className="mb-3" controlId="email">
+                            <Form.Label>Email</Form.Label>
 
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                    />
+                            <Form.Control
+                                type="email"
+                                name="email"
+                                value={data.email}
+                                autoComplete="username"
+                                onChange={(e) => setData('email', e.target.value)}
+                                isInvalid={!!errors.email}
+                                required
+                            />
 
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
+                            <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
+                        </Form.Group>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                        <Form.Group className="mb-3" controlId="password">
+                            <Form.Label>Password</Form.Label>
 
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                        required
-                    />
+                            <Form.Control
+                                type="password"
+                                name="password"
+                                value={data.password}
+                                autoComplete="new-password"
+                                onChange={(e) => setData('password', e.target.value)}
+                                isInvalid={!!errors.password}
+                                required
+                            />
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
+                            <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
+                        </Form.Group>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
+                        <Form.Group className="mb-3" controlId="password_confirmation">
+                            <Form.Label>Confirm Password</Form.Label>
 
-                    <TextInput
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                        required
-                    />
+                            <Form.Control
+                                type="password"
+                                name="password_confirmation"
+                                value={data.password_confirmation}
+                                autoComplete="new-password"
+                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                isInvalid={!!errors.password_confirmation}
+                                required
+                            />
 
-                    <InputError message={errors.password_confirmation} className="mt-2" />
-                </div>
+                            <Form.Control.Feedback type="invalid">{errors.password_confirmation}</Form.Control.Feedback>
+                        </Form.Group>
 
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                    >
-                        Already registered?
-                    </Link>
+                        <Row className="align-items-center justify-content-end g-3">
+                            <Col xs="auto">
+                                <Link href={route('login')} className="text-decoration-underline">
+                                    Already registered?
+                                </Link>
+                            </Col>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
+                            <Col xs="auto">
+                                <Button type="submit" variant="primary" disabled={processing}>
+                                    {processing ? 'Registering…' : 'Register'}
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Card.Body>
+            </Card>
+        </Container>
     );
 }
