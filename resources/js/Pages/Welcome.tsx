@@ -2,6 +2,7 @@ import TopBar from '@/Components/TopNavBar';
 import { Head } from '@inertiajs/react';
 import React from 'react';
 import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import MarkdownContent from '@/Components/MarkdownContent';
 
 export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdate } : {totalAssemblies: number, taxaWithAssemblies: number, rootUpdate: string}) {
     return (
@@ -15,7 +16,7 @@ export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdat
 
                     <Row className="justify-content-center mb-4">
                         <Col md={4}>
-                            <Button href={route("assemblies")} variant="primary" size="lg" className="w-100 mb-3">
+                            <Button href={route('assemblies')} variant="primary" size="lg" className="w-100 mb-3">
                                 🔍 Search Assemblies
                             </Button>
                         </Col>
@@ -23,6 +24,11 @@ export default function Welcome({ totalAssemblies, taxaWithAssemblies, rootUpdat
                             <Button href="/tol" variant="outline-secondary" size="lg" className="w-100 mb-3">
                                 🌳 Browse the Tree of Life
                             </Button>
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-center mb-4">
+                        <Col md={8}>
+                            <MarkdownContent file_name={'welcome.md'} />
                         </Col>
                     </Row>
 
