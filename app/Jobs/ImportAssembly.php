@@ -10,6 +10,7 @@ use App\Models\UserJob;
 use App\Notifications\ImportCompleted;
 use App\Services\ApplicationModeService;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -143,7 +144,8 @@ class ImportAssembly extends TrackableJob
         if ($other_imports->count() == 0 && app(ApplicationModeService::class)->isBlastEnabled()) {
             $this->dispatchTrackable('App\Jobs\RebuildBlastShard', [$shard_id], user_id: $this->user->id, queue: 'long');
         }
-
+        Cache::forget('totalAssemblies');
+        Cache::forget('taxaWithAssemblies');
         $this->user->notify(new ImportCompleted($assemblyId));
         $this->markCompleted(['assemblyID' => $assemblyId]);
     }

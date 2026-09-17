@@ -5,7 +5,7 @@ type CompositionBarProps = {
 };
 
 export default function CompositionBar({ values, colors, height = 8}: CompositionBarProps) {
-    const allMissing = values.length > 0 && values.every((value) => value === -1);
+    const allMissing = values.length > 0 && (values.every((value) => value === -1) || values.every((value) => value === null));
 
     if (allMissing) {
         return (

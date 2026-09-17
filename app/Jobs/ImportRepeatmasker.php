@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Jobs\Base\TrackableJob;
 use App\Models\RepeatmaskerAnalysis;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
@@ -142,7 +143,7 @@ class ImportRepeatmasker extends TrackableJob
         }
 
         file_put_contents($sourcePath.'.gff', $process->output());
-
+        Cache::forget('analyses_count');
         $this->markCompleted([]);
     }
 

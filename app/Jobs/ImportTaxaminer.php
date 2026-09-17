@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Jobs\Base\TrackableJob;
 use App\Models\TaxaminerAnalysis;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
@@ -116,6 +117,7 @@ class ImportTaxaminer extends TrackableJob
         }
 
         fclose($file);
+        Cache::forget('analyses_count');
         $this->markCompleted([]);
     }
 

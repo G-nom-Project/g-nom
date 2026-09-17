@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Assembly;
 use App\Models\RepeatmaskerAnalysis;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,7 +36,7 @@ class RepeatmaskerController extends Controller
         }
 
         Log::info("Deleted Annotation {$id} for {$assembly->id}");
-
+        Cache::forget('analyses_count');
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }

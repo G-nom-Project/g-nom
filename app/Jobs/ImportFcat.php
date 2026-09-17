@@ -6,6 +6,7 @@ use App\Jobs\Base\TrackableJob;
 use App\Models\FcatAnalysis;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -101,7 +102,7 @@ class ImportFcat extends TrackableJob
 
         fclose($handle);
         $analysis->save();
-
+        Cache::forget('avg_fcat');
         return $analysis;
     }
 
