@@ -66,7 +66,8 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
      */
     useEffect(() => {
         if (assembly.taxaminer_analyses.length > 0) {
-            axios.get(`/plugins/taxaminer/${assembly.taxon_ncbiTaxonID}/${assembly.id}/${assembly.taxaminer_analyses[0].id}/scatter`)
+
+            axios.get(route('taxaminer.scatter', [assembly.taxon_ncbiTaxonID, assembly.id, assembly.taxaminer_analyses[0].id]))
                 .then((response) => response.data)
                 .then((data) => {
                     let transformed = data.map((trace) => {
@@ -122,7 +123,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
 
     const getGeoData = async (ncbiTaxonID: number) => {
         try {
-            const response = await axios.get(`/taxon-geo-data/${ncbiTaxonID}`);
+            const response = await axios.get(route('taxon.geo-data', [ncbiTaxonID]));
             return response.data;
         } catch (error) {
             console.error('Failed to geo data:', error);
@@ -156,7 +157,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                 <b className="capitalize">{assembly.taxon.scientificName}</b>{' '}
                                 {assembly.taxon.phylopic && (
                                     <img
-                                        src={`/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
+                                        src={`${import.meta.env.VITE_BASE_URL}/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
                                         alt="Taxon Icon"
                                         style={{
                                             filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
@@ -225,8 +226,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                         <Card.Img
                                             className="img-fluid rounded-top"
                                             src={
-                                                assembly.wiki_image ||
-                                                `/taxon/${assembly.taxon.ncbiTaxonID}/image?updated=${assembly.taxon.updated_at}`
+                                                assembly.wiki_image || `${route('taxon.image', [assembly.taxon.ncbiTaxonID])}?updated=${assembly.taxon.updated_at}`
                                             }
                                             alt="Card image"
                                             style={{
@@ -446,9 +446,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                 {(assembly.coverage &&
                                                     ((coverageTab == 1 && <CoveragePlot coverage_data={assembly.coverage} />) || (
                                                         <CoverageThresholdsPlot coverage_data={assembly.coverage} />
-                                                    ))) || (
-                                                    <MissingData/>
-                                                )}
+                                                    ))) || <MissingData />}
                                             </Card.Body>
                                         </Card>
                                     </Col>

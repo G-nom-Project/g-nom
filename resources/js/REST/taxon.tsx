@@ -15,7 +15,7 @@ export interface GeoJSONImport {
  */
 export const getGeoData = async (ncbiTaxonID: number) => {
     try {
-        const response = await axios.get(`/taxon-geo-data/${ncbiTaxonID}`);
+        const response = await axios.get(route('taxon.geo-data', [ncbiTaxonID]));
         return response.data;
     } catch (error) {
         console.error('Failed to geo data:', error);
@@ -29,7 +29,7 @@ export const getGeoData = async (ncbiTaxonID: number) => {
  */
 export const getTaxonInfo = async (ncbiTaxonID: number) => {
     try {
-        const response = await axios.get(`/taxon/infos/${ncbiTaxonID}`);
+        const response = await axios.get(route('taxon.infos', [ncbiTaxonID]));
         return response;
     } catch (error) {
         console.error('Failed to geo data:', error);
@@ -43,7 +43,7 @@ export const getTaxonInfo = async (ncbiTaxonID: number) => {
  */
 export const getLineage = async (ncbiTaxonID: number) => {
     try {
-        const response = await axios.get(`/lineage/${ncbiTaxonID}`);
+        const response = await axios.get(route('taxon.lineage', ncbiTaxonID));
         return response.data;
     } catch (error) {
         console.error('Failed to fetch lineage:', error);

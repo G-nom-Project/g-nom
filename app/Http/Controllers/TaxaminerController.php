@@ -10,6 +10,7 @@ use App\Models\TaxaminerDiamondRecord;
 use App\Notifications\UploadComplete;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
@@ -279,7 +280,7 @@ class TaxaminerController extends Controller
         }
 
         Log::info("Deleted taXaminer Analysis {$id} for {$assembly->id}");
-
+        Cache::forget('analyses_count');
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Jobs\Base\TrackableJob;
 use App\Models\BuscoAnalysis;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -92,6 +93,7 @@ class ImportBusco extends TrackableJob
         $analysis->targetFile = $stats['targetFile'];
         $analysis->update();
 
+        Cache::forget('avg_busco');
         $this->markCompleted();
     }
 

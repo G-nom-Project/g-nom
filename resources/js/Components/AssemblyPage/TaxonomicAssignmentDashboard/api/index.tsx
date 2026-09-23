@@ -15,10 +15,9 @@ const GNOM_HEADLESS = '/plugin/taxaminer';
  */
 export function fetchDiamond(assembly_id: number, analysis_id: number, taxon_id:number, fasta_header: string): Promise<DiamondRow[]> {
     return axios
-        .post(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/diamond-hit`,
-            {
-                "fasta_header": fasta_header
-            })
+        .post(route('taxaminer.diamond-hit', [taxon_id, assembly_id, analysis_id]), {
+            fasta_header: fasta_header,
+        })
         .then((response) => response.data)
         .then((data) => data);
 }
@@ -27,7 +26,7 @@ export function fetchDiamond(assembly_id: number, analysis_id: number, taxon_id:
 // ==== Taxaminer Metadata ==== //
 export function fetchTaxaminerMetadata(assembly_id: number, analysis_id: number, taxon_id:number) {
     return axios
-        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/summary`)
+        .get(route('taxaminer.summary', [taxon_id, assembly_id, analysis_id]))
         .then((response) => response.data)
         .then((data) => data);
 }
@@ -35,7 +34,7 @@ export function fetchTaxaminerMetadata(assembly_id: number, analysis_id: number,
 // ==== Taxaminer Plot data ==== //
 export function fetchTaxaminerScatterplot(assembly_id: number, analysis_id: number, taxon_id: number): Promise<any[]> {
     return axios
-        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/scatter`)
+        .get(route('taxaminer.scatter', [taxon_id, assembly_id, analysis_id]))
         .then((response) => response.data)
         .then((data) => data);
 }
@@ -43,7 +42,7 @@ export function fetchTaxaminerScatterplot(assembly_id: number, analysis_id: numb
 // ==== Taxaminer PCA data ==== //
 export function fetchTaxaminerPCA(assembly_id: number, analysis_id: number, taxon_id: number): Promise<any> {
     return axios
-        .get(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/pca`)
+        .get(route('taxaminer.pca', [taxon_id, assembly_id, analysis_id]))
         .then((response) => response.data)
         .then((data) => data);
 }
@@ -59,7 +58,7 @@ export function fetchTaxaminerDiamond(assembly_id: number, taxaminer_id: number,
 // ==== Taxaminer Sequence data ==== //
 export function fetchTaxaminerSeq(assembly_id: number, analysis_id: number, taxon_id: number, fasta_header: string): Promise<any> {
     return axios
-        .post(`/plugins/taxaminer/${taxon_id}/${assembly_id}/${analysis_id}/seq`, {
+        .post(route('taxaminer.sequence', [taxon_id, assembly_id, analysis_id]), {
             fasta_header: fasta_header,
         })
         .then((response) => response.data)

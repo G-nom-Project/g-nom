@@ -7,6 +7,9 @@ use App\Jobs\ImportAnnotation;
 use App\Jobs\ImportMapping;
 use App\Jobs\ImportRepeatmasker;
 use App\Models\Assembly;
+use App\Models\BuscoAnalysis;
+use App\Models\FcatAnalysis;
+use App\Models\RepeatmaskerAnalysis;
 use App\Models\TaxaminerAnalysis;
 use App\Models\TaxaminerDiamondRecord;
 use App\Models\Taxon;
@@ -18,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -53,7 +57,6 @@ class AssemblyController extends Controller
             ->withCount('mappings')
             ->withCount([
                 'genomicAnnotations',
-                'buscoAnalyses',
                 'repeatmaskerAnalyses',
                 'taxaminerAnalyses',
             ])
@@ -63,6 +66,7 @@ class AssemblyController extends Controller
                 },
             ])
             ->with('taxon.infos')
+            ->with(['buscoAnalyses', 'fcatAnalyses'])
             ->with([
                 'collections' => function ($query) use ($request) {
                     $query->visibleTo($request->user());
@@ -431,11 +435,11 @@ class AssemblyController extends Controller
 
     public function stats(Request $request)
     {
-        $totalAssemblies = Cache::remember('totalAssemblies', 604800, function () {
+        $totalAssemblies = Cache::rememberForever('totalAssemblies',  function () {
             return Assembly::count();
         });
 
-        $taxaWithAssemblies = Cache::remember('taxaWithAssemblies', 604800, function () {
+        $taxaWithAssemblies = Cache::rememberForever('taxaWithAssemblies', function () {
             return Taxon::whereHas('assemblies')->count();
         });
 
@@ -446,10 +450,69 @@ class AssemblyController extends Controller
             $rootUpdate = 'never';
         }
 
+        $analysesCount = Cache::rememberForever('analyses_count', function () {
+            return BuscoAnalysis::count() + RepeatmaskerAnalysis::count() + TaxaminerAnalysis::count() + FcatAnalysis::count();
+        });
+
+        $avgBusco = Cache::rememberForever('avg_busco', function () {
+            return [
+                'dataset' => 'mixed',
+                'completeSinglePercent' => BuscoAnalysis::where('buscoMode', 'like', '%genome%')->avg('completeSinglePercent'),
+                'completeDuplicatedPercent' => BuscoAnalysis::where('buscoMode', 'like', '%genome%')->avg('completeDuplicatedPercent'),
+                'fragmentedPercent' => BuscoAnalysis::where('buscoMode', 'like', '%genome%')->avg('fragmentedPercent'),
+                'missingPercent' => BuscoAnalysis::where('buscoMode', 'like', '%genome%')->avg('missingPercent'),
+            ];
+        });
+
+        $avgFcat = Cache::rememberForever('avg_fcat', function () {
+            return  [
+                'dataset' => 'mixed',
+                'm1_similarPercent' => FcatAnalysis::avg('m1_similarPercent'),
+                'm1_dissimilarPercent' => FcatAnalysis::avg('m1_dissimilarPercent'),
+                'm1_duplicatedPercent' => FcatAnalysis::avg('m1_duplicatedPercent'),
+                'm1_missingPercent' => FcatAnalysis::avg('m1_missingPercent'),
+                'm1_ignoredPercent' => FcatAnalysis::avg('m1_ignoredPercent'),
+
+                'm2_similarPercent' => FcatAnalysis::avg('m2_similarPercent'),
+                'm2_dissimilarPercent' => FcatAnalysis::avg('m2_dissimilarPercent'),
+                'm2_duplicatedPercent' => FcatAnalysis::avg('m2_duplicatedPercent'),
+                'm2_missingPercent' => FcatAnalysis::avg('m2_missingPercent'),
+                'm2_ignoredPercent' => FcatAnalysis::avg('m2_ignoredPercent'),
+
+                'm3_similarPercent' => FcatAnalysis::avg('m3_similarPercent'),
+                'm3_dissimilarPercent' => FcatAnalysis::avg('m3_dissimilarPercent'),
+                'm3_duplicatedPercent' => FcatAnalysis::avg('m3_duplicatedPercent'),
+                'm3_missingPercent' => FcatAnalysis::avg('m3_missingPercent'),
+                'm3_ignoredPercent' => FcatAnalysis::avg('m3_ignoredPercent'),
+
+                'm4_similarPercent' => FcatAnalysis::avg('m4_similarPercent'),
+                'm4_dissimilarPercent' => FcatAnalysis::avg('m4_dissimilarPercent'),
+                'm4_duplicatedPercent' => FcatAnalysis::avg('m4_duplicatedPercent'),
+                'm4_missingPercent' => FcatAnalysis::avg('m4_missingPercent'),
+                'm4_ignoredPercent' => FcatAnalysis::avg('m4_ignoredPercent'),
+            ];
+        });
+
+
+        $sparqlStats = [];
+        if (!app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
+            $response = Http::timeout(120)
+                ->get(config('gnom.qlever_host'), [
+                    'cmd' => 'stats',
+                ]);
+            $sparqlStats = $response->json();
+        }
+
+
+
         return Inertia::render('Welcome', [
             'totalAssemblies' => $totalAssemblies,
             'taxaWithAssemblies' => $taxaWithAssemblies,
             'rootUpdate' => $rootUpdate,
+            'analysesCount' => $analysesCount,
+            'buscoStats' => $avgBusco,
+            'fcatStats' => $avgFcat,
+            'triples' => $sparqlStats,
         ]);
     }
 

@@ -7,9 +7,30 @@ const TopBar = () => {
     return (
         <Navbar bg="dark" variant="dark" expand="lg" data-bs-theme="dark">
             <Container fluid>
-                <a href={'/'}>
+                <a href={route('welcome')}>
                     <Navbar.Brand>
-                        <img src={gnom_logo} width={'60vw'} className="logo-gnom d-inline-block align-bottom" alt="G-nom Logo" />
+                        <img src={gnom_logo} height={'60vw'} className="logo-gnom d-inline-block align-bottom" alt="G-nom Logo" />
+                        {import.meta.env.VITE_CUSTOM_LOGO && (
+                            <>
+                                <div className="d-inline-block mx-2 align-bottom">
+                                    <div
+                                        className="vr"
+                                        style={{
+                                            height: '50px',
+                                            width: '2px',
+                                            color: '#064D05',
+                                            opacity: '100%',
+                                        }}
+                                    ></div>
+                                </div>
+                                <img
+                                    src={import.meta.env.BASE_URL + import.meta.env.VITE_CUSTOM_LOGO}
+                                    height={'60vw'}
+                                    className="logo-gnom d-inline-block align-bottom"
+                                    alt="AplBio Logo"
+                                />
+                            </>
+                        )}
                     </Navbar.Brand>
                 </a>
 

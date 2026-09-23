@@ -5,6 +5,9 @@ import ConservationLevelBadge from '@/Components/Badges/ConservationLevelBadge';
 import { truncateAtWord } from '@/utils/text';
 import { router } from '@inertiajs/react';
 import CollectionsBadge from '@/Components/Badges/CollectionsBadge';
+import BUSCOCompletenessBar from '@/Components/BUSCOCompletenessBar';
+import FCatCompletenessBar from '@/Components/fCatCompletenessBar';
+import { BuscoAnalysis, fCatAnalysis } from '@/types/data';
 
 interface Props {
     assemblyName: string;
@@ -15,7 +18,8 @@ interface Props {
     annotations: number;
     last_update: string;
     public: boolean;
-    buscos: number;
+    buscos: BuscoAnalysis[];
+    fcats: fCatAnalysis[];
     n50: number;
     maxBuscoScore: number;
     repeatmaskers: number;
@@ -55,7 +59,7 @@ const AssemblyCard = (props: Props) => {
             <Card.Img
                 className="image-class-name img-responsive"
                 variant="top"
-                src={props.wiki_image || `/taxon/${props.ncbiID}/image?updated=${props.taxon_updated_at}`}
+                src={props.wiki_image || `${route('taxon.image', [props.ncbiID])}?updated=${props.taxon_updated_at}`}
                 style={{
                     height: '200px',
                     objectFit: 'cover',
@@ -100,7 +104,7 @@ const AssemblyCard = (props: Props) => {
                     >
                         <i className={!isBookmarked ? 'bi bi-bookmark-plus' : 'bi bi-bookmark-dash'}></i>
                     </Button>
-                    <Button className="m-2" onClick={() => router.visit(`/assemblies/${props.assemblyID}`)}>
+                    <Button className="m-2" onClick={() => router.visit(route('assemblies.show', [props.assemblyID]))}>
                         Show details <i className="bi bi-arrow-right-circle"></i>
                     </Button>
                 </ListGroup.Item>
@@ -123,26 +127,8 @@ const AssemblyCard = (props: Props) => {
                 <ListGroup.Item>
                     <Row>
                         <Col>
-                            BUSCO:{' '}
-                            {(props.buscos === 0 && <b className="text-danger">Not available</b>) || (
-                                <b className="text-success">{props.buscos} available</b>
-                            )}
-                        </Col>
-                        <Col>
-                            N50:{' '}
-                            {(props.n50 === 0 && <b className="text-danger">Not available</b>) || (
-                                <b className="text-muted">{props.n50.toLocaleString().replaceAll('.', ',')} bp</b>
-                            )}
-                        </Col>
-                    </Row>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    <Row>
-                        <Col>
                             Repeatmasker:{' '}
-                            {(props.repeatmaskers === 0 && (
-                                <i className="bi bi-x-lg text-danger"/>
-                            )) || <i className="bi bi-check-lg text-success"/>}
+                            {(props.repeatmaskers === 0 && <i className="bi bi-x-lg text-danger" />) || <i className="bi bi-check-lg text-success" />}
                         </Col>
                         <Col>
                             taXaminer:{' '}
@@ -151,6 +137,15 @@ const AssemblyCard = (props: Props) => {
                             )}
                         </Col>
                     </Row>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                    {(props.buscos.length > 0 && <BUSCOCompletenessBar analyses={props.buscos} />) || (
+                        <BUSCOCompletenessBar analyses={[]}/>
+                    )}
+
+                    {(props.fcats.length > 0 && <FCatCompletenessBar analysis={props.fcats[0]} />) || (
+                        <BUSCOCompletenessBar analyses={[]} name={'fCat'} />
+                    )}
                 </ListGroup.Item>
             </ListGroup>
         </Card>

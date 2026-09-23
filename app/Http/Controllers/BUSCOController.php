@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Assembly;
 use App\Models\BuscoAnalysis;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -27,7 +28,8 @@ class BUSCOController extends Controller
         }
 
         Log::info("Deleted BUSCO {$id} for {$assembly->id}");
-
+        Cache::forget('avg_busco');
+        Cache::forget('analyses_count');
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }
