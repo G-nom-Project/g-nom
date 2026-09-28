@@ -2,14 +2,9 @@
 
 namespace App\Ai\Agents;
 
-use App\Ai\Tools\AssemblySearchTool;
-use App\Ai\Tools\GnomDocsTool;
-use App\Ai\Tools\LiteratureResearchTool;
-use App\Ai\Tools\RetrieveBuscoTool;
-use App\Ai\Tools\RetrieveRepeatmaskerTool;
+use App\Ai\AssistantCapability;
+use App\Ai\CapabilityRegistry;
 use App\Models\User;
-use Laravel\Ai\Attributes\MaxSteps;
-use Laravel\Ai\Attributes\Timeout;
 use Laravel\Ai\Concerns\RemembersConversations;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
@@ -26,6 +21,7 @@ class UserAssistant implements Agent, Conversational, HasTools
         // We store the user of the original interaction for the Authorization Gates used in the Tools
         protected User $user,
         protected $max_steps = 5,
+        protected ?array $selectedCapabilities = null,
     ) {}
 
     /**
@@ -46,10 +42,6 @@ tool list.
 
 Never invent, fabricate, or imply the existence of a tool that is not
 provided to you.
-
-When asked which tools or capabilities are available, list ONLY tools that
-are actually present in your tool list. Do not list hypothetical,
-planned, possible, or inferred tools.
 
 Do not describe an operation as being performed by a tool unless you
 actually invoked that tool.
@@ -88,22 +80,14 @@ Use Markdown tables when comparing multiple items with several attributes.
 
 Keep tables compact and use them only when they improve readability.
 
-Use bold text sparingly to emphasize important terms.
-
-Use italic text sparingly.
-
 Use inline code for technical identifiers, field names, tool names,
 assembly accessions, or commands where appropriate.
 
 Use fenced code blocks only for actual code, commands, configuration, or
 other content where preserving formatting is important.
-
 Do not use excessive blank lines.
-
 Do not add unnecessary introductory or concluding text.
-
 Do not insert newlines where Markdown would render them anyway.
-
 Prefer concise, information-dense responses.
 
 ## G-nom resources
@@ -115,16 +99,11 @@ http://{base_url}/assemblies/{id}
 
 The IDs are always numeric.
 
-## G-nom documentation
-
-When users ask questions about G-nom's capabilities or guidance on how to use them, use the G-nom Knowledge Base Tool.
-
 ## Scientific context
 
 Conduct yourself as a research assistant in a scientific context.
 Distinguish clearly between information retrieved from G-nom and general
 explanations.
-
 
 
 PROMPT;
@@ -135,14 +114,21 @@ PROMPT;
      *
      * @return Tool[]
      */
-    public function tools(): iterable
+    public function tools(): array
     {
-        return [
-            new AssemblySearchTool($this->user),
-            new RetrieveBuscoTool($this->user),
-            new RetrieveRepeatmaskerTool($this->user),
-            new LiteratureResearchTool(),
-            new GnomDocsTool(),
-        ];
+        if (! config('ai.tool_routing.enabled')) {
+            return CapabilityRegistry::resolve(
+                array_map(
+                    fn ($capability) => $capability->value,
+                    AssistantCapability::cases(),
+                ),
+                $this->user
+            );
+        }
+
+        return CapabilityRegistry::resolve(
+            $this->selectedCapabilities ?? [],
+            $this->user
+        );
     }
 }

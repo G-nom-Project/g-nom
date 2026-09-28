@@ -3,3 +3,79 @@
     height: 1em;
     vertical-align: top;
 }
+
+.bottom-svg {
+    width: 1.25em;
+    height: 1.25em;
+    vertical-align: top;
+
+}
+
+.svg-invert {
+    filter: invert(100%);
+}
+
+
+@font-face {
+    font-family: 'Material Symbols Outlined';
+    font-style: normal;
+    font-weight: 100 700;
+    font-display: block;
+    src: url('/fonts/MaterialSymbolsOutlined.woff2') format('woff2');
+}
+
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1rem;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    vertical-align: bottom;
+
+    /* Material Symbols settings */
+    font-feature-settings: 'liga';
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+.editable-code-box {
+    background: #e4e4e4;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+
+.tool-results-link {
+    display: inline-block;
+    animation: tool-results-attention 1.5s ease-out;
+}
+
+@keyframes tool-results-attention {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    20% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+
+    40% {
+        transform: scale(0.97);
+    }
+
+    60% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

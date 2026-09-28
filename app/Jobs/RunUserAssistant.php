@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Ai\Agents\UserAssistant;
+use App\Ai\AssistantToolRouter;
 use App\Events\AssistantMessageCompleted;
 use App\Models\ExternalLLM;
 use App\Models\User;
@@ -86,15 +87,24 @@ class RunUserAssistant implements ShouldQueue
             'conversation_id' => $this->conversationId,
         ]);
 
+        if (config('ai.tool_routing.enabled')) {
+            $routed = app(AssistantToolRouter::class)
+                ->route($this->prompt, $this->conversationId);
+            $capabilities = array_keys($routed['capabilities']);
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps, selectedCapabilities: $capabilities);
+        } else {
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps);
+        }
+
         try {
-            $response = (new UserAssistant($user, max_steps: $this->maxSteps))
+            $response = ($agent)
                 ->continue(
                     $this->conversationId,
                     as: $user,
                 )
                 ->prompt($this->prompt, timeout: $this->agentTimeout);
 
-            $this->handleResponse($response);
+            $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
         } catch (Throwable $e) {
             $this->handleFailure($e);
 
@@ -137,6 +147,15 @@ class RunUserAssistant implements ShouldQueue
             'url' => $model->url,
         ]);
 
+        if (config('ai.tool_routing.enabled')) {
+            $routed = app(AssistantToolRouter::class)
+                ->route($this->prompt, $this->conversationId);
+            $capabilities = array_keys($routed['capabilities']);
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps, selectedCapabilities: $capabilities);
+        } else {
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps);
+        }
+
         try {
             /*
              * Only update last_used_at once the job actually executes.
@@ -145,7 +164,7 @@ class RunUserAssistant implements ShouldQueue
                 'last_used_at' => now(),
             ])->save();
 
-            $response = (new UserAssistant($user, max_steps: $this->maxSteps))
+            $response = ($agent)
                 ->continue(
                     $this->conversationId,
                     as: $user,
@@ -156,7 +175,7 @@ class RunUserAssistant implements ShouldQueue
                     timeout: $this->agentTimeout,
                 );
 
-            $this->handleResponse($response);
+            $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
         } catch (Throwable $e) {
             $this->handleFailure($e);
 
@@ -164,7 +183,7 @@ class RunUserAssistant implements ShouldQueue
         }
     }
 
-    protected function handleResponse(AgentResponse $response): void
+    protected function handleResponse(AgentResponse $response, int $router_tokens = 0, $capabilities = []): void
     {
         $conversation = Conversation::findOrFail($this->conversationId);
 
@@ -180,21 +199,28 @@ class RunUserAssistant implements ShouldQueue
 
         $meta['tools'] = $toolCalls;
         $meta['usage'] = $response->usage?->toArray();
+        $meta['usage']['router'] = $router_tokens;
 
         if ($this->tempID != 'None') {
             $conversation->messages()->delete($this->tempID);
         }
 
+        $message = [
+            'id' => Uuid::uuid7(),
+            'role' => 'assistant',
+            'content' => $response->text,
+            'created_at' => now(),
+            'tool_results' => $response->toolResults,
+            'meta' => $meta,
+        ];
+
+        if (config('ai.tool_routing.enabled')) {
+            $message['capabilities'] = $capabilities;
+        }
+
         event(new AssistantMessageCompleted(
             conversationId: $conversation->id,
-            message: [
-                'id' => Uuid::uuid7(),
-                'role' => 'assistant',
-                'content' => $response->text,
-                'created_at' => now(),
-                'tool_calls' => $response->toolCalls,
-                'meta' => $meta,
-            ],
+            message: $message,
         ));
     }
 
@@ -229,14 +255,13 @@ class RunUserAssistant implements ShouldQueue
             message: [
                 'id' => Uuid::uuid7(),
                 'role' => 'assistant',
-                'content' =>
-                    "No response from LLM. Please verify your model configuration or notify your system administrator.
+                'content' => "No response from LLM. Please verify your model configuration or notify your system administrator.
                     \n Conversation ID: _{$this->conversationId}_",
                 'created_at' => now(),
                 'tool_calls' => [],
                 'meta' => [],
                 'is_system' => true,
-                'level' => 'danger'
+                'level' => 'danger',
             ],
         ));
     }

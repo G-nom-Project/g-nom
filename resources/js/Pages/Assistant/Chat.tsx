@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
 import { Conversation, Message, Model } from '@/types/assistant';
-import { Button, Dropdown, DropdownButton, Form, InputGroup, Modal } from 'react-bootstrap';
+import { Button, ButtonGroup, Dropdown, DropdownButton, Form, InputGroup, Modal, ToggleButton } from 'react-bootstrap';
 import { router } from '@inertiajs/react';
 import echo from '@/echo';
 
@@ -13,14 +13,18 @@ interface Props {
     messages: Message[];
     onMessagesChange: React.Dispatch<React.SetStateAction<Message[]>>;
     models: Model[];
+    routing: boolean;
 }
 
-export default function Chat({ conversation, messages, onMessagesChange, models }: Props) {
+export default function Chat({ conversation, messages, onMessagesChange, models, routing }: Props) {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showModelModal, setShowModelModal] = useState(false);
+    const [showModeModal, setShowModeModal] = useState(false);
 
     const [model, setModel] = useState<Model|undefined>(models[0]);
+    const [currSteps, setCurrSteps] = useState<number>(5);
+    const [isDeepResearch, setIsDeepResearch] = useState<boolean>(false);
 
     const handleClose = () => setShowModelModal(false);
     const [validated, setValidated] = useState(false);
@@ -124,21 +128,84 @@ export default function Chat({ conversation, messages, onMessagesChange, models 
         <main className="flex-grow-1 d-flex flex-column min-vh-100">
             <div className="border-bottom d-flex align-items-center gap-2 p-3">
                 <h5 className="mb-0">{conversation?.title ?? 'G-nom Assistant'}</h5>
-                <DropdownButton size="sm" title={(model && <code className="text-white">{model.name} </code>) || 'Select Model'}>
-                    {models &&
-                        models.map((model) => (
-                            <Dropdown.Item eventKey={model.id} onClick={() => setModel(model)}>
-                                {model.name} {model.id != -1 && <i className="bi bi-x-lg" onClick={() => handleDeleteModel(model.id)} />}
-                            </Dropdown.Item>
-                        ))}
-                    {models && <Dropdown.Divider />}
-                    <Dropdown.Item eventKey="4">
-                        <Button size="sm" className="w-100" onClick={() => setShowModelModal(true)}>
-                            Add model
-                        </Button>
-                    </Dropdown.Item>
-                </DropdownButton>
+                <div className="ms-auto" onClick={() => setShowModeModal(true)}>
+                    <code>
+                        <span className="material-symbols-outlined">smart_toy</span> <span className="editable-code-box">{model && model.name}</span>
+                    </code>
+                    {'  '}
+                    <code>
+                        <span className="material-symbols-outlined">step</span> <span className="editable-code-box">{currSteps} steps</span>
+                    </code>
+                    {'  '}
+                    <code>
+                        <span className="material-symbols-outlined">book_5</span>{' '}
+                        <span className="editable-code-box">{(isDeepResearch && 'Deep') || 'Shallow'} research</span>
+                    </code>
+                    {'  '}
+                    {routing && (
+                        <code>
+                            <span className="material-symbols-outlined">category</span>{' '}
+                            <span className="editable-code-box">Routing enabled</span>
+                        </code>
+                    )}
+                </div>
             </div>
+
+            <Modal show={showModeModal} onHide={() => setShowModeModal(false)}>
+                <Modal.Header closeButton>Update model settings</Modal.Header>
+                <Modal.Body>
+                    <b>
+                        <span className="material-symbols-outlined">smart_toy</span> Select Model
+                    </b>
+                    <DropdownButton size="sm" title={(model && <code className="text-white">{model.name} </code>) || 'Select Model'}>
+                        {models &&
+                            models.map((model) => (
+                                <Dropdown.Item eventKey={model.id} onClick={() => setModel(model)}>
+                                    {model.name} {model.id != -1 && <i className="bi bi-x-lg" onClick={() => handleDeleteModel(model.id)} />}
+                                </Dropdown.Item>
+                            ))}
+                        {models && <Dropdown.Divider />}
+                        <Dropdown.Item eventKey="4">
+                            <Button size="sm" className="w-100" onClick={() => setShowModelModal(true)}>
+                                Add model
+                            </Button>
+                        </Dropdown.Item>
+                    </DropdownButton>
+                    <br />
+                    <b>
+                        <span className="material-symbols-outlined">step</span> Max Steps
+                    </b>{' '}
+                    ({currSteps})
+                    <Form.Range min={1} max={20} defaultValue={5} onChange={(e) => setCurrSteps(e.target.value)} />
+                    <br />
+                    <b>
+                        <span className="material-symbols-outlined">book_5</span> Research Mode
+                    </b>
+                    <br />
+                    <ButtonGroup style={{ width: '100%' }} className="mt-2">
+                        <ToggleButton
+                            id="toggle-check"
+                            type="checkbox"
+                            variant="primary"
+                            value="1"
+                            checked={!isDeepResearch}
+                            onClick={() => setIsDeepResearch(false)}
+                        >
+                            Shallow
+                        </ToggleButton>
+                        <ToggleButton
+                            id="toggle-check"
+                            type="checkbox"
+                            variant="primary"
+                            value="1"
+                            checked={isDeepResearch}
+                            onClick={() => setIsDeepResearch(true)}
+                        >
+                            Deep
+                        </ToggleButton>
+                    </ButtonGroup>
+                </Modal.Body>
+            </Modal>
 
             <Modal show={showModelModal} onHide={handleClose}>
                 <Modal.Header closeButton>
@@ -181,7 +248,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models 
                 </Modal.Body>
             </Modal>
 
-            <MessageList messages={messages} sending={sending} has_subscribed={hasSubscribed}/>
+            <MessageList messages={messages} sending={sending} has_subscribed={hasSubscribed} />
 
             {error && <div className="alert alert-danger mx-3 mb-2">{error}</div>}
 

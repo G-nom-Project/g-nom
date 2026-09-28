@@ -9,13 +9,15 @@ interface Props {
     conversation?: Conversation | null;
     messages?: Message[];
     models?: Model[]
+    routing?: boolean;
 }
 
 export default function Index({
     conversations: initialConversations,
     conversation: initialConversation = null,
     messages: initialMessages = [],
-    models
+    models,
+    routing
 }: Props) {
     const [conversations, setConversations] = useState(initialConversations);
     const [conversation, setConversation] = useState(initialConversation);
@@ -53,6 +55,7 @@ export default function Index({
                 messages={messages}
                 onMessagesChange={setMessages}
                 models={models}
+                routing={routing}
             />
         </div>
     );

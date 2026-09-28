@@ -27,7 +27,7 @@ export default function ConversationSidebar({
                     }}
                 />
                 {' '}
-                <h5 className="mb-0" style={{ paddingTop: '0.25rem', paddingBottom: '0.21rem' }}>
+                <h5 className="mb-0">
                     G-nom Agent workspace
                 </h5>
             </div>

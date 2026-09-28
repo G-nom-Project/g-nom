@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Jobs\RunUserAssistant;
 use App\Models\ExternalLLM;
 use App\Services\ApplicationModeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Ramsey\Uuid\Uuid;
-
 
 class AssistantController extends Controller
 {
@@ -36,6 +36,7 @@ class AssistantController extends Controller
                 ->latest('updated_at')
                 ->get(),
             'models' => $models,
+            'routing' => config('ai.tool_routing.enabled'),
         ]);
     }
 
@@ -67,13 +68,14 @@ class AssistantController extends Controller
             'conversation' => $conversation,
             'messages' => $conversation->messages,
             'models' => $models,
+            'routing' => config('ai.tool_routing.enabled'),
         ]);
     }
 
     /**
      * Create a new conversation from an initial message
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     *
+     * @return JsonResponse
      */
     public function store(Request $request)
     {
@@ -93,7 +95,6 @@ class AssistantController extends Controller
                 'title' => str($validated['message'])->limit(100),
             ]);
 
-
         // Dispatch inference job
         RunUserAssistant::dispatch(
             userId: $request->user()->id,
@@ -103,7 +104,6 @@ class AssistantController extends Controller
             maxSteps: 5,
             agentTimeout: 120
         );
-
 
         return response()->json([
             'conversation_id' => $conversation->id,
