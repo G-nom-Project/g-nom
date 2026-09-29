@@ -6,11 +6,12 @@ interface Props {
 }
 
 const tool_map: Record<string, string> = {
-    "AssemblySearchTool": 'database_search',
-    "RetrieveBuscoTool": 'database_search',
-    "RetrieveRepeatmaskerTool": 'database_search',
-    "BookmarkTool": 'person_edit',
-}
+    AssemblySearchTool: 'database_search',
+    RetrieveBuscoTool: 'database_search',
+    RetrieveFcatTool: 'database_search',
+    RetrieveRepeatmaskerTool: 'database_search',
+    BookmarkTool: 'person_edit',
+};
 
 export default function ToolCall({ toolCall }: Props) {
     const [open, setOpen] = useState(false);
@@ -25,7 +26,7 @@ export default function ToolCall({ toolCall }: Props) {
     };
 
     return (
-        <div className="rounded border">
+        <div className="rounded border mb-1">
             <button type="button" className="btn btn-link text-decoration-none w-100 text-start" onClick={() => setOpen(!open)}>
                 <span className="me-1">
                     <span className="material-symbols-outlined">{tool_map[toolCall.name] ||  '🔧'}</span>

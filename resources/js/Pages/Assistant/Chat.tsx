@@ -127,7 +127,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
     return (
         <main className="flex-grow-1 d-flex flex-column min-vh-100">
             <div className="border-bottom d-flex align-items-center gap-2 p-3">
-                <h5 className="mb-0">{conversation?.title ?? 'G-nom Assistant'}</h5>
+                <h5 className="mb-0 text-truncate flex-grow-2" style={{maxWidth: '55%'}}>{conversation?.title ?? 'G-nom Assistant'}</h5>
                 <div className="ms-auto" onClick={() => setShowModeModal(true)}>
                     <code>
                         <span className="material-symbols-outlined">smart_toy</span> <span className="editable-code-box">{model && model.name}</span>

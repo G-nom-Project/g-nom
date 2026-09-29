@@ -3,6 +3,8 @@ import ToolCall from './ToolCall';
 import MarkdownMessage from './MarkdownMessage';
 import { Message } from '@/types/assistant';
 import { copyMessage } from '@/utils/text';
+import BUSCOCompletenessBar from '@/Components/BUSCOCompletenessBar';
+import FCatCompletenessBar from '@/Components/fCatCompletenessBar';
 
 interface Props {
     messages: Message[];
@@ -122,7 +124,7 @@ function MessageBubble({ message }: { message: Message }) {
 
                 {open && (
                     <div
-                        className="mt-2 rounded p-3"
+                        className="mt-2 rounded p-3 mb-2"
                         style={{
                             border: '1px solid var(--bs-link-color)',
                         }}
@@ -134,8 +136,7 @@ function MessageBubble({ message }: { message: Message }) {
                                 {message.capabilities.map((each) => {
                                     return (
                                         <code>
-                                            <span className="material-symbols-outlined">category</span>
-                                            {'-' + each + '  '}
+                                            <span className="editable-code-box me-1">{each}</span>
                                         </code>
                                     );
                                 })}
@@ -149,6 +150,15 @@ function MessageBubble({ message }: { message: Message }) {
                 )}
 
                 {isUser ? <div style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div> : <MarkdownMessage content={message.content} />}
+                {message.tool_results?.length > 0 && <br/>}
+                {message.tool_results?.map((toolCall) => {
+                    if (toolCall.name == 'RetrieveBuscoTool') {
+                        return <BUSCOCompletenessBar analyses={JSON.parse(toolCall.result)}/>;
+                    }
+                    if (toolCall.name == 'RetrieveFcatTool' && JSON.parse(toolCall.result).length > 0) {
+                        return <FCatCompletenessBar analysis={JSON.parse(toolCall.result)[0]} />;
+                    }
+                })}
             </div>
         </div>
     );

@@ -54,7 +54,7 @@ export default function ConversationSidebar({
                                         )}
                                         onClick={() => onSelect(item.id)}
                                     >
-                                        <div className="text-truncate pe-4">{item.title ?? 'New conversation'}</div>
+                                        <div className="text-truncate pe-3" style={{maxWidth: "20vw"}}>{item.title ?? 'New conversation'}</div>
 
                                         <small className={active ? 'text-white-50' : 'text-muted'}>{formatDate(item.updated_at)}</small>
                                     </button>

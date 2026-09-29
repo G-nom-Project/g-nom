@@ -26,6 +26,7 @@
 .assistant-markdown li {
     margin-top: -1.5rem;
     margin-bottom: 0;
+    white-space: normal;
 }
 
 .assistant-markdown li > p {

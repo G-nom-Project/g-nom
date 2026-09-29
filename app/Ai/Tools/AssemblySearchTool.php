@@ -86,6 +86,7 @@ class AssemblySearchTool implements Tool
                 'buscoAnalyses',
                 'repeatmaskerAnalyses',
                 'taxaminerAnalyses',
+                'fcatAnalyses',
             ])
             ->with('taxon.infos')
             ->get();

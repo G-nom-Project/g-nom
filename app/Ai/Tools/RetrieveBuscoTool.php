@@ -27,8 +27,9 @@ class RetrieveBuscoTool implements Tool
 
         Do not invent assembly IDs. Only call this tool with an assembly ID
         obtained from the conversation, user input, or another G-nom tool.
-        Given a numeric assembly ID, retrieve all BUSCO analyses associated with the assembly. The results are
-        a list in JSON format, with the following structure:
+        Given a numeric assembly ID, retrieve all BUSCO analyses associated with the assembly.
+        BUSCO analyses can be used for assess the completeness of a genome.
+        The results are a list in JSON format, with the following structure:
         {
             id: numeric ID of BUSCO analysis.
             assembly_id: ID of the assembly.

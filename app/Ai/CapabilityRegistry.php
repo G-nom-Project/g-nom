@@ -6,6 +6,7 @@ use App\Ai\Tools\AssemblySearchTool;
 use App\Ai\Tools\BookmarkTool;
 use App\Ai\Tools\LiteratureResearchTool;
 use App\Ai\Tools\RetrieveBuscoTool;
+use App\Ai\Tools\RetrieveFcatTool;
 use App\Ai\Tools\RetrieveRepeatmaskerTool;
 use App\Ai\Tools\TaxonSearchTool;
 use App\Models\User;
@@ -19,6 +20,7 @@ class CapabilityRegistry
                 AssemblySearchTool::class,
                 RetrieveBuscoTool::class,
                 RetrieveRepeatmaskerTool::class,
+                RetrieveFcatTool::class,
             ],
 
             AssistantCapability::Analysis->value => [

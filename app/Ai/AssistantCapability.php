@@ -17,7 +17,7 @@ enum AssistantCapability: string
     public function description(): string
     {
         return match ($this) {
-            self::Assembly => 'Search and inspect genomic assemblies and assembly metadata. Includes BUSCO and Repeatmasker.',
+            self::Assembly => 'Search and inspect genomic assemblies and assembly metadata. Includes BUSCO, fCat, Repeatmasker.',
 
             self::Analysis => 'Retrieve and interpret genomic analysis results and metrics.',
 
