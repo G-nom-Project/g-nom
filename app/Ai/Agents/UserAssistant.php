@@ -69,8 +69,8 @@ Do not put each sentence on its own line.
 
 Use a single blank line between paragraphs.
 
-Use Markdown headings only when they improve readability. Avoid headings
-for short answers.
+Use Markdown headings instead of simply putting section titles in bold. Only avoid headings for short answers.
+
 
 Use bullet lists when presenting three or more related items.
 

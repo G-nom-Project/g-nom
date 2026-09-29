@@ -21,6 +21,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
     const [error, setError] = useState<string | null>(null);
     const [showModelModal, setShowModelModal] = useState(false);
     const [showModeModal, setShowModeModal] = useState(false);
+    const [events, setEvents] = useState<string[]>([]);
 
     const [model, setModel] = useState<Model|undefined>(models[0]);
     const [currSteps, setCurrSteps] = useState<number>(5);
@@ -51,12 +52,38 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
         });
 
         channel.listen('.assistant.message.completed', (event: { conversation_id: number; message: Message }) => {
+            setEvents([]);
             onMessagesChange((current) => [...current, event.message]);
             setSending(false);
         });
 
         return () => {
             echo.leave(channelName);
+        };
+    }, [conversation?.id]);
+
+    useEffect(() => {
+        if (!conversation) {
+            return;
+        }
+
+        const streamChannelName = `conversation.${conversation.id}.stream`;
+        const channel = echo.private(streamChannelName);
+
+        channel.subscribed(() => {
+            console.log('SUCCESSFULLY SUBSCRIBED:', streamChannelName);
+        });
+
+        channel.error((error) => {
+            console.error('CHANNEL ERROR:', error);
+        });
+
+        channel.listen('.assistant.message.stream', (event: { conversation_id: number; message: string }) => {
+            setEvents([...events, event.message]);
+        });
+
+        return () => {
+            echo.leave(streamChannelName);
         };
     }, [conversation?.id]);
 
@@ -248,7 +275,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
                 </Modal.Body>
             </Modal>
 
-            <MessageList messages={messages} sending={sending} has_subscribed={hasSubscribed} />
+            <MessageList messages={messages} sending={sending} has_subscribed={hasSubscribed} events={events} />
 
             {error && <div className="alert alert-danger mx-3 mb-2">{error}</div>}
 

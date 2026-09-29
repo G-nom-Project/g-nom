@@ -3,6 +3,7 @@
 namespace App\Ai;
 
 use App\Ai\Agents\ToolRouter;
+use App\Events\AssistantStreamBroadcast;
 use App\Models\ChatCapability;
 use Illuminate\Support\Facades\Log;
 
@@ -16,6 +17,11 @@ class AssistantToolRouter
 {
     public function route(string $message, string $conversation_id): array
     {
+        event(new AssistantStreamBroadcast(
+            conversationId: $conversation_id,
+            message: 'Choosing Tools...',
+        ));
+
         $current_capabilities = [];
 
         $chat_capabilities = ChatCapability::where('agent_conversations_id', $conversation_id)->first();
@@ -49,7 +55,6 @@ class AssistantToolRouter
             $capability_array[$capability] = 5;
         }
 
-
         // Count down by one
         $current_capabilities = array_filter(
             array_map(fn ($value) => $value - 1, $current_capabilities),
@@ -61,6 +66,10 @@ class AssistantToolRouter
         $chat_capabilities->active_capabilities = $mergedCapabilities;
         $chat_capabilities->save();
 
+        event(new AssistantStreamBroadcast(
+            conversationId: $conversation_id,
+            message: 'Routed capabilities: '.implode(', ', array_keys($mergedCapabilities)),
+        ));
 
         return [
             'capabilities' => $mergedCapabilities,

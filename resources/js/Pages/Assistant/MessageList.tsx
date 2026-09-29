@@ -10,9 +10,10 @@ interface Props {
     messages: Message[];
     sending: boolean;
     has_subscribed: boolean;
+    events: string[];
 }
 
-export default function MessageList({ messages, sending, has_subscribed }: Props) {
+export default function MessageList({ messages, sending, has_subscribed, events }: Props) {
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -43,7 +44,12 @@ export default function MessageList({ messages, sending, has_subscribed }: Props
                 {(sending || messages.length === 0) && (
                     <div className="d-flex mb-4">
                         <div className="bg-light rounded px-3 py-2">
-                            <span className="text-muted">Agent is working...</span>
+                            <span className="text-muted agent-working"><b>Agent is working...</b></span>
+                            {
+                                events.map((event) => {
+                                    return <div className="text-muted">{event}</div>}
+                                )
+                            }
                         </div>
                     </div>
                 )}

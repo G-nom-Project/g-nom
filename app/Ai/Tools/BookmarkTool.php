@@ -12,7 +12,6 @@ use Stringable;
 
 class BookmarkTool implements Tool
 {
-
     public function __construct(
         protected User $user,
     ) {}
@@ -40,8 +39,8 @@ class BookmarkTool implements Tool
 
         $assembly = Assembly::where('id', $request['assembly_id'])->firstOrFail();
 
-        if(!$assembly) {
-            return "Assembly not found.";
+        if (! $assembly) {
+            return 'Assembly not found.';
         }
 
         if ($this->user->cannot('view', $assembly)) {
@@ -51,7 +50,7 @@ class BookmarkTool implements Tool
 
         if ($action == 'set') {
             if ($bookmark) {
-                return "Assembly is already bookmarked.";
+                return 'Assembly is already bookmarked.';
             }
 
             $bookmark = Bookmark::create([
@@ -61,14 +60,15 @@ class BookmarkTool implements Tool
 
             $bookmark->save();
 
-            return "Bookmarked assembly.";
+            return 'Bookmarked assembly.';
         } else {
-            if (!$bookmark) {
-                return "The bookmark does not exist.";
+            if (! $bookmark) {
+                return 'The bookmark does not exist.';
             }
 
             $bookmark->delete();
-            return "Bookmark removed.";
+
+            return 'Bookmark removed.';
         }
     }
 

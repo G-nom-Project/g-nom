@@ -38,7 +38,7 @@ class CapabilityRegistry
 
             AssistantCapability::User->value => [
                 BookmarkTool::class,
-            ]
+            ],
         ];
     }
 

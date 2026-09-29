@@ -49,7 +49,10 @@ class AssistantController extends Controller
     {
         $models = [];
         if (app(ApplicationModeService::class)->isBYOMEnabled()) {
-            $models = ExternalLLM::where('user_id', Auth::id())->orderBy('last_used_at', 'desc')->get();
+            $models = ExternalLLM::where('user_id', Auth::id())
+                ->select(['id', 'name', 'created_at'])
+                ->orderBy('last_used_at', 'desc')
+                ->get();
         }
 
         if (app(ApplicationModeService::class)->isInternalAiEnabled()) {

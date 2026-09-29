@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Ai\Agents\UserAssistant;
 use App\Ai\AssistantToolRouter;
 use App\Events\AssistantMessageCompleted;
+use App\Events\AssistantStreamBroadcast;
 use App\Models\ExternalLLM;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -15,7 +16,10 @@ use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Models\Conversation;
-use Laravel\Ai\Responses\AgentResponse;
+use Laravel\Ai\Models\ConversationMessage;
+use Laravel\Ai\Responses\StreamedAgentResponse;
+use Laravel\Ai\Streaming\Events\ToolCall;
+use Laravel\Ai\Streaming\Events\ToolResult;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -82,11 +86,6 @@ class RunUserAssistant implements ShouldQueue
      */
     protected function runBuiltinModel(User $user): void
     {
-        Log::debug('Starting builtin AI assistant', [
-            'user_id' => $this->userId,
-            'conversation_id' => $this->conversationId,
-        ]);
-
         if (config('ai.tool_routing.enabled')) {
             $routed = app(AssistantToolRouter::class)
                 ->route($this->prompt, $this->conversationId);
@@ -97,14 +96,59 @@ class RunUserAssistant implements ShouldQueue
         }
 
         try {
-            $response = ($agent)
+            $stream = ($agent)
                 ->continue(
                     $this->conversationId,
                     as: $user,
                 )
-                ->prompt($this->prompt, timeout: $this->agentTimeout);
+                ->stream($this->prompt, timeout: $this->agentTimeout)
+                ->then(function (StreamedAgentResponse $response) {
+                    $events = $response->events;
+                    // Collect only text deltas belonging to the final message.
+                    $finalMessageId = $events
+                        ->filter(fn ($event) => isset($event->messageId))
+                        ->last()
+                        ->messageId;
 
-            $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
+                    $finalText = $events
+                        ->filter(fn ($event) => isset($event->messageId) &&
+                            $event->messageId === $finalMessageId &&
+                            isset($event->delta)
+                        )
+                        ->pluck('delta')
+                        ->implode('');
+
+                    /**
+                     * Per default, the Laravel AI SDK will persist a text composed of all steps the model takes as the
+                     * message content. We only want the final result, since the UI is supplemented with the tool
+                     * outputs already. Here we override the persistent message accordingly.
+                     */
+                    $message = ConversationMessage::where('content', $response->text)
+                        ->latest('created_at')
+                        ->first();
+                    $message?->update([
+                        'content' => $finalText,
+                    ]);
+                    $response->text = $finalText;
+                    $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
+                });
+
+            foreach ($stream as $stream_event) {
+                if ($stream_event instanceof ToolCall) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: 'Running'.$stream_event->toolCall->name,
+                    ));
+                }
+
+                if ($stream_event instanceof ToolResult) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: $stream_event->toolResult->name.': Done',
+                    ));
+                }
+            }
+
         } catch (Throwable $e) {
             $this->handleFailure($e);
 
@@ -164,18 +208,59 @@ class RunUserAssistant implements ShouldQueue
                 'last_used_at' => now(),
             ])->save();
 
-            $response = ($agent)
+            $stream = ($agent)
                 ->continue(
                     $this->conversationId,
                     as: $user,
                 )
-                ->prompt(
-                    $this->prompt,
-                    provider: $providerName,
-                    timeout: $this->agentTimeout,
-                );
+                ->stream($this->prompt, provider: $providerName, timeout: $this->agentTimeout)
+                ->then(function (StreamedAgentResponse $response) {
+                    $events = $response->events;
+                    // Collect only text deltas belonging to the final message.
+                    $finalMessageId = $events
+                        ->filter(fn ($event) => isset($event->messageId))
+                        ->last()
+                        ->messageId;
 
-            $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
+                    $finalText = $events
+                        ->filter(fn ($event) => isset($event->messageId) &&
+                            $event->messageId === $finalMessageId &&
+                            isset($event->delta)
+                        )
+                        ->pluck('delta')
+                        ->implode('');
+
+                    /**
+                     * Per default, the Laravel AI SDK will persist a text composed of all steps the model takes as the
+                     * message content. We only want the final result, since the UI is supplemented with the tool
+                     * outputs already. Here we override the persistent message accordingly.
+                     */
+                    $message = ConversationMessage::where('content', $response->text)
+                        ->latest('created_at')
+                        ->first();
+                    $message?->update([
+                        'content' => $finalText,
+                    ]);
+                    $response->text = $finalText;
+                    $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
+                });
+
+            foreach ($stream as $stream_event) {
+                if ($stream_event instanceof ToolCall) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: 'Running '.$stream_event->toolCall->name,
+                    ));
+                }
+
+                if ($stream_event instanceof ToolResult) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: $stream_event->toolResult->name.': Done',
+                    ));
+                }
+            }
+
         } catch (Throwable $e) {
             $this->handleFailure($e);
 
@@ -183,7 +268,7 @@ class RunUserAssistant implements ShouldQueue
         }
     }
 
-    protected function handleResponse(AgentResponse $response, int $router_tokens = 0, $capabilities = []): void
+    protected function handleResponse(StreamedAgentResponse $response, int $router_tokens = 0, $capabilities = []): void
     {
         $conversation = Conversation::findOrFail($this->conversationId);
 
