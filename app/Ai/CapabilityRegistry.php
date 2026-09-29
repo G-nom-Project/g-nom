@@ -3,6 +3,7 @@
 namespace App\Ai;
 
 use App\Ai\Tools\AssemblySearchTool;
+use App\Ai\Tools\BookmarkTool;
 use App\Ai\Tools\LiteratureResearchTool;
 use App\Ai\Tools\RetrieveBuscoTool;
 use App\Ai\Tools\RetrieveRepeatmaskerTool;
@@ -32,6 +33,10 @@ class CapabilityRegistry
                 // Taxonomy tools
                 TaxonSearchTool::class,
             ],
+
+            AssistantCapability::User->value => [
+                BookmarkTool::class,
+            ]
         ];
     }
 

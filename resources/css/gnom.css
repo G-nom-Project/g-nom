@@ -79,3 +79,14 @@
         opacity: 1;
     }
 }
+
+.copy-button {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.message-bubble:hover .copy-button {
+    visibility: visible;
+    opacity: 1;
+}

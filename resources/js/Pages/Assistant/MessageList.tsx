@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import ToolCall from './ToolCall';
 import MarkdownMessage from './MarkdownMessage';
 import { Message } from '@/types/assistant';
+import { copyMessage } from '@/utils/text';
 
 interface Props {
     messages: Message[];
@@ -70,8 +71,12 @@ function MessageBubble({ message }: { message: Message }) {
                 {!isUser && (
                     <div className="fw-bold mb-1">
                         {(isSystem && 'G-nom System') || (
-                            <>
-                                G-nom Assistant <br />
+                            <div className="message-bubble">
+                                G-nom Assistant{' '}
+                                <a href="#" onClick={() => copyMessage(message.content)} className="copy-button">
+                                    <span className="material-symbols-outlined">content_copy</span>
+                                </a>
+                                <br />
                                 <code>
                                     <span className="material-symbols-outlined">smart_toy</span>
                                     {message.meta['model']}
@@ -110,7 +115,7 @@ function MessageBubble({ message }: { message: Message }) {
                                         </code>
                                     </a>
                                 )}
-                            </>
+                            </div>
                         )}
                     </div>
                 )}
@@ -122,22 +127,21 @@ function MessageBubble({ message }: { message: Message }) {
                             border: '1px solid var(--bs-link-color)',
                         }}
                     >
-                        {
-                            message.capabilities &&
+                        {message.capabilities && (
                             <>
                                 Capabilities routed:
-                                <br/>
-                                    {message.capabilities.map((each) => {
-                                        return (
-                                            <code>
-                                                <span className="material-symbols-outlined">category</span>
-                                                {'-' + each + '  '}
-                                            </code>
-                                        );
-                                    })}
-                                <hr/>
+                                <br />
+                                {message.capabilities.map((each) => {
+                                    return (
+                                        <code>
+                                            <span className="material-symbols-outlined">category</span>
+                                            {'-' + each + '  '}
+                                        </code>
+                                    );
+                                })}
+                                <hr />
                             </>
-                        }
+                        )}
                         {message.tool_results?.map((toolCall) => (
                             <ToolCall key={toolCall.id} toolCall={toolCall} />
                         ))}

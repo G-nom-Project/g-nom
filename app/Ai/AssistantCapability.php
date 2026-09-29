@@ -12,6 +12,7 @@ enum AssistantCapability: string
     case Analysis = 'analysis';
     case Literature = 'literature';
     case Taxonomy = 'taxonomy';
+    case User = 'user';
 
     public function description(): string
     {
@@ -23,6 +24,8 @@ enum AssistantCapability: string
             self::Literature => 'Search scientific literature and retrieve relevant publications.',
 
             self::Taxonomy => 'Retrieve taxonomy and organism information.',
+
+            self::User => 'User personalization features on behalf of the users: Bookmarks',
         };
     }
 }

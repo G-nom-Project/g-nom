@@ -66,7 +66,10 @@ class RetrieveBuscoTool implements Tool
             return 'The requested assembly is not available to this user. NOTIFY THE USER!';
         }
 
-        return BuscoAnalysis::where('assembly_id', (int) $request['value'])->get();
+        $analysis = BuscoAnalysis::where('assembly_id', (int) $request['value'])->get();
+        $analysis->makeHidden(['targetFile', 'created_at', 'updated_at']);
+
+        return $analysis;
 
     }
 
