@@ -19,6 +19,12 @@ return new class extends Migration
                 ->on('agent_conversations')
                 ->cascadeOnDelete();
 
+            $table->integer('external_llms_id')->nullable();
+
+            $table->foreign('external_llms_id')
+                ->references('id')
+                ->on('external_llms');
+
             $table->integer('max_steps')->default(5);
             $table->integer('research_depth')->default(10);
             $table->json('active_capabilities')->default('[]');

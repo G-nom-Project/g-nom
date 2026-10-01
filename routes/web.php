@@ -1,6 +1,5 @@
 <?php
 
-use App\Events\AssistantMessageCompleted;
 use App\Http\Controllers\AnnotationController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\AssemblyController;
@@ -61,7 +60,7 @@ Route::middleware(['auth', GnomReadOnly::class])->group(function () {
 });
 
 Route::middleware([
-    GnomPublicInstance::class
+    GnomPublicInstance::class,
 ])->group(function () {
     Route::get('/assemblies', [AssemblyController::class, 'index'])->name('assemblies');
     Route::get('/assemblies/{id}', [AssemblyController::class, 'show'])->name('assemblies.show');
@@ -74,7 +73,7 @@ Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser'
 Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser');
 
 Route::middleware([
-    GnomPublicInstance::class
+    GnomPublicInstance::class,
 ])->group(function () {
     Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/scatter', [TaxaminerController::class, 'scatterData'])->name('taxaminer.scatter');
     Route::get('/plugins/taxaminer/{taxonID}/{assemblyID}/{analysisID}/pca', [TaxaminerController::class, 'fetchPCA'])->name('taxaminer.pca');
@@ -85,7 +84,7 @@ Route::middleware([
 });
 
 Route::middleware([
-    GnomPublicInstance::class
+    GnomPublicInstance::class,
 ])->group(function () {
     Route::post('/taxon-by-name', [TaxonController::class, 'getTaxonByName'])->name('taxon-by-name');
     Route::get('/taxon-assemblies/{id}', [TaxonController::class, 'assemblies'])->name('taxon-assemblies');
@@ -186,6 +185,8 @@ Route::middleware(['auth', AiMode::class])->group(function () {
         AssistantController::class,
         'message',
     ])->name('assistant.message');
+
+    Route::post('/assistant/{conversation}/settings', [AssistantController::class, 'updateConversationSettings'])->name('conversation.settings');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -193,6 +194,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/upload-document', [DocumentController::class, 'uploadPage'])->name('document.upload-page');
     Route::post('/upload-document', [DocumentController::class, 'uploadFiles'])->name('documents.upload');
 });
-
 
 require __DIR__.'/auth.php';

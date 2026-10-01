@@ -14,18 +14,21 @@ interface Props {
     onMessagesChange: React.Dispatch<React.SetStateAction<Message[]>>;
     models: Model[];
     routing: boolean;
+    max_steps?: number;
+    research_depth?: number;
+    external_model_id?: number;
 }
 
-export default function Chat({ conversation, messages, onMessagesChange, models, routing }: Props) {
+export default function Chat({ conversation, messages, onMessagesChange, models, routing, max_steps, research_depth, external_model_id }: Props) {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showModelModal, setShowModelModal] = useState(false);
     const [showModeModal, setShowModeModal] = useState(false);
     const [events, setEvents] = useState<string[]>([]);
 
-    const [model, setModel] = useState<Model|undefined>(models[0]);
-    const [currSteps, setCurrSteps] = useState<number>(5);
-    const [isDeepResearch, setIsDeepResearch] = useState<boolean>(false);
+    const [model, setModel] = useState<Model|undefined>();
+    const [currSteps, setCurrSteps] = useState<number>(max_steps || 5);
+    const [isDeepResearch, setIsDeepResearch] = useState<boolean>(research_depth && research_depth > 10 || false);
 
     const handleClose = () => setShowModelModal(false);
     const [validated, setValidated] = useState(false);
@@ -33,6 +36,34 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
     const [newModelURL, setNewModelURL] = useState('');
     const [newModelToken, setNewModelToken] = useState('');
     const [hasSubscribed, setHasSubscribed] = useState(false);
+
+    const handle_update_settings = async () => {
+        if (conversation) {
+            if (model?.id != -1) {
+                await axios.post(route('conversation.settings', [conversation.id]), {
+                    steps: currSteps,
+                    research_depth: (isDeepResearch && 20) || 10,
+                    external_model_id: model?.id
+                });
+            } else {
+                await axios.post(route('conversation.settings', [conversation.id]), {
+                    steps: currSteps,
+                    research_depth: (isDeepResearch && 20) || 10,
+                });
+            }
+
+        }
+        setShowModeModal(false);
+    };
+
+    useEffect(() => {
+        if (external_model_id) {
+            const model = models.find((model) => model.id === external_model_id);
+            setModel(model);
+        } else {
+            setModel(models[models.length-1]);
+        }
+    }, [external_model_id]);
 
     useEffect(() => {
         if (!conversation) {
@@ -62,6 +93,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
         };
     }, [conversation?.id]);
 
+    // Streaming Tool events
     useEffect(() => {
         if (!conversation) {
             return;
@@ -88,12 +120,24 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
     }, [conversation?.id]);
 
     const createConversation = async (message: string) => {
-        const response = await axios.post(route('assistant.store'), {
-            message,
-            model_id: model.id
-        });
-
-        router.visit(route('assistant.show', response.data.conversation_id));
+        if (model?.id != -1) {
+            const response = await axios.post(route('assistant.store'), {
+                message,
+                model_id: model.id,
+                max_steps: currSteps,
+                research_depth: (isDeepResearch && 20) || 10,
+                external_model_id: model?.id,
+            });
+            router.visit(route('assistant.show', response.data.conversation_id));
+        } else {
+            const response = await axios.post(route('assistant.store'), {
+                message,
+                model_id: model.id,
+                max_steps: currSteps,
+                research_depth: (isDeepResearch && 20) || 10,
+            });
+            router.visit(route('assistant.show', response.data.conversation_id));
+        }
     };
 
     const sendMessage = async (content: string) => {
@@ -178,7 +222,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
                 </div>
             </div>
 
-            <Modal show={showModeModal} onHide={() => setShowModeModal(false)}>
+            <Modal show={showModeModal} onHide={() => handle_update_settings()}>
                 <Modal.Header closeButton>Update model settings</Modal.Header>
                 <Modal.Body>
                     <b>

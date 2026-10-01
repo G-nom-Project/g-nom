@@ -83,3 +83,16 @@
 .conversation-item:hover .conversation-delete {
     display: block;
 }
+
+.agent-working {
+    animation: agent-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes agent-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.35;
+    }
+}
