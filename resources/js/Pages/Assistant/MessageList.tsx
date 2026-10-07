@@ -47,7 +47,30 @@ export default function MessageList({ messages, sending, has_subscribed, events 
                             <span className="text-muted agent-working"><b>Agent is working...</b></span>
                             {
                                 events.map((event) => {
-                                    return <div className="text-muted">{event}</div>}
+                                    if (event.startsWith('[#tool]')) {
+                                        return (
+                                            <div className="text-muted">
+                                                <b><span className="material-symbols-outlined">construction</span></b>
+                                                {'  ' + event.slice(7)}
+                                            </div>
+                                        );
+                                    } else if (event.startsWith('[#capa]')) {
+                                        return(
+                                            <div className="text-muted">
+                                                <b>
+                                                    <span className="material-symbols-outlined">category</span>
+                                                </b>
+                                            {'  ' + event.slice(7)}
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <div className="text-muted">
+                                            <span className="material-symbols-outlined">smart_toy</span>
+                                            {'  ' + event}
+                                        </div>
+                                    );
+                                }
                                 )
                             }
                         </div>

@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Models\ConversationMessage;
 use Laravel\Ai\Responses\StreamedAgentResponse;
+use Laravel\Ai\Streaming\Events\TextDelta;
+use Laravel\Ai\Streaming\Events\TextEnd;
+use Laravel\Ai\Streaming\Events\TextStart;
 use Laravel\Ai\Streaming\Events\ToolCall;
 use Laravel\Ai\Streaming\Events\ToolResult;
 use Ramsey\Uuid\Uuid;
@@ -133,18 +136,27 @@ class RunUserAssistant implements ShouldQueue
                     $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
                 });
 
+            $streaming_text = "";
             foreach ($stream as $stream_event) {
-                if ($stream_event instanceof ToolCall) {
+                if ($stream_event instanceof TextStart) {
+                    $streaming_text = "";
+                }
+
+                if ($stream_event instanceof TextDelta) {
+                    $streaming_text .= $stream_event->delta;
+                }
+
+                if ($stream_event instanceof TextEnd) {
                     event(new AssistantStreamBroadcast(
                         conversationId: $this->conversationId,
-                        message: 'Running'.$stream_event->toolCall->name,
+                        message: $streaming_text,
                     ));
                 }
 
-                if ($stream_event instanceof ToolResult) {
+                if ($stream_event instanceof ToolCall) {
                     event(new AssistantStreamBroadcast(
                         conversationId: $this->conversationId,
-                        message: $stream_event->toolResult->name.': Done',
+                        message: '[#tool]Running '.$stream_event->toolCall->name,
                     ));
                 }
             }
@@ -245,25 +257,33 @@ class RunUserAssistant implements ShouldQueue
                     $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
                 });
 
+            $streaming_text = "";
             foreach ($stream as $stream_event) {
-                if ($stream_event instanceof ToolCall) {
+                if ($stream_event instanceof TextStart) {
+                    $streaming_text = "";
+                }
+
+                if ($stream_event instanceof TextDelta) {
+                    $streaming_text .= $stream_event->delta;
+                }
+
+                if ($stream_event instanceof TextEnd) {
                     event(new AssistantStreamBroadcast(
                         conversationId: $this->conversationId,
-                        message: 'Running '.$stream_event->toolCall->name,
+                        message: $streaming_text,
                     ));
                 }
 
-                if ($stream_event instanceof ToolResult) {
+                if ($stream_event instanceof ToolCall) {
                     event(new AssistantStreamBroadcast(
                         conversationId: $this->conversationId,
-                        message: $stream_event->toolResult->name.': Done',
+                        message: '[#tool]Running '.$stream_event->toolCall->name,
                     ));
                 }
             }
 
         } catch (Throwable $e) {
             $this->handleFailure($e);
-
             throw $e;
         }
     }

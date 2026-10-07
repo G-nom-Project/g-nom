@@ -17,11 +17,6 @@ class AssistantToolRouter
 {
     public function route(string $message, string $conversation_id): array
     {
-        event(new AssistantStreamBroadcast(
-            conversationId: $conversation_id,
-            message: 'Choosing Tools...',
-        ));
-
         $current_capabilities = [];
 
         $chat_capabilities = ChatCapability::where('agent_conversations_id', $conversation_id)->first();
@@ -68,7 +63,7 @@ class AssistantToolRouter
 
         event(new AssistantStreamBroadcast(
             conversationId: $conversation_id,
-            message: 'Routed capabilities: '.implode(', ', array_keys($mergedCapabilities)),
+            message: '[#capa]Routed capabilities: '.implode(', ', array_keys($mergedCapabilities)),
         ));
 
         return [

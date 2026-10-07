@@ -110,9 +110,12 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
             console.error('CHANNEL ERROR:', error);
         });
 
-        channel.listen('.assistant.message.stream', (event: { conversation_id: number; message: string }) => {
-            setEvents([...events, event.message]);
-        });
+        channel.listen(
+            '.assistant.message.stream',
+            (event: { conversation_id: number; message: string }) => {
+                setEvents(prevEvents => [...prevEvents, event.message]);
+            }
+        );
 
         return () => {
             echo.leave(streamChannelName);
