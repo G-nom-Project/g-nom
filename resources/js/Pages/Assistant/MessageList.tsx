@@ -89,7 +89,6 @@ function MessageBubble({ message }: { message: Message }) {
     const [open, setOpen] = useState(false);
 
     const bg = (isSystem && 'bg-danger text-white' || isUser && 'bg-primary text-white' || 'bg-light')
-
     return (
         <div className={['d-flex', 'mb-4', isUser ? 'justify-content-end' : 'justify-content-start'].join(' ')}>
             <div
@@ -145,7 +144,22 @@ function MessageBubble({ message }: { message: Message }) {
                                             {message.tool_results.length}
                                         </code>
                                     </a>
-                                )}
+                                )}{' '}
+                                {message.tool_results &&
+                                    message.tool_results.filter((each) => {
+                                        return each.name.endsWith('Specialist');
+                                    }).length > 0 && (
+                                        <a href={'#'} onClick={() => setOpen(!open)} style={{ textDecoration: 'none' }} className="tool-results-link">
+                                            <code>
+                                                <span className="material-symbols-outlined">robot_2</span>
+                                                {
+                                                    message.tool_results.filter((each) => {
+                                                        return each.name.endsWith('Specialist');
+                                                    }).length
+                                                }
+                                            </code>
+                                        </a>
+                                    )}
                             </div>
                         )}
                     </div>
@@ -153,7 +167,7 @@ function MessageBubble({ message }: { message: Message }) {
 
                 {open && (
                     <div
-                        className="mt-2 rounded p-3 mb-2"
+                        className="mb-2 mt-2 rounded p-3"
                         style={{
                             border: '1px solid var(--bs-link-color)',
                         }}
@@ -179,10 +193,10 @@ function MessageBubble({ message }: { message: Message }) {
                 )}
 
                 {isUser ? <div style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div> : <MarkdownMessage content={message.content} />}
-                {message.tool_results?.length > 0 && <br/>}
+                {message.tool_results?.length > 0 && <br />}
                 {message.tool_results?.map((toolCall) => {
                     if (toolCall.name == 'RetrieveBuscoTool') {
-                        return <BUSCOCompletenessBar analyses={JSON.parse(toolCall.result)}/>;
+                        return <BUSCOCompletenessBar analyses={JSON.parse(toolCall.result)} />;
                     }
                     if (toolCall.name == 'RetrieveFcatTool' && JSON.parse(toolCall.result).length > 0) {
                         return <FCatCompletenessBar analysis={JSON.parse(toolCall.result)[0]} />;

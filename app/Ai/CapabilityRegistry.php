@@ -2,14 +2,17 @@
 
 namespace App\Ai;
 
+use App\Ai\Agents\SparqlSpecialist;
 use App\Ai\Tools\AssemblySearchTool;
 use App\Ai\Tools\BookmarkTool;
+use App\Ai\Tools\ExecuteSparqlTool;
 use App\Ai\Tools\LiteratureResearchTool;
 use App\Ai\Tools\RetrieveBuscoTool;
 use App\Ai\Tools\RetrieveFcatTool;
 use App\Ai\Tools\RetrieveRepeatmaskerTool;
 use App\Ai\Tools\TaxonSearchTool;
 use App\Models\User;
+use App\Services\ApplicationModeService;
 
 class CapabilityRegistry
 {
@@ -39,6 +42,11 @@ class CapabilityRegistry
             AssistantCapability::User->value => [
                 BookmarkTool::class,
             ],
+
+            AssistantCapability::Sparql->value => [
+                ExecuteSparqlTool::class,
+                SparqlSpecialist::class,
+            ]
         ];
     }
 
@@ -50,6 +58,11 @@ class CapabilityRegistry
         array $capabilities,
         User $user,
     ): array {
+        // Enforce SPARQL config for agents as well
+        if (! app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
+            $capabilities = array_diff($capabilities, ['sparql']);
+        }
+
         return collect(self::tools())
             ->only($capabilities)
             ->flatten()

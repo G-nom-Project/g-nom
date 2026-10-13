@@ -11,6 +11,8 @@ const tool_map: Record<string, string> = {
     RetrieveFcatTool: 'database_search',
     RetrieveRepeatmaskerTool: 'database_search',
     BookmarkTool: 'person_edit',
+    SparqlSpecialist: 'robot_2',
+    ExecuteSparqlTool: 'graph_3'
 };
 
 export default function ToolCall({ toolCall }: Props) {

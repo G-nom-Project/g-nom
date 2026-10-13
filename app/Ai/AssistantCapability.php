@@ -13,6 +13,7 @@ enum AssistantCapability: string
     case Literature = 'literature';
     case Taxonomy = 'taxonomy';
     case User = 'user';
+    case Sparql = 'sparql';
 
     public function description(): string
     {
@@ -26,6 +27,8 @@ enum AssistantCapability: string
             self::Taxonomy => 'Retrieve taxonomy and organism information.',
 
             self::User => 'User personalization features on behalf of the users: Bookmarks',
+
+            self::Sparql => 'Execute SPARQL commands.',
         };
     }
 }
