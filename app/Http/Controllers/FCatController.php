@@ -22,6 +22,7 @@ class FCatController extends Controller
         Log::info("Deleted fCat {$id} for {$assembly->id}");
         Cache::forget('avg_fcat');
         Cache::forget('analyses_count');
+
         return redirect("/taxa/{$assembly->taxon_ncbiTaxonID}/{$assembly->id}/edit");
     }
 }

@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\RunUserAssistant;
+use App\Models\ChatCapability;
 use App\Models\ExternalLLM;
 use App\Services\ApplicationModeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Ramsey\Uuid\Uuid;
-
 
 class AssistantController extends Controller
 {
@@ -36,6 +37,7 @@ class AssistantController extends Controller
                 ->latest('updated_at')
                 ->get(),
             'models' => $models,
+            'routing' => config('ai.tool_routing.enabled'),
         ]);
     }
 
@@ -48,7 +50,10 @@ class AssistantController extends Controller
     {
         $models = [];
         if (app(ApplicationModeService::class)->isBYOMEnabled()) {
-            $models = ExternalLLM::where('user_id', Auth::id())->orderBy('last_used_at', 'desc')->get();
+            $models = ExternalLLM::where('user_id', Auth::id())
+                ->select(['id', 'name', 'created_at'])
+                ->orderBy('last_used_at', 'desc')
+                ->get();
         }
 
         if (app(ApplicationModeService::class)->isInternalAiEnabled()) {
@@ -59,6 +64,8 @@ class AssistantController extends Controller
             ->conversations()
             ->findOrFail($conversation);
 
+        $settings = ChatCapability::where('agent_conversations_id', $conversation->id)->first();
+
         return Inertia::render('AssistantPage', [
             'conversations' => $request->user()
                 ->conversations()
@@ -67,19 +74,24 @@ class AssistantController extends Controller
             'conversation' => $conversation,
             'messages' => $conversation->messages,
             'models' => $models,
+            'routing' => config('ai.tool_routing.enabled'),
+            'settings' => $settings,
         ]);
     }
 
     /**
      * Create a new conversation from an initial message
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     *
+     * @return JsonResponse
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'message' => ['required', 'string'],
             'model_id' => ['required', 'integer'],
+            'max_steps' => ['nullable', 'integer', 'min:1'],
+            'research_depth' => ['nullable', 'integer'],
+            'external_model_id' => ['nullable', 'integer', 'exists:external_llms,id'],
         ]);
 
         /**
@@ -93,6 +105,14 @@ class AssistantController extends Controller
                 'title' => str($validated['message'])->limit(100),
             ]);
 
+        $settings = new ChatCapability;
+        $settings->agent_conversations_id = $conversation->id;
+        $settings->max_steps = $validated['max_steps'] ?? 5;
+        $settings->research_depth = $validated['research_depth'] ?? 10;
+        if(array_key_exists('external_model_id', $validated)) {
+            $settings->external_llms_id = $validated['external_model_id'];
+        }
+        $settings->save();
 
         // Dispatch inference job
         RunUserAssistant::dispatch(
@@ -100,10 +120,9 @@ class AssistantController extends Controller
             conversationId: $conversation->id,
             modelId: $validated['model_id'],
             prompt: $validated['message'],
-            maxSteps: 5,
+            maxSteps: $settings->max_steps,
             agentTimeout: 120
         );
-
 
         return response()->json([
             'conversation_id' => $conversation->id,
@@ -124,12 +143,14 @@ class AssistantController extends Controller
             ->conversations()
             ->findOrFail($conversation);
 
+        $settings = ChatCapability::where('agent_conversations_id', $conversation->id)->first();
+
         RunUserAssistant::dispatch(
             userId: $request->user()->id,
             conversationId: $conversation->id,
             modelId: $validated['model_id'],
             prompt: $validated['message'],
-            maxSteps: 5,
+            maxSteps: $settings->max_steps,
             agentTimeout: 120
         );
 
@@ -164,6 +185,35 @@ class AssistantController extends Controller
         $model->last_used_at = now();
         $model->save();
     }
+
+
+    /**
+     * Update Agent capabilities associated with a conversation
+     * @param Request $request
+     * @param string $conversation
+     * @return void
+     */
+    public function updateConversationSettings(Request $request, string $conversation) {
+        $validated = $request->validate([
+            'steps' => ['required', 'integer'],
+            'research_depth' => ['required', 'integer'],
+            'external_model_id' => ['nullable', 'integer', 'exists:external_llms,id'],
+        ]);
+
+        $settings = ChatCapability::where('agent_conversations_id', $conversation)->first();
+
+        if (!$settings) {
+            $settings = new ChatCapability;
+        }
+
+        $settings->max_steps = $validated['steps'];
+        $settings->research_depth = $validated['research_depth'];
+        if(array_key_exists('external_model_id', $validated)) {
+            $settings->external_llms_id = $validated['external_model_id'];
+        }
+        $settings->save();
+    }
+
 
     public function deleteModel(Request $request, $id)
     {

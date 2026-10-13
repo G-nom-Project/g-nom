@@ -31,7 +31,7 @@ return [
             'target' => 500,
             'min' => 100,
             'result' => 1024,
-        ]
+        ],
     ],
 
     /*
@@ -50,6 +50,21 @@ return [
             'cache' => false,
             'store' => env('CACHE_STORE', 'database'),
         ],
+    ],
+
+    /**
+     * Tool Routing
+     *
+     * In order for the agent to be aware of the tools it can use, tool descriptions must be passed as context. This
+     * increases token consumption significantly as the number of tools increases.
+     */
+    'tool_routing' => [
+        'enabled' => env('AI_TOOL_ROUTING', true),
+        'provider' => env('AI_TOOL_ROUTING_PROVIDER', 'local'),
+        'model' => env(
+            'AI_TOOL_ROUTING_MODEL',
+            'gpt-oss:20b'
+        ),
     ],
 
     /*
@@ -139,7 +154,7 @@ return [
             'models' => [
                 'embeddings' => [
                     'default' => 'bge-m3:567m',
-                    'dimensions' => 1024
+                    'dimensions' => 1024,
                 ],
             ],
         ],

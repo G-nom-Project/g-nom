@@ -9,17 +9,22 @@ interface Props {
     conversation?: Conversation | null;
     messages?: Message[];
     models?: Model[]
+    routing?: boolean;
+    settings?: {model_id: number, max_steps: number, research_depth: number, external_llms_id: number};
 }
 
 export default function Index({
     conversations: initialConversations,
     conversation: initialConversation = null,
     messages: initialMessages = [],
-    models
+    models,
+    routing,
+    settings,
 }: Props) {
     const [conversations, setConversations] = useState(initialConversations);
     const [conversation, setConversation] = useState(initialConversation);
     const [messages, setMessages] = useState(initialMessages);
+    console.log(settings);
 
     const selectConversation = (id: string) => {
         router.visit(route('assistant.show', id));
@@ -53,6 +58,10 @@ export default function Index({
                 messages={messages}
                 onMessagesChange={setMessages}
                 models={models}
+                routing={routing}
+                max_steps={settings?.max_steps}
+                research_depth={settings?.research_depth}
+                external_model_id={settings?.external_llms_id}
             />
         </div>
     );

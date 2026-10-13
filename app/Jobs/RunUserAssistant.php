@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Ai\Agents\UserAssistant;
+use App\Ai\AssistantToolRouter;
 use App\Events\AssistantMessageCompleted;
+use App\Events\AssistantStreamBroadcast;
 use App\Models\ExternalLLM;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -14,7 +16,13 @@ use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Models\Conversation;
-use Laravel\Ai\Responses\AgentResponse;
+use Laravel\Ai\Models\ConversationMessage;
+use Laravel\Ai\Responses\StreamedAgentResponse;
+use Laravel\Ai\Streaming\Events\TextDelta;
+use Laravel\Ai\Streaming\Events\TextEnd;
+use Laravel\Ai\Streaming\Events\TextStart;
+use Laravel\Ai\Streaming\Events\ToolCall;
+use Laravel\Ai\Streaming\Events\ToolResult;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -81,20 +89,78 @@ class RunUserAssistant implements ShouldQueue
      */
     protected function runBuiltinModel(User $user): void
     {
-        Log::debug('Starting builtin AI assistant', [
-            'user_id' => $this->userId,
-            'conversation_id' => $this->conversationId,
-        ]);
+        if (config('ai.tool_routing.enabled')) {
+            $routed = app(AssistantToolRouter::class)
+                ->route($this->prompt, $this->conversationId);
+            $capabilities = array_keys($routed['capabilities']);
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps, selectedCapabilities: $capabilities);
+        } else {
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps);
+        }
 
         try {
-            $response = (new UserAssistant($user, max_steps: $this->maxSteps))
+            $stream = ($agent)
                 ->continue(
                     $this->conversationId,
                     as: $user,
                 )
-                ->prompt($this->prompt, timeout: $this->agentTimeout);
+                ->stream($this->prompt, timeout: $this->agentTimeout)
+                ->then(function (StreamedAgentResponse $response) {
+                    $events = $response->events;
+                    // Collect only text deltas belonging to the final message.
+                    $finalMessageId = $events
+                        ->filter(fn ($event) => isset($event->messageId))
+                        ->last()
+                        ->messageId;
 
-            $this->handleResponse($response);
+                    $finalText = $events
+                        ->filter(fn ($event) => isset($event->messageId) &&
+                            $event->messageId === $finalMessageId &&
+                            isset($event->delta)
+                        )
+                        ->pluck('delta')
+                        ->implode('');
+
+                    /**
+                     * Per default, the Laravel AI SDK will persist a text composed of all steps the model takes as the
+                     * message content. We only want the final result, since the UI is supplemented with the tool
+                     * outputs already. Here we override the persistent message accordingly.
+                     */
+                    $message = ConversationMessage::where('content', $response->text)
+                        ->latest('created_at')
+                        ->first();
+                    $message?->update([
+                        'content' => $finalText,
+                    ]);
+                    $response->text = $finalText;
+                    $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
+                });
+
+            $streaming_text = "";
+            foreach ($stream as $stream_event) {
+                if ($stream_event instanceof TextStart) {
+                    $streaming_text = "";
+                }
+
+                if ($stream_event instanceof TextDelta) {
+                    $streaming_text .= $stream_event->delta;
+                }
+
+                if ($stream_event instanceof TextEnd) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: $streaming_text,
+                    ));
+                }
+
+                if ($stream_event instanceof ToolCall) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: '[#tool]Running '.$stream_event->toolCall->name,
+                    ));
+                }
+            }
+
         } catch (Throwable $e) {
             $this->handleFailure($e);
 
@@ -137,6 +203,15 @@ class RunUserAssistant implements ShouldQueue
             'url' => $model->url,
         ]);
 
+        if (config('ai.tool_routing.enabled')) {
+            $routed = app(AssistantToolRouter::class)
+                ->route($this->prompt, $this->conversationId);
+            $capabilities = array_keys($routed['capabilities']);
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps, selectedCapabilities: $capabilities);
+        } else {
+            $agent = new UserAssistant($user, max_steps: $this->maxSteps);
+        }
+
         try {
             /*
              * Only update last_used_at once the job actually executes.
@@ -145,26 +220,75 @@ class RunUserAssistant implements ShouldQueue
                 'last_used_at' => now(),
             ])->save();
 
-            $response = (new UserAssistant($user, max_steps: $this->maxSteps))
+            $stream = ($agent)
                 ->continue(
                     $this->conversationId,
                     as: $user,
                 )
-                ->prompt(
-                    $this->prompt,
-                    provider: $providerName,
-                    timeout: $this->agentTimeout,
-                );
+                ->stream($this->prompt, provider: $providerName, timeout: $this->agentTimeout)
+                ->then(function (StreamedAgentResponse $response) {
+                    $events = $response->events;
+                    // Collect only text deltas belonging to the final message.
+                    $finalMessageId = $events
+                        ->filter(fn ($event) => isset($event->messageId))
+                        ->last()
+                        ->messageId;
 
-            $this->handleResponse($response);
+                    $finalText = $events
+                        ->filter(fn ($event) => isset($event->messageId) &&
+                            $event->messageId === $finalMessageId &&
+                            isset($event->delta)
+                        )
+                        ->pluck('delta')
+                        ->implode('');
+
+                    /**
+                     * Per default, the Laravel AI SDK will persist a text composed of all steps the model takes as the
+                     * message content. We only want the final result, since the UI is supplemented with the tool
+                     * outputs already. Here we override the persistent message accordingly.
+                     */
+                    $message = ConversationMessage::where('content', $response->text)
+                        ->latest('created_at')
+                        ->first();
+                    $message?->update([
+                        'content' => $finalText,
+                    ]);
+                    $response->text = $finalText;
+                    $this->handleResponse($response, $routed['tokens'] ?? -1, $capabilities ?? []);
+                });
+
+            $streaming_text = "";
+            foreach ($stream as $stream_event) {
+                if ($stream_event instanceof TextStart) {
+                    $streaming_text = "";
+                }
+
+                if ($stream_event instanceof TextDelta) {
+                    $streaming_text .= $stream_event->delta;
+                }
+
+                if ($stream_event instanceof TextEnd) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: $streaming_text,
+                    ));
+                }
+
+                if ($stream_event instanceof ToolCall) {
+                    event(new AssistantStreamBroadcast(
+                        conversationId: $this->conversationId,
+                        message: '[#tool]Running '.$stream_event->toolCall->name,
+                    ));
+                }
+            }
+
         } catch (Throwable $e) {
             $this->handleFailure($e);
-
             throw $e;
         }
     }
 
-    protected function handleResponse(AgentResponse $response): void
+    protected function handleResponse(StreamedAgentResponse $response, int $router_tokens = 0, $capabilities = []): void
     {
         $conversation = Conversation::findOrFail($this->conversationId);
 
@@ -180,21 +304,28 @@ class RunUserAssistant implements ShouldQueue
 
         $meta['tools'] = $toolCalls;
         $meta['usage'] = $response->usage?->toArray();
+        $meta['usage']['router'] = $router_tokens;
 
         if ($this->tempID != 'None') {
             $conversation->messages()->delete($this->tempID);
         }
 
+        $message = [
+            'id' => Uuid::uuid7(),
+            'role' => 'assistant',
+            'content' => $response->text,
+            'created_at' => now(),
+            'tool_results' => $response->toolResults,
+            'meta' => $meta,
+        ];
+
+        if (config('ai.tool_routing.enabled')) {
+            $message['capabilities'] = $capabilities;
+        }
+
         event(new AssistantMessageCompleted(
             conversationId: $conversation->id,
-            message: [
-                'id' => Uuid::uuid7(),
-                'role' => 'assistant',
-                'content' => $response->text,
-                'created_at' => now(),
-                'tool_calls' => $response->toolCalls,
-                'meta' => $meta,
-            ],
+            message: $message,
         ));
     }
 
@@ -229,14 +360,13 @@ class RunUserAssistant implements ShouldQueue
             message: [
                 'id' => Uuid::uuid7(),
                 'role' => 'assistant',
-                'content' =>
-                    "No response from LLM. Please verify your model configuration or notify your system administrator.
+                'content' => "No response from LLM. Please verify your model configuration or notify your system administrator.
                     \n Conversation ID: _{$this->conversationId}_",
                 'created_at' => now(),
                 'tool_calls' => [],
                 'meta' => [],
                 'is_system' => true,
-                'level' => 'danger'
+                'level' => 'danger',
             ],
         ));
     }

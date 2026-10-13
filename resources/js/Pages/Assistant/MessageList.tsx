@@ -1,16 +1,19 @@
-import { useEffect, useRef } from 'react';
-
+import { useEffect, useRef, useState } from 'react';
 import ToolCall from './ToolCall';
 import MarkdownMessage from './MarkdownMessage';
 import { Message } from '@/types/assistant';
+import { copyMessage } from '@/utils/text';
+import BUSCOCompletenessBar from '@/Components/BUSCOCompletenessBar';
+import FCatCompletenessBar from '@/Components/fCatCompletenessBar';
 
 interface Props {
     messages: Message[];
     sending: boolean;
     has_subscribed: boolean;
+    events: string[];
 }
 
-export default function MessageList({ messages, sending, has_subscribed }: Props) {
+export default function MessageList({ messages, sending, has_subscribed, events }: Props) {
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -41,7 +44,35 @@ export default function MessageList({ messages, sending, has_subscribed }: Props
                 {(sending || messages.length === 0) && (
                     <div className="d-flex mb-4">
                         <div className="bg-light rounded px-3 py-2">
-                            <span className="text-muted">Agent is working...</span>
+                            <span className="text-muted agent-working"><b>Agent is working...</b></span>
+                            {
+                                events.map((event) => {
+                                    if (event.startsWith('[#tool]')) {
+                                        return (
+                                            <div className="text-muted">
+                                                <b><span className="material-symbols-outlined">construction</span></b>
+                                                {'  ' + event.slice(7)}
+                                            </div>
+                                        );
+                                    } else if (event.startsWith('[#capa]')) {
+                                        return(
+                                            <div className="text-muted">
+                                                <b>
+                                                    <span className="material-symbols-outlined">category</span>
+                                                </b>
+                                            {'  ' + event.slice(7)}
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <div className="text-muted">
+                                            <span className="material-symbols-outlined">smart_toy</span>
+                                            {'  ' + event}
+                                        </div>
+                                    );
+                                }
+                                )
+                            }
                         </div>
                     </div>
                 )}
@@ -55,9 +86,9 @@ export default function MessageList({ messages, sending, has_subscribed }: Props
 function MessageBubble({ message }: { message: Message }) {
     const isUser = message.role === 'user';
     const isSystem = message.is_system;
+    const [open, setOpen] = useState(false);
 
     const bg = (isSystem && 'bg-danger text-white' || isUser && 'bg-primary text-white' || 'bg-light')
-
     return (
         <div className={['d-flex', 'mb-4', isUser ? 'justify-content-end' : 'justify-content-start'].join(' ')}>
             <div
@@ -70,23 +101,107 @@ function MessageBubble({ message }: { message: Message }) {
                 {!isUser && (
                     <div className="fw-bold mb-1">
                         {(isSystem && 'G-nom System') || (
-                            <>
-                                G-nom Assistant (<code>{message.meta['model']}</code>
-                                {' / '}
+                            <div className="message-bubble">
+                                G-nom Assistant{' '}
+                                <a href="#" onClick={() => copyMessage(message.content)} className="copy-button">
+                                    <span className="material-symbols-outlined">content_copy</span>
+                                </a>
+                                <br />
+                                <code>
+                                    <span className="material-symbols-outlined">smart_toy</span>
+                                    {message.meta['model']}
+                                </code>{' '}
                                 {(message.meta.usage && (
-                                    <code>{message.meta.usage.completion_tokens + message.meta.usage.prompt_tokens} tokens</code>
+                                    <code>
+                                        <span className="material-symbols-outlined">token</span>
+                                        {message.meta.usage.completion_tokens + message.meta.usage.prompt_tokens}
+                                    </code>
                                 )) ||
-                                    (message.usage && <code>{message.usage.completion_tokens + message.usage.prompt_tokens} tokens</code>)}
-                                )
-                            </>
+                                    (message.usage && (
+                                        <code>
+                                            <span className="material-symbols-outlined">token</span>
+                                            {message.usage.completion_tokens + message.usage.prompt_tokens}
+                                        </code>
+                                    ))}{' '}
+                                {message.capabilities &&
+                                    ((message.capabilities.length > 0 && (
+                                        <a href={'#'} onClick={() => setOpen(!open)} style={{ textDecoration: 'none' }}>
+                                            <code>
+                                                <span className="material-symbols-outlined">category</span>
+                                                {message.capabilities.length}
+                                            </code>
+                                        </a>
+                                    )) || (
+                                        <code>
+                                            <span className="material-symbols-outlined">category</span>
+                                            {message.capabilities.length}
+                                        </code>
+                                    ))}{' '}
+                                {message.tool_results && message.tool_results.length > 0 && (
+                                    <a href={'#'} onClick={() => setOpen(!open)} style={{ textDecoration: 'none' }} className="tool-results-link">
+                                        <code>
+                                            <span className="material-symbols-outlined">construction</span>
+                                            {message.tool_results.length}
+                                        </code>
+                                    </a>
+                                )}{' '}
+                                {message.tool_results &&
+                                    message.tool_results.filter((each) => {
+                                        return each.name.endsWith('Specialist');
+                                    }).length > 0 && (
+                                        <a href={'#'} onClick={() => setOpen(!open)} style={{ textDecoration: 'none' }} className="tool-results-link">
+                                            <code>
+                                                <span className="material-symbols-outlined">robot_2</span>
+                                                {
+                                                    message.tool_results.filter((each) => {
+                                                        return each.name.endsWith('Specialist');
+                                                    }).length
+                                                }
+                                            </code>
+                                        </a>
+                                    )}
+                            </div>
                         )}
                     </div>
                 )}
-                {message.tool_calls?.map((toolCall) => (
-                    <ToolCall key={toolCall.id} toolCall={toolCall} />
-                ))}
+
+                {open && (
+                    <div
+                        className="mb-2 mt-2 rounded p-3"
+                        style={{
+                            border: '1px solid var(--bs-link-color)',
+                        }}
+                    >
+                        {message.capabilities && (
+                            <>
+                                Capabilities routed:
+                                <br />
+                                {message.capabilities.map((each) => {
+                                    return (
+                                        <code>
+                                            <span className="editable-code-box me-1">{each}</span>
+                                        </code>
+                                    );
+                                })}
+                                <hr />
+                            </>
+                        )}
+                        {message.tool_results?.map((toolCall) => (
+                            <ToolCall key={toolCall.id} toolCall={toolCall} />
+                        ))}
+                    </div>
+                )}
 
                 {isUser ? <div style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div> : <MarkdownMessage content={message.content} />}
+                {message.tool_results?.length > 0 && <br />}
+                {message.tool_results?.map((toolCall) => {
+                    if (toolCall.name == 'RetrieveBuscoTool') {
+                        return <BUSCOCompletenessBar analyses={JSON.parse(toolCall.result)} />;
+                    }
+                    if (toolCall.name == 'RetrieveFcatTool' && JSON.parse(toolCall.result).length > 0) {
+                        return <FCatCompletenessBar analysis={JSON.parse(toolCall.result)[0]} />;
+                    }
+                })}
             </div>
         </div>
     );

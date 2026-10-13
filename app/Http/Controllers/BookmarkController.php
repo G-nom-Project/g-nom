@@ -47,8 +47,6 @@ class BookmarkController extends Controller
             ])
             ->paginate(10);
 
-
-
         if (app(ApplicationModeService::class)->isWikidataEnabled()) {
             $ids = $bookmarks->getCollection()
                 ->pluck('assembly.taxon_ncbiTaxonID')
@@ -85,10 +83,10 @@ class BookmarkController extends Controller
                         $assembly->wikipedia_summary = $info['wikipedia_summary'];
                     }
                 }
+
                 return $assembly;
             });
         }
-
 
         return Inertia::render('Bookmarks', [
             'assemblies' => $assemblies,
