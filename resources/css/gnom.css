@@ -90,3 +90,679 @@
     visibility: visible;
     opacity: 1;
 }
+
+.assembly-card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--bs-body-bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .035);
+    transition:
+        box-shadow .2s ease,
+        transform .2s ease;
+    min-width: 0;
+}
+
+.assembly-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .08);
+}
+
+/* Image */
+.assembly-card-image {
+    position: relative;
+    height: 190px;
+    overflow: hidden;
+    background: var(--bs-tertiary-bg);
+}
+
+.assembly-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .4s ease;
+}
+
+.assembly-card:hover .assembly-card-image img {
+    transform: scale(1.035);
+}
+
+.assembly-image-badges {
+    position: absolute;
+    top: .85rem;
+    left: .85rem;
+}
+
+.assembly-access-badge {
+    padding: .45rem .7rem;
+    border-radius: .5rem;
+    font-weight: 500;
+    font-size: .75rem;
+}
+
+/* Heading */
+.assembly-card-title {
+    font-size: 1.2rem;
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -.025em;
+    margin-bottom: 0px;
+}
+
+.assembly-card-title a {
+    color: var(--bs-body-color);
+}
+
+.assembly-card-title a:hover {
+    color: var(--bs-primary);
+}
+
+.assembly-card-subtitle {
+    color: var(--bs-secondary-color);
+    font-size: .82rem;
+    line-height: 1.6;
+}
+
+.assembly-bookmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .65rem;
+    flex-shrink: 0;
+}
+
+.assembly-bookmark.active {
+    color: var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
+}
+
+/* Description */
+.assembly-description {
+    font-size: .9rem;
+    line-height: 1.7;
+    color: var(--bs-secondary-color);
+    min-height: 5rem;
+}
+
+.assembly-divider {
+    margin: .75rem 0 .75rem;
+    border-color: var(--bs-border-color);
+    opacity: .7;
+}
+
+.assembly-section-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    color: var(--bs-secondary-color);
+}
+
+/* Metrics */
+.assembly-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .5rem;
+}
+
+.assembly-metric {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    min-width: 0;
+}
+
+.assembly-metric-value {
+    font-size: 1.3rem;
+    font-weight: 650;
+    letter-spacing: -.03em;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.assembly-metric-label {
+    font-size: .7rem;
+    color: var(--bs-secondary-color);
+    overflow-wrap: anywhere;
+}
+
+/* Quality */
+.assembly-quality {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.assembly-quality .progress {
+    height: 7px;
+    border-radius: 999px;
+}
+
+/* Action */
+.assembly-details-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .7rem 1rem;
+    border-radius: .65rem;
+    font-weight: 500;
+    font-size: .9rem;
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+    .assembly-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .assembly-card,
+    .assembly-card-image img {
+        transition: none;
+    }
+}
+
+
+
+.assemblies-results {
+    max-width: 1800px;
+}
+
+.assemblies-results .row > [class*="col-"] {
+    min-width: 0;
+}
+
+.assemblies-results .assembly-card {
+    width: 100%;
+}
+
+.assemblies-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    padding: 2rem;
+    text-align: center;
+    background: var(--bs-body-bg);
+    border: 1px dashed var(--bs-border-color);
+    border-radius: 1rem;
+}
+
+.assemblies-empty > i {
+    font-size: 2rem;
+    color: var(--bs-secondary-color);
+}
+
+.assemblies-pagination {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--bs-border-color);
+}
+
+
+.taxon-visual-card {
+    border-radius: 1rem;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.taxon-visual-tabs {
+    min-width: 0;
+}
+
+.taxon-visual-tabs .tab-content,
+.taxon-visual-tabs .tab-pane {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.taxon-image-wrapper,
+.taxon-map-wrapper {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    background: var(--bs-tertiary-bg);
+}
+
+.taxon-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.taxon-title-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-success);
+    font-size: 1.35rem;
+}
+
+.taxon-phylopic {
+    width: 100%;
+    height: 100%;
+    padding: 0.35rem;
+    object-fit: contain;
+}
+
+.taxon-title {
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    font-weight: 650;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.taxon-summary {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--bs-secondary-color);
+}
+
+.taxon-divider {
+    margin: 1.5rem 0;
+    border-color: var(--bs-border-color);
+    opacity: 0.8;
+}
+
+.taxon-details {
+    min-width: 0;
+}
+
+.taxon-description {
+    line-height: 1.75;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.taxon-info-footer {
+    margin-top: auto;
+}
+
+.taxon-lineage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.taxon-lineage-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.taxon-lineage-item a {
+    color: var(--bs-link-color);
+    text-decoration: none;
+}
+
+.taxon-lineage-item a:hover {
+    text-decoration: underline;
+}
+
+.taxon-id {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0.375rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+@media (max-width: 575.98px) {
+    .taxon-image-wrapper,
+    .taxon-map-wrapper {
+        height: 300px;
+    }
+
+    .taxon-info-card .card-body {
+        padding: 1.25rem !important;
+    }
+
+    .taxon-info-footer {
+        padding: 1rem 1.25rem !important;
+    }
+}
+
+
+.assembly-accordion-item {
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.875rem !important;
+}
+
+.assembly-accordion-item .accordion-button {
+    padding: 1.1rem 1.25rem;
+    font-size: 1.05rem;
+}
+
+.assembly-accordion-item .accordion-button:not(.collapsed) {
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
+    box-shadow: none;
+}
+
+.assembly-field .form-label {
+    margin-bottom: 0.4rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.assembly-field .form-control {
+    min-width: 0;
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+}
+
+.assembly-field .btn {
+    min-width: 42px;
+}
+
+.assembly-metadata {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    height: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.625rem;
+    background: var(--bs-tertiary-bg);
+}
+
+.assembly-metadata span {
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.assembly-metadata strong {
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.assembly-doc-link {
+    color: var(--bs-secondary-color);
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+.assembly-doc-link:hover {
+    color: var(--bs-primary);
+}
+
+@media (max-width: 575.98px) {
+    .assembly-accordion-item .accordion-body {
+        padding: 0.75rem;
+    }
+
+    .gnom-panel > .card-body {
+        padding: 0.875rem;
+    }
+}
+
+.genome-sidebar {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.875rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.035);
+}
+
+.genome-sidebar > .card-header {
+    padding: 0.9rem 1rem;
+    font-weight: 600;
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.genome-annotation-count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.genome-count-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--bs-emphasis-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.genome-track-heading {
+    padding: 0.75rem 1rem;
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+    border-top: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.genome-track-list {
+    min-width: 0;
+}
+
+.genome-track-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    border-color: var(--bs-border-color);
+}
+
+.genome-track-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 0.5rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+}
+
+.genome-track-icon.reference {
+    color: var(--bs-primary);
+}
+
+.genome-track-label {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 0.875rem;
+}
+
+.genome-track-status {
+    flex-shrink: 0;
+    color: var(--bs-success);
+    font-size: 0.8rem;
+}
+
+.genome-no-tracks {
+    padding: 1rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.875rem;
+}
+
+.genome-browser-viewport {
+    width: 100%;
+    min-width: 0;
+    min-height: 600px;
+    overflow: auto;
+    background: var(--bs-body-bg);
+}
+
+@media (max-width: 991.98px) {
+    .genome-browser-viewport {
+        min-height: 500px;
+    }
+}
+
+.gnom-panel {
+    min-width: 0;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.875rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.035);
+}
+
+.gnom-panel > .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem;
+    font-weight: 600;
+    background: transparent;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+
+.taxon-profile {
+    max-width: 1440px;
+}
+
+/* Large editorial hero */
+.taxon-hero {
+    position: relative;
+    min-height: 380px;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: #26352e;
+    color: white;
+    display: flex;
+    align-items: flex-end;
+}
+
+.taxon-hero-image,
+.taxon-hero-image img,
+.taxon-hero-gradient {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.taxon-hero-image img {
+    object-fit: cover;
+    object-position: center;
+}
+
+.taxon-hero-gradient {
+    background: linear-gradient(
+        90deg,
+        rgba(10, 22, 17, .88) 0%,
+        rgba(10, 22, 17, .48) 55%,
+        rgba(10, 22, 17, .08) 100%
+    );
+}
+
+.taxon-hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 3rem;
+    max-width: 750px;
+}
+
+.taxon-hero-chip {
+    padding: .45rem .85rem;
+    border: 1px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.12);
+    border-radius: 999px;
+    font-size: .85rem;
+    backdrop-filter: blur(8px);
+}
+
+.taxon-image-credit {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2;
+    font-size: .7rem;
+    padding: .3rem .6rem;
+    border-radius: .4rem;
+    background: rgba(0,0,0,.55);
+}
+
+.taxon-section-label {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    color: var(--bs-secondary-color);
+}
+
+.taxon-description {
+    white-space: pre-line;
+    line-height: 1.85;
+    color: var(--bs-secondary-color);
+    font-size: .975rem;
+}
+
+.taxon-map {
+    height: 320px;
+    overflow: hidden;
+    border-radius: .75rem;
+    background: var(--bs-tertiary-bg);
+}
+
+.taxon-lineage-chip {
+    display: inline-block;
+    padding: .45rem .8rem;
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
+    text-decoration: none;
+    font-size: .85rem;
+    transition: background .2s, border-color .2s;
+}
+
+.taxon-lineage-chip:hover {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-secondary-color);
+}
+
+@media (max-width: 767px) {
+    .taxon-hero {
+        min-height: 320px;
+    }
+
+    .taxon-hero-content {
+        padding: 2rem;
+    }
+
+    .taxon-hero-gradient {
+        background: linear-gradient(
+            0deg,
+            rgba(10,22,17,.9),
+            rgba(10,22,17,.05)
+        );
+    }
+
+    .taxon-image-credit {
+        top: .75rem;
+        bottom: auto;
+    }
+}

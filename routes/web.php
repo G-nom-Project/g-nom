@@ -97,7 +97,9 @@ Route::middleware([
 
 // Update Taxon
 Route::middleware(['auth', GnomReadOnly::class])->group(function () {
+    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon')->middleware(['auth']);
     Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon')->middleware(['auth']);
+    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon')->middleware(['auth']);
     Route::post('/taxon/upload-image', [TaxonController::class, 'uploadImage'])->middleware(['auth']);
     Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middleware(['auth']);
     Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);

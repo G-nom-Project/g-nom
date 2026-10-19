@@ -30,14 +30,15 @@ export interface Assembly {
     wiggle_tracks: WiggleTrack[];
     mappings: Mapping[];
     // Analyses
-    busco_analyses: [];
-    fcat_analyses: [];
+    busco_analyses: BuscoAnalysis[];
+    fcat_analyses: fCatAnalysis[];
     repeatmasker_analyses: [];
     taxaminer_analyses: [];
 
     // Optional infos federated via wikidata
     wikipedia_summary: string | null;
     wiki_image: string | null;
+    is_bookmarked?: boolean;
 }
 
 export interface AggregatedAssembly {
@@ -99,6 +100,8 @@ export interface TaxonInfos {
 }
 
 export interface Taxon {
+    imageCredit: string;
+    commonName: string | null;
     assemblies: Assembly[];
     conservation_status: string | null;
     infos: TaxonInfos[] | null;
@@ -168,6 +171,7 @@ export interface SeqLengthMarker {
 }
 
 export interface BuscoAnalysis {
+    id: number;
     label: string;
     name: string;
     buscoMode: string;
@@ -184,6 +188,9 @@ export interface BuscoAnalysis {
 }
 
 export interface fCatAnalysis {
+    id: number;
+    genomeID: string;
+
     m1_similarPercent: number;
     m1_duplicatedPercent: number;
     m1_dissimilarPercent: number;

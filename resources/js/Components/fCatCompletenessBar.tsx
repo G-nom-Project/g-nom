@@ -5,9 +5,10 @@ import { fCatAnalysis } from '@/types/data';
 
 type fCatCompletenessBarProps = {
     analysis: fCatAnalysis;
+    name: string | null;
 };
 
-export default function FCatCompletenessBar({ analysis }: fCatCompletenessBarProps) {
+export default function FCatCompletenessBar({ analysis, name }: fCatCompletenessBarProps) {
     const [clicks, setClicks] = useState<number>(0);
     const [current, setCurrent] = useState({
         similar: Math.round(analysis['m1_similarPercent'] * 100) / 100,
@@ -30,9 +31,9 @@ export default function FCatCompletenessBar({ analysis }: fCatCompletenessBarPro
 
     const generateBar = () => {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setClicks(clicks + 1)}>
-                <span style={{ width: '15%' }}>
-                    <b className="text-muted">fCat</b>
+            <div style={{ display: 'flex', alignItems: 'center', gap: name && '8px' || '0px' }} onClick={() => setClicks(clicks + 1)}>
+                <span style={{ width: name && '8ch' || '0ch' }}>
+                    <b className="text-muted">{name}</b>
                 </span>
 
                 <CompositionBar
