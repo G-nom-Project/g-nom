@@ -327,9 +327,12 @@ export default function Import() {
             <Container className="mb-2 mt-2">
                 <Row>
                     <Col>
-                        <Card>
+                        <Card className="gnom-panel">
+                            <Card.Header>
+                                <i className="bi bi-diagram-3 me-2" />
+                                Select Taxon
+                            </Card.Header>
                             <Card.Body>
-                                <Card.Title>Select Taxon</Card.Title>
                                 <Row>
                                     <Col>
                                         <Form>
@@ -361,10 +364,12 @@ export default function Import() {
                 {!invalidID && (
                     <Row>
                         <Col>
-                            <Card className="mt-2">
+                            <Card className="gnom-panel mt-2">
+                                <Card.Header>
+                                    <i className="bi bi-upload me-2" />
+                                    Select or upload an assembly
+                                </Card.Header>
                                 <Card.Body>
-                                    <Card.Title>Import or select a new assembly</Card.Title>
-
                                     <Form.Group>
                                         <Form.Check // prettier-ignore
                                             type="checkbox"
@@ -416,9 +421,12 @@ export default function Import() {
                                 </Card.Body>
                             </Card>
 
-                            <Card className="mt-2">
+                            <Card className="gnom-panel mt-2">
+                                <Card.Header>
+                                    <i className="bi bi-bar-chart me-2" />
+                                    Upload an analysis
+                                </Card.Header>
                                 <Card.Body>
-                                    <Card.Title>Import Analyses</Card.Title>
                                     <Card.Text>
                                         Select analysis to import below. Analysis imports are only available for existing assemblies.
                                     </Card.Text>
@@ -452,7 +460,8 @@ export default function Import() {
                                                         <sup>
                                                             <i className="bi bi-box-arrow-up-right"></i>
                                                         </sup>
-                                                    </a> and upload it separately in the section below.
+                                                    </a>{' '}
+                                                    and upload it separately in the section below.
                                                 </p>
                                                 <Form.Label>Select plotCoverage output file</Form.Label>
                                                 <Form.Control

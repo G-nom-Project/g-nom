@@ -69,8 +69,7 @@ Route::middleware([
 Route::get('/assemblies/{id}/edit', [AssemblyController::class, 'editDashboard'])->name('assemblies.edit')->middleware(['auth', GnomReadOnly::class]);
 Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 'taxonomicAssignmentStats'])->name('assemblies.taxonStats')->middleware(['auth']);
 
-Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser');
-Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser');
+Route::get('/browser/{id?}', [AssemblyController::class, 'browser'])->name('browser');
 
 Route::middleware([
     GnomPublicInstance::class,

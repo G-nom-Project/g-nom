@@ -8,6 +8,7 @@ use App\Models\Taxon;
 use App\Models\TaxonGeneralInfo;
 use App\Models\TaxonGeoData;
 use App\Notifications\UploadComplete;
+use App\Services\ApplicationModeService;
 use App\Services\WikidataService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -25,9 +26,40 @@ use Spatie\Image\Image;
 
 class TaxonController extends Controller
 {
-    public function index($id)
+    public function edit($id)
     {
         $taxon = Taxon::with(['assemblies'])->where('ncbiTaxonID', $id)->first();
+
+        return Inertia::render('EditTaxon', [
+            'taxon' => $taxon,
+        ]);
+    }
+
+    public function index($id, WikidataService $wikidata)
+    {
+        $taxon = Taxon::with(['assemblies', 'infos'])->where('ncbiTaxonID', $id)->first();
+
+        if (app(ApplicationModeService::class)->isWikidataEnabled()) {
+            // Batched wikidata request
+            $wikidataInfo = $wikidata->getTaxaInfoChunk([$taxon->ncbiTaxonID]) ?? [];
+            $taxon->conservation_status = null;
+            if (isset($wikidataInfo[$taxon->ncbiTaxonID])) {
+                $info = $wikidataInfo[$taxon->ncbiTaxonID];
+                $taxon->conservation_status = $info['conservation_status'] ?? null;
+
+                if (!$taxon['imageCredit']) {
+                    $taxon->wiki_image = $info['image'];
+                }
+
+                if (isset($info['wikipedia_url'])) {
+                    $taxon->wikipedia_url = $info['wikipedia_url'];
+                }
+
+                if (isset($info['wikipedia_summary'])) {
+                        $taxon->wikipedia_summary = $info['wikipedia_summary'];
+                }
+            }
+        }
 
         return Inertia::render('Taxon', [
             'taxon' => $taxon,

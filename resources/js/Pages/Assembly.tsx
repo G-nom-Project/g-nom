@@ -11,23 +11,21 @@ import {
     Accordion,
     Badge,
     Button,
-    ButtonGroup,
-    ButtonToolbar,
     Card,
     Col,
     Container,
     Form,
     InputGroup,
     ListGroup,
-    Nav,
-    Navbar,
+    OverlayTrigger,
     Placeholder,
     Row,
     Tab,
     Tabs,
+    Tooltip,
 } from 'react-bootstrap';
 import TaxonomicDistributionPlot from '@/Components/AssemblyPage/TaxonomicDistributionPlot';
-import { router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import CoveragePlot from '@/Components/AssemblyPage/CoveragePlot';
 import CoverageThresholdsPlot from '@/Components/AssemblyPage/CoverageThresholdsPlot';
 import SnailPlot from '@/Components/AssemblyPage/SnailPlot';
@@ -147,97 +145,105 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                 ></script>
             </head>
             <TopNavBar />
-            <Navbar bg="secondary" expand="lg">
+            <div className="assembly-page-header">
                 <Container fluid>
-                    <Nav>
-                        <Nav.Item>
-                            <h1 className="band-header text-white">
-                                <b className="capitalize">{assembly.taxon.scientificName}</b>{' '}
-                                {assembly.taxon.phylopic && (
-                                    <img
-                                        src={`${import.meta.env.VITE_BASE_URL}/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
-                                        alt="Taxon Icon"
-                                        style={{
-                                            filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
-                                            height: '1em',
-                                            width: '1em',
-                                            verticalAlign: 'center',
-                                        }}
-                                    />
-                                )}
-                            </h1>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <h1 className="band-header text-white">
-                                <i className="bi bi-caret-right-fill" style={{ marginLeft: '1rem', marginRight: '1rem' }}></i>
-                                {assembly?.label ? assembly.label : assembly.name}
-                            </h1>
-                        </Nav.Item>
-                    </Nav>
-                    <Nav className="m-1">
-                        <Nav.Link>
-                            <ButtonToolbar aria-label="Toolbar with button groups">
-                                <ButtonGroup className="me-2">
-                                    <Button
-                                        size="lg"
-                                        href={`/assemblies/${assembly.id}/edit`}
-                                        onClick={() => router.visit(`/assemblies/${assembly.id}/edit`)}
-                                        disabled={is_read_only}
-                                    >
-                                        <i className="bi bi-wrench"></i>
-                                    </Button>
-                                    <Button
-                                        size="lg"
-                                        target="_blank"
-                                        href={`/taxon/${assembly.taxon.ncbiTaxonID}`}
-                                        onClick={() => (window.location.href = `/taxon/${assembly.taxon.ncbiTaxonID}`)}
-                                        disabled={is_read_only}
-                                    >
-                                        {' '}
-                                        <i className="bi bi-diagram-2"></i>
-                                    </Button>
-                                </ButtonGroup>
-                                <ButtonGroup>
-                                    {(isBookmarked && (
-                                        <Button size="lg" variant="danger" onClick={() => deleteBookmark()}>
-                                            <i className="bi bi-bookmark-dash"></i>
+                    <div className="assembly-page-header-inner">
+                        {/* Assembly identity */}
+                        <div className="assembly-page-identity">
+                            <div className="assembly-page-taxon">
+                                <span className="fst-italic">{assembly.taxon.scientificName}</span>
+
+                                <i className="bi bi-chevron-right assembly-page-separator" aria-hidden="true" />
+
+                                <span className="assembly-page-section">{assembly.label || assembly.name}</span>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="assembly-page-actions">
+                            <OverlayTrigger placement="bottom" overlay={<Tooltip id="assembly-edit-tooltip">Edit assembly</Tooltip>}>
+                                <span className="d-inline-flex">
+                                    {is_read_only ? (
+                                        <Button variant="outline-secondary" className="assembly-page-action" disabled aria-label="Edit assembly">
+                                            <i className="bi bi-pencil-square" />
                                         </Button>
-                                    )) || (
-                                        <Button size="lg" onClick={() => setBookmark()}>
-                                            <i className="bi bi-bookmark-plus"></i>
+                                    ) : (
+                                        <Button
+                                            as={Link}
+                                            href={`/assemblies/${assembly.id}/edit`}
+                                            variant="outline-secondary"
+                                            className="assembly-page-action"
+                                            aria-label="Edit assembly"
+                                        >
+                                            <i className="bi bi-pencil-square" />
                                         </Button>
                                     )}
-                                </ButtonGroup>
-                            </ButtonToolbar>
-                        </Nav.Link>
-                    </Nav>
+                                </span>
+                            </OverlayTrigger>
+
+                            <OverlayTrigger placement="bottom" overlay={<Tooltip id="assembly-taxon-tooltip">View taxon</Tooltip>}>
+                                <span className="d-inline-flex">
+                                    {is_read_only ? (
+                                        <Button variant="outline-secondary" className="assembly-page-action" disabled aria-label="View taxon">
+                                            <i className="bi bi-diagram-2" />
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            href={`/taxon/${assembly.taxon.ncbiTaxonID}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            variant="outline-secondary"
+                                            className="assembly-page-action"
+                                            aria-label="View taxon"
+                                        >
+                                            <i className="bi bi-diagram-2" />
+                                        </Button>
+                                    )}
+                                </span>
+                            </OverlayTrigger>
+
+                            <span className="assembly-page-action-divider" />
+
+                            <OverlayTrigger
+                                placement="bottom"
+                                overlay={<Tooltip id="assembly-bookmark-tooltip">{isBookmarked ? 'Remove bookmark' : 'Bookmark assembly'}</Tooltip>}
+                            >
+                                <Button
+                                    variant={isBookmarked ? 'primary' : 'outline-secondary'}
+                                    className={`assembly-page-action ${isBookmarked ? 'is-bookmarked' : ''}`}
+                                    onClick={() => (isBookmarked ? deleteBookmark() : setBookmark())}
+                                    aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark assembly'}
+                                    aria-pressed={isBookmarked}
+                                >
+                                    <i className={`bi ${isBookmarked ? 'bi-bookmark-fill' : 'bi-bookmark'}`} />
+                                </Button>
+                            </OverlayTrigger>
+                        </div>
+                    </div>
                 </Container>
-            </Navbar>
+            </div>
             <Container fluid>
                 <Row className="g-4 mt-2">
                     {/* Left: Image and map */}
                     <Col xs={12} lg={5}>
                         <Card className="gnom-panel shadow-sm">
-                            <Tabs
-                                defaultActiveKey="image"
-                                className="taxon-visual-tabs pt-2"
-                                onSelect={(key) => setActiveTab(key)}
-                            >
-                                <Tab title={<><i className="bi bi-image me-2" />Image</>}
+                            <Tabs defaultActiveKey="image" className="taxon-visual-tabs pt-2" onSelect={(key) => setActiveTab(key)}>
+                                <Tab
+                                    title={
+                                        <>
+                                            <i className="bi bi-image me-2" />
+                                            Image
+                                        </>
+                                    }
                                     eventKey="image"
                                 >
                                     <div className="taxon-image-wrapper">
                                         <Card.Img
                                             src={
                                                 assembly.wiki_image ||
-                                                `${route('taxon.image', [
-                                                    assembly.taxon.ncbiTaxonID,
-                                                ])}?updated=${assembly.taxon.updated_at}`
+                                                `${route('taxon.image', [assembly.taxon.ncbiTaxonID])}?updated=${assembly.taxon.updated_at}`
                                             }
-                                            alt={
-                                                assembly.taxon.commonName ||
-                                                assembly.taxon.scientificName
-                                            }
+                                            alt={assembly.taxon.commonName || assembly.taxon.scientificName}
                                             className="taxon-image"
                                         />
                                     </div>
@@ -247,8 +253,8 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                             {assembly.wiki_image
                                                 ? 'Image from Wikimedia Commons'
                                                 : assembly.taxon.imageCredit
-                                                    ? `Image credit: ${assembly.taxon.imageCredit}`
-                                                    : 'Image credit unavailable'}
+                                                  ? `Image credit: ${assembly.taxon.imageCredit}`
+                                                  : 'Image credit unavailable'}
                                         </div>
 
                                         {assembly.wiki_image && (
@@ -267,16 +273,16 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                     </Card.Body>
                                 </Tab>
                                 <Tab
-                                    title={<><i className="bi bi-geo-alt me-2" />Map</>}
+                                    title={
+                                        <>
+                                            <i className="bi bi-geo-alt me-2" />
+                                            Map
+                                        </>
+                                    }
                                     eventKey="overview-map"
                                 >
                                     <div className="taxon-map-wrapper">
-                                        {activeTab === 'overview-map' && (
-                                            <TaxMap
-                                                isVisible={true}
-                                                geoDataMeta={geoData}
-                                            />
-                                        )}
+                                        {activeTab === 'overview-map' && <TaxMap isVisible={true} geoDataMeta={geoData} />}
                                     </div>
                                 </Tab>
                             </Tabs>
@@ -286,15 +292,15 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                     {/* Right: Taxonomic information */}
                     <Col xs={12} lg={7}>
                         <Card className="taxon-info-card h-100 shadow-sm">
-                            <Card.Body className="p-4 p-xl-5">
-                                <div className="d-flex align-items-start gap-3 mb-3">
+                            <Card.Body className="p-xl-5 p-4">
+                                <div className="d-flex align-items-start mb-3 gap-3">
                                     <div className="taxon-title-icon">
                                         {assembly.taxon.phylopic ? (
                                             <img
                                                 src={`${import.meta.env.VITE_BASE_URL}/taxon/${assembly.taxon.ncbiTaxonID}/icon?updated=${assembly.taxon.updated_at}`}
                                                 alt=""
                                                 className="taxon-phylopic"
-                                                style={{filter: 'invert(100%) brightness(40%)',}}
+                                                style={{ filter: 'invert(100%) brightness(40%)' }}
                                             />
                                         ) : (
                                             <i className="bi bi-leaf" />
@@ -302,28 +308,21 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                     </div>
 
                                     <div className="min-w-0">
-                                        <div className="small text-secondary text-uppercase fw-semibold mb-1">
-                                            Species overview
-                                        </div>
+                                        <div className="small text-secondary text-uppercase fw-semibold mb-1">Species overview</div>
 
-                                        <Card.Title as="h2" className="taxon-title mb-0" style={{textTransform: 'capitalize'}}>
-                                            {assembly.taxon.commonName ||
-                                                assembly.taxon.scientificName}
+                                        <Card.Title as="h2" className="taxon-title mb-0" style={{ textTransform: 'capitalize' }}>
+                                            {assembly.taxon.commonName || assembly.taxon.scientificName}
                                         </Card.Title>
 
                                         {assembly.taxon.commonName && (
-                                            <div className="text-secondary fst-italic mt-1">
-                                                {assembly.taxon.scientificName}
-                                            </div>
+                                            <div className="text-secondary fst-italic mt-1">{assembly.taxon.scientificName}</div>
                                         )}
                                     </div>
                                 </div>
 
                                 <div className="taxon-summary mb-4">
                                     {taxonHeadline || assembly.wikipedia_summary ? (
-                                        <p className="mb-0">
-                                            {taxonHeadline || assembly.wikipedia_summary}
-                                        </p>
+                                        <p className="mb-0">{taxonHeadline || assembly.wikipedia_summary}</p>
                                     ) : (
                                         <Placeholder animation="glow">
                                             <Placeholder xs={12} />
@@ -332,7 +331,6 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                         </Placeholder>
                                     )}
                                 </div>
-
 
                                 {/**
                                  <hr className="taxon-divider" />
@@ -358,29 +356,19 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                     */}
                             </Card.Body>
 
-                            <Card.Footer className="taxon-info-footer bg-transparent border-top px-4 py-3 px-xl-5">
+                            <Card.Footer className="taxon-info-footer border-top px-xl-5 bg-transparent px-4 py-3">
                                 <div className="mb-3">
-                                    <div className="small text-secondary fw-semibold mb-2">
-                                        TAXONOMIC LINEAGE
-                                    </div>
+                                    <div className="small text-secondary fw-semibold mb-2">TAXONOMIC LINEAGE</div>
 
                                     {lineage ? (
                                         <nav aria-label="Taxonomic lineage">
                                             <div className="taxon-lineage">
                                                 {lineage.map((each, index) => (
-                                                    <span
-                                                        key={`${each.ncbiTaxonID}-${index}`}
-                                                        className="taxon-lineage-item"
-                                                    >
-                                                        {index > 0 && (
-                                                            <i
-                                                                className="bi bi-chevron-right text-secondary"
-                                                                aria-hidden="true"
-                                                            />
-                                                        )}
+                                                    <span key={`${each.ncbiTaxonID}-${index}`} className="taxon-lineage-item">
+                                                        {index > 0 && <i className="bi bi-chevron-right text-secondary" aria-hidden="true" />}
 
                                                         {each.scientificName === 'root' ? (
-                                                            <i className="bi bi-diagram-3 text-secondary" title="Root"/>
+                                                            <i className="bi bi-diagram-3 text-secondary" title="Root" />
                                                         ) : (
                                                             <a
                                                                 href={`https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${each.ncbiTaxonID}`}
@@ -392,9 +380,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                         )}
                                                     </span>
                                                 ))}
-                                                <span className="taxon-id">
-                                                    NCBI: {assembly.taxon.ncbiTaxonID}
-                                                </span>
+                                                <span className="taxon-id">NCBI: {assembly.taxon.ncbiTaxonID}</span>
                                             </div>
                                         </nav>
                                     ) : (
@@ -404,11 +390,9 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                     )}
                                 </div>
 
-                                <div className="d-flex align-items-center gap-2 small text-secondary">
+                                <div className="d-flex align-items-center small text-secondary gap-2">
                                     <i className="bi bi-clock-history" />
-                                    <span>
-                                        Last updated: {assembly.updated_at}
-                                    </span>
+                                    <span>Last updated: {assembly.updated_at}</span>
                                 </div>
                             </Card.Footer>
                         </Card>
@@ -424,7 +408,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                 </span>
                             </Accordion.Header>
 
-                            <Accordion.Body className="p-3 p-lg-4">
+                            <Accordion.Body className="p-lg-4 p-3">
                                 {/* Overview */}
                                 <Row className="g-4 align-items-stretch">
                                     {/* Snailplot */}
@@ -436,10 +420,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                             </Card.Header>
                                             <Card.Body className="d-flex align-items-center justify-content-center">
                                                 <div className="w-100 text-center">
-                                                    <SnailPlot
-                                                        assembly_id={assembly.id}
-                                                        taxon_id={assembly.taxon_ncbiTaxonID}
-                                                    />
+                                                    <SnailPlot assembly_id={assembly.id} taxon_id={assembly.taxon_ncbiTaxonID} />
                                                 </div>
                                             </Card.Body>
                                         </Card>
@@ -447,7 +428,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
 
                                     {/* Statistics and taxonomic distribution */}
                                     <Col xs={12} xl={7}>
-                                        <div className="d-flex flex-column gap-4 h-100">
+                                        <div className="d-flex flex-column h-100 gap-4">
                                             <Card className="gnom-panel">
                                                 <Card.Header>
                                                     <i className="bi bi-info-circle me-2" />
@@ -460,18 +441,12 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                             <div className="assembly-field">
                                                                 <Form.Label>Database ID</Form.Label>
                                                                 <InputGroup>
-                                                                    <Form.Control
-                                                                        value={assembly.id ?? ''}
-                                                                        readOnly
-                                                                        aria-label="Database ID"
-                                                                    />
+                                                                    <Form.Control value={assembly.id ?? ''} readOnly aria-label="Database ID" />
                                                                     <Button
                                                                         variant="outline-secondary"
                                                                         aria-label="Copy database ID"
                                                                         title="Copy database ID"
-                                                                        onClick={() =>
-                                                                            navigator.clipboard.writeText(String(assembly.id))
-                                                                        }
+                                                                        onClick={() => navigator.clipboard.writeText(String(assembly.id))}
                                                                     >
                                                                         <i className="bi bi-clipboard2" />
                                                                     </Button>
@@ -483,18 +458,12 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                             <div className="assembly-field">
                                                                 <Form.Label>Label</Form.Label>
                                                                 <InputGroup>
-                                                                    <Form.Control
-                                                                        value={assembly.name ?? ''}
-                                                                        readOnly
-                                                                        aria-label="Assembly label"
-                                                                    />
+                                                                    <Form.Control value={assembly.name ?? ''} readOnly aria-label="Assembly label" />
                                                                     <Button
                                                                         variant="outline-secondary"
                                                                         aria-label="Copy assembly label"
                                                                         title="Copy assembly label"
-                                                                        onClick={() =>
-                                                                            navigator.clipboard.writeText(String(assembly.name ?? ''))
-                                                                        }
+                                                                        onClick={() => navigator.clipboard.writeText(String(assembly.name ?? ''))}
                                                                     >
                                                                         <i className="bi bi-clipboard2" />
                                                                     </Button>
@@ -527,9 +496,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                 <Card.Body className="d-flex align-items-center justify-content-center">
                                                     {assignmentStats ? (
                                                         <div className="w-100">
-                                                            <TaxonomicDistributionPlot
-                                                                taxa={assignmentStats}
-                                                            />
+                                                            <TaxonomicDistributionPlot taxa={assignmentStats} />
                                                         </div>
                                                     ) : (
                                                         <MissingData />
@@ -542,8 +509,8 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
 
                                 {/* Read coverage */}
                                 <Card className="gnom-panel mt-4">
-                                    <Card.Header className="d-flex flex-wrap align-items-center gap-3">
-                                        <div className="d-flex align-items-center gap-2 me-auto">
+                                    <Card.Header className="d-flex align-items-center flex-wrap gap-3">
+                                        <div className="d-flex align-items-center me-auto gap-2">
                                             <i className="bi bi-activity" />
                                             <span>Read coverage</span>
                                             <a
@@ -576,16 +543,12 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                         </div>
                                     </Card.Header>
 
-                                    <Card.Body className="p-3 p-lg-4">
+                                    <Card.Body className="p-lg-4 p-3">
                                         {assembly.coverage ? (
                                             coverageTab === 1 ? (
-                                                <CoveragePlot
-                                                    coverage_data={assembly.coverage}
-                                                />
+                                                <CoveragePlot coverage_data={assembly.coverage} />
                                             ) : (
-                                                <CoverageThresholdsPlot
-                                                    coverage_data={assembly.coverage}
-                                                />
+                                                <CoverageThresholdsPlot coverage_data={assembly.coverage} />
                                             )
                                         ) : (
                                             <MissingData />
@@ -617,16 +580,12 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                             <Card.Title as="h5" className="mb-1">
                                                                 BUSCO
                                                             </Card.Title>
-                                                            <div className="small text-secondary">
-                                                                Conserved ortholog completeness
-                                                            </div>
+                                                            <div className="small text-secondary">Conserved ortholog completeness</div>
                                                         </div>
                                                         <div className="ms-auto">
                                                             <Badge bg="secondary" pill>
                                                                 {assembly.busco_analyses.length}{' '}
-                                                                {assembly.busco_analyses.length == 1
-                                                                    ? 'analysis'
-                                                                    : 'analyses'}
+                                                                {assembly.busco_analyses.length == 1 ? 'analysis' : 'analyses'}
                                                             </Badge>
                                                         </div>
                                                     </div>
@@ -636,56 +595,37 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                     {assembly.busco_analyses.length === 0 ? (
                                                         <div className="completeness-empty">
                                                             <i className="bi bi-bar-chart-line" />
-                                                            <div className="fw-semibold mt-2">
-                                                                No BUSCO analysis available
-                                                            </div>
+                                                            <div className="fw-semibold mt-2">No BUSCO analysis available</div>
                                                             <p className="small text-secondary mb-3">
-                                                                Completeness results will appear here
-                                                                when an analysis is available.
+                                                                Completeness results will appear here when an analysis is available.
                                                             </p>
-                                                            <BUSCOCompletenessBar
-                                                                analyses={[]}
-                                                                name={null}
-                                                            />
+                                                            <BUSCOCompletenessBar analyses={[]} name={null} />
                                                         </div>
                                                     ) : (
                                                         assembly.busco_analyses.map((each) => (
-                                                            <div
-                                                                key={each.id}
-                                                                className="completeness-result"
-                                                            >
-                                                                <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+                                                            <div key={each.id} className="completeness-result">
+                                                                <div className="d-flex align-items-center mb-3 flex-wrap gap-2">
                                                                     <Badge bg="light" text="dark">
                                                                         {each.buscoMode}
                                                                     </Badge>
                                                                     <Badge bg="light" text="dark">
                                                                         Dataset: {each.dataset}
                                                                     </Badge>
-                                                                    <Badge bg="secondary">
-                                                                        #{each.id}
-                                                                    </Badge>
+                                                                    <Badge bg="secondary">#{each.id}</Badge>
                                                                 </div>
 
-                                                                <BUSCOCompletenessBar
-                                                                    analyses={[each]}
-                                                                    name={null}
-                                                                />
+                                                                <BUSCOCompletenessBar analyses={[each]} name={null} />
                                                             </div>
                                                         ))
                                                     )}
                                                 </Card.Body>
 
                                                 <Card.Footer className="completeness-explainer">
-                                                    <div className="small fw-semibold mb-2">
-                                                        About BUSCO
-                                                    </div>
+                                                    <div className="small fw-semibold mb-2">About BUSCO</div>
                                                     <p className="small text-secondary mb-2">
-                                                        BUSCO (Benchmarking Universal Single-Copy
-                                                        Orthologs) assesses assembly or annotation
-                                                        completeness using conserved genes expected
-                                                        within a selected lineage. Results distinguish
-                                                        complete single-copy, complete duplicated,
-                                                        fragmented, and missing BUSCOs.
+                                                        BUSCO (Benchmarking Universal Single-Copy Orthologs) assesses assembly or annotation
+                                                        completeness using conserved genes expected within a selected lineage. Results distinguish
+                                                        complete single-copy, complete duplicated, fragmented, and missing BUSCOs.
                                                     </p>
                                                     <a
                                                         href="https://doi.org/10.1093/nar/gkae987"
@@ -712,16 +652,12 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                             <Card.Title as="h5" className="mb-1">
                                                                 fCat
                                                             </Card.Title>
-                                                            <div className="small text-secondary">
-                                                                Feature-aware annotation completeness
-                                                            </div>
+                                                            <div className="small text-secondary">Feature-aware annotation completeness</div>
                                                         </div>
                                                         <div className="ms-auto">
                                                             <Badge bg="secondary" pill>
                                                                 {assembly.fcat_analyses.length}{' '}
-                                                                {assembly.fcat_analyses.length === 1
-                                                                    ? 'analysis'
-                                                                    : 'analyses'}
+                                                                {assembly.fcat_analyses.length === 1 ? 'analysis' : 'analyses'}
                                                             </Badge>
                                                         </div>
                                                     </div>
@@ -731,55 +667,34 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                     {assembly.fcat_analyses.length === 0 ? (
                                                         <div className="completeness-empty">
                                                             <i className="bi bi-bar-chart-line" />
-                                                            <div className="fw-semibold mt-2">
-                                                                No fCat analysis available
-                                                            </div>
+                                                            <div className="fw-semibold mt-2">No fCat analysis available</div>
                                                             <p className="small text-secondary mb-3">
-                                                                Annotation completeness results will
-                                                                appear here when available.
+                                                                Annotation completeness results will appear here when available.
                                                             </p>
-                                                            <FCatCompletenessBar
-                                                                analysis={null}
-                                                                name={null}
-                                                            />
+                                                            <FCatCompletenessBar analysis={null} name={null} />
                                                         </div>
                                                     ) : (
-                                                        assembly.fcat_analyses.map(
-                                                            (each: fCatAnalysis) => (
-                                                                <div
-                                                                    key={each.id}
-                                                                    className="completeness-result"
-                                                                >
-                                                                    <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-                                                                        <Badge bg="light" text="dark">
-                                                                            Genome: {each.genomeID}
-                                                                        </Badge>
-                                                                        <Badge bg="secondary">
-                                                                            #{each.id}
-                                                                        </Badge>
-                                                                    </div>
-
-                                                                    <FCatCompletenessBar
-                                                                        analysis={each}
-                                                                        name={null}
-                                                                    />
+                                                        assembly.fcat_analyses.map((each: fCatAnalysis) => (
+                                                            <div key={each.id} className="completeness-result">
+                                                                <div className="d-flex align-items-center mb-3 flex-wrap gap-2">
+                                                                    <Badge bg="light" text="dark">
+                                                                        Genome: {each.genomeID}
+                                                                    </Badge>
+                                                                    <Badge bg="secondary">#{each.id}</Badge>
                                                                 </div>
-                                                            ),
-                                                        )
+
+                                                                <FCatCompletenessBar analysis={each} name={null} />
+                                                            </div>
+                                                        ))
                                                     )}
                                                 </Card.Body>
 
                                                 <Card.Footer className="completeness-explainer">
-                                                    <div className="small fw-semibold mb-2">
-                                                        About fCat
-                                                    </div>
+                                                    <div className="small fw-semibold mb-2">About fCat</div>
                                                     <p className="small text-secondary mb-2">
-                                                        fCat (feature-aware completeness assessment)
-                                                        evaluates genome annotations by searching for
-                                                        conserved clade-specific core genes. It uses
-                                                        fDOG ortholog searches and FAS domain
-                                                        architecture similarity scores to help validate
-                                                        candidate orthologs across different analysis
+                                                        fCat (feature-aware completeness assessment) evaluates genome annotations by searching for
+                                                        conserved clade-specific core genes. It uses fDOG ortholog searches and FAS domain
+                                                        architecture similarity scores to help validate candidate orthologs across different analysis
                                                         modes.
                                                     </p>
                                                     <a
@@ -836,7 +751,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                 </span>
                             </Accordion.Header>
 
-                            <Accordion.Body className="p-3 p-lg-4">
+                            <Accordion.Body className="p-lg-4 p-3">
                                 <Row className="g-4">
                                     {/* Annotation sidebar */}
                                     <Col xs={12} lg={3}>
@@ -850,30 +765,19 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
 
                                             <Card.Body>
                                                 <div className="genome-annotation-count mb-3">
-                                                    <span className="genome-count-value">
-                                                        {assembly.genomic_annotations.length}
-                                                    </span>
+                                                    <span className="genome-count-value">{assembly.genomic_annotations.length}</span>
                                                     <span className="text-secondary small">
                                                         annotation
-                                                        {assembly.genomic_annotations.length === 1
-                                                            ? ''
-                                                            : 's'} available
+                                                        {assembly.genomic_annotations.length === 1 ? '' : 's'} available
                                                     </span>
                                                 </div>
 
                                                 <p className="small text-secondary mb-3">
-                                                    Browse the reference sequence and available
-                                                    annotations. Use the JBrowse track controls{' '}
-                                                    <i className="bi bi-list-task" /> to show or hide
-                                                    tracks.
+                                                    Browse the reference sequence and available annotations. Use the JBrowse track controls{' '}
+                                                    <i className="bi bi-list-task" /> to show or hide tracks.
                                                 </p>
 
-                                                <Button
-                                                    href={`/browser/${assembly.id}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-100"
-                                                >
+                                                <Button href={`/browser/${assembly.id}`} target="_blank" rel="noopener noreferrer" className="w-100">
                                                     <i className="bi bi-box-arrow-up-right me-2" />
                                                     Open fullscreen
                                                 </Button>
@@ -885,30 +789,19 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                         <i className="bi bi-database" />
                                                     </span>
                                                     <span className="genome-track-label">Assembly sequence</span>
-                                                    <i
-                                                        className="bi bi-check-circle-fill genome-track-status"
-                                                        title="Reference sequence"
-                                                    />
+                                                    <i className="bi bi-check-circle-fill genome-track-status" title="Reference sequence" />
                                                 </ListGroup.Item>
 
-                                                {assembly.genomic_annotations.map(
-                                                    (annotation: Annotation) => (
-                                                        <ListGroup.Item
-                                                            key={annotation.id}
-                                                            className="genome-track-item"
-                                                        >
-                                                            <span className="genome-track-icon annotation">
-                                                                <i className="bi bi-align-center" />
-                                                            </span>
-                                                            <span
-                                                                className="genome-track-label"
-                                                                title={annotation.label || annotation.name}
-                                                            >
-                                                                {annotation.label || annotation.name}
-                                                            </span>
-                                                        </ListGroup.Item>
-                                                    ),
-                                                )}
+                                                {assembly.genomic_annotations.map((annotation: Annotation) => (
+                                                    <ListGroup.Item key={annotation.id} className="genome-track-item">
+                                                        <span className="genome-track-icon annotation">
+                                                            <i className="bi bi-align-center" />
+                                                        </span>
+                                                        <span className="genome-track-label" title={annotation.label || annotation.name}>
+                                                            {annotation.label || annotation.name}
+                                                        </span>
+                                                    </ListGroup.Item>
+                                                ))}
 
                                                 {assembly.genomic_annotations.length === 0 && (
                                                     <ListGroup.Item className="genome-no-tracks">

@@ -27,18 +27,36 @@ const RichTaxonCard = (props: Props) => {
     }, [props.taxon?.infos?.[0]?.headline, props.taxon?.wikipedia_summary]);
 
     return (
-        <Card className="md-2 assembly-card m-3" style={{ width: '100%', maxHeight: '750px' }}>
-            <Card.Img
-                className="image-class-name img-responsive"
-                variant="top"
-                src={props.taxon.wiki_image || `/taxon/${props.taxon.ncbiTaxonID}/image?updated=${props.taxon.updated_at}`}
-                style={{
-                    height: '300px',
-                    objectFit: 'cover',
-                    backgroundColor: '#D1D5DB',
-                }}
-            />
-            <Card.Body>
+        <Card className="assembly-card" style={{ width: '100%', maxHeight: '750px' }}>
+            <div className="assembly-card-image">
+                <Card.Img
+                    variant="top"
+                    src={props.taxon.wiki_image || `/taxon/${props.taxon.ncbiTaxonID}/image?updated=${props.taxon.updated_at}`}
+                    style={{
+                        height: '300px',
+                        objectFit: 'cover',
+                        backgroundColor: '#D1D5DB',
+                    }}
+                />
+            </div>
+            <Card.Body className="d-flex flex-column p-4">
+                <div className="d-flex justify-content-between align-items-start">
+                    <div className="flex-grow-1 overflow-hidden">
+                        <h3 className="assembly-card-title">
+                            <a
+                                href={`/assemblies/${props.assemblyID}`}
+                                className="text-decoration-none"
+                            >
+                                {props.taxon.scientificName}
+                            </a>
+                        </h3>
+                        <div className="assembly-card-subtitle">
+                            <span className="text-truncate d-block">
+                                <i>{props.assemblyName}</i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <Card.Title>
                     <a className="text-decoration-none" href={`/assemblies?search=${props.taxon.ncbiTaxonID}`}>
                         {props.taxon.scientificName}
@@ -48,7 +66,7 @@ const RichTaxonCard = (props: Props) => {
                 </Card.Title>
                 <Card.Subtitle className="text-muted mb-2">(NCBI: {props.taxon.ncbiTaxonID})</Card.Subtitle>
                 <Card.Text style={{ maxHeight: '300px' }}>
-                    {(truncateAtWord(preferredText, 500))}
+                    {truncateAtWord(preferredText, 500)}
                     {'  '}
                     {isWikiText && (
                         <Badge>

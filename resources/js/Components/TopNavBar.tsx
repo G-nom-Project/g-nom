@@ -1,66 +1,183 @@
-import { Link, router, usePage } from '@inertiajs/react';
-import { Button, Container, Nav, Navbar } from 'react-bootstrap';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    Container,
+    Dropdown,
+    Nav,
+    Navbar,
+} from 'react-bootstrap';
 import gnom_logo from '../../static/logo/gnom.png';
 
 const TopBar = () => {
     const user = usePage().props.auth.user;
-    return (
-        <Navbar bg="dark" variant="dark" expand="lg" data-bs-theme="dark">
-            <Container fluid>
-                <a href={route('welcome')}>
-                    <Navbar.Brand>
-                        <img src={gnom_logo} height={'60vw'} className="logo-gnom d-inline-block align-bottom" alt="G-nom Logo" />
-                        {import.meta.env.VITE_CUSTOM_LOGO && (
-                            <>
-                                <div className="d-inline-block mx-2 align-bottom">
-                                    <div
-                                        className="vr"
-                                        style={{
-                                            height: '50px',
-                                            width: '2px',
-                                            color: '#064D05',
-                                            opacity: '100%',
-                                        }}
-                                    ></div>
-                                </div>
-                                <img
-                                    src={import.meta.env.BASE_URL + import.meta.env.VITE_CUSTOM_LOGO}
-                                    height={'60vw'}
-                                    className="logo-gnom d-inline-block align-bottom"
-                                    alt="AplBio Logo"
-                                />
-                            </>
-                        )}
-                    </Navbar.Brand>
-                </a>
 
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse>
-                    <Nav className="me-auto">
-                        <Nav.Link href={route('assemblies')}>Assemblies</Nav.Link>
-                        <Nav.Link href={route('collections.index')}>Collections</Nav.Link>
-                        <Nav.Link href={route('browser')}>Genome Browser</Nav.Link>
-                        <Nav.Link href={route('tol')}>Tree of life</Nav.Link>
+    const navigation = [
+        {
+            label: 'Assemblies',
+            route: 'assemblies',
+            icon: 'bi-grid-3x3-gap',
+        },
+        {
+            label: 'Collections',
+            route: 'collections.index',
+            icon: 'bi-collection',
+        },
+        {
+            label: 'Genome Browser',
+            route: 'browser',
+            icon: 'bi-display',
+        },
+        {
+            label: 'Tree of Life',
+            route: 'tol',
+            icon: 'bi-diagram-3',
+        },
+    ];
+
+    return (
+        <Navbar
+            expand="lg"
+            variant="dark"
+            data-bs-theme="dark"
+            className="gnom-navbar"
+        >
+            <Container fluid>
+                {/* Branding */}
+                <Navbar.Brand
+                    as={Link}
+                    href={route('welcome')}
+                    className="gnom-navbar-brand"
+                >
+                    <img
+                        src={gnom_logo}
+                        className="gnom-navbar-logo"
+                        alt="G-nom"
+                    />
+
+                    {import.meta.env.VITE_CUSTOM_LOGO && (
+                        <>
+                            <span className="gnom-navbar-brand-divider" />
+
+                            <img
+                                src={
+                                    import.meta.env.BASE_URL +
+                                    import.meta.env.VITE_CUSTOM_LOGO
+                                }
+                                className="gnom-navbar-logo"
+                                alt="Partner logo"
+                            />
+                        </>
+                    )}
+                </Navbar.Brand>
+
+                <Navbar.Toggle
+                    aria-controls="gnom-navbar-content"
+                    className="gnom-navbar-toggle"
+                />
+
+                <Navbar.Collapse id="gnom-navbar-content">
+                    {/* Main navigation */}
+                    <Nav className="gnom-navbar-links me-auto">
+                        {navigation.map((item) => {
+                            const url = route(item.route);
+                            const isActive =
+                                typeof window !== 'undefined' &&
+                                window.location.pathname ===
+                                new URL(url, window.location.origin).pathname;
+
+                            return (
+                                <Nav.Link
+                                    key={item.route}
+                                    as={Link}
+                                    href={url}
+                                    active={isActive}
+                                    className="gnom-navbar-link"
+                                >
+                                    <i className={`bi ${item.icon}`} />
+                                    <span>{item.label}</span>
+                                </Nav.Link>
+                            );
+                        })}
                     </Nav>
-                    <Nav>
-                        <Nav.Link>
-                            <Button href={route('dashboard')} onClick={() => router.visit('/dashboard')}>
-                                <i className="bi bi-person-circle" /> {(user && user.name) || 'Not logged in'}
-                            </Button>{' '}
-                            {user && (
-                                <>
-                                    <Button href={route('bookmarks.get')} onClick={() => router.visit('/bookmarks')}>
-                                        <i className="bi bi-bookmark"></i>
-                                    </Button>{' '}
-                                    <Link href={'/logout'} method={'post'} as={'b'}>
-                                        <Button href={route('logout')} variant={'danger'}>
-                                            <i className="bi bi-door-open"></i>
-                                        </Button>
-                                    </Link>
-                                </>
-                            )}
-                        </Nav.Link>
-                    </Nav>
+
+                    {/* Account actions */}
+                    <div className="gnom-navbar-actions">
+                        {user && (
+                            <Link
+                                href={route('bookmarks.get')}
+                                className="gnom-navbar-icon-button"
+                                title="Bookmarks"
+                                aria-label="Bookmarks"
+                            >
+                                <i className="bi bi-bookmark" />
+                            </Link>
+                        )}
+
+                        <Dropdown align="end">
+                            <Dropdown.Toggle
+                                variant="outline-light"
+                                className="gnom-navbar-account"
+                            >
+                                <span className="gnom-navbar-avatar">
+                                    <i className="bi bi-person-fill" />
+                                </span>
+
+                                <span className="gnom-navbar-account-name">
+                                    {user?.name || 'Guest'}
+                                </span>
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu className="gnom-navbar-dropdown">
+                                {user ? (
+                                    <>
+                                        <Dropdown.Header>
+                                            Signed in as
+                                            <div className="fw-semibold text-body mt-1">
+                                                {user.name}
+                                            </div>
+                                        </Dropdown.Header>
+
+                                        <Dropdown.Divider />
+
+                                        <Dropdown.Item
+                                            as={Link}
+                                            href={route('dashboard')}
+                                        >
+                                            <i className="bi bi-speedometer2 me-2" />
+                                            Dashboard
+                                        </Dropdown.Item>
+
+                                        <Dropdown.Item
+                                            as={Link}
+                                            href={route('bookmarks.get')}
+                                        >
+                                            <i className="bi bi-bookmark me-2" />
+                                            Bookmarks
+                                        </Dropdown.Item>
+
+                                        <Dropdown.Divider />
+
+                                        <Dropdown.Item
+                                            as={Link}
+                                            href={route('logout')}
+                                            method="post"
+                                            className="text-danger"
+                                        >
+                                            <i className="bi bi-box-arrow-right me-2" />
+                                            Sign out
+                                        </Dropdown.Item>
+                                    </>
+                                ) : (
+                                    <Dropdown.Item
+                                        as={Link}
+                                        href={route('dashboard')}
+                                    >
+                                        <i className="bi bi-box-arrow-in-right me-2" />
+                                        Sign in
+                                    </Dropdown.Item>
+                                )}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div>
                 </Navbar.Collapse>
             </Container>
         </Navbar>

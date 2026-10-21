@@ -36,6 +36,9 @@ const BaseDistributionPlot = ({ taxa }) => {
                 textinfo: 'label',
                 hoverinfo: 'label+percent',
                 // textposition: 'inside'
+                marker: {
+                    color: '#1ab307ff',
+                },
             },
         ]);
     };

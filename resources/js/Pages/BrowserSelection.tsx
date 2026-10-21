@@ -3,8 +3,8 @@ import { Assembly } from '@/types/data';
 import React, { useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 
-export default function BrowserSelection({ assemblies }) {
-    const [assemblyID, SetAssemblyID] = useState<number>(null);
+export default function BrowserSelection({ assemblies }:{ assemblies: Assembly[] }) {
+    const [assemblyID, SetAssemblyID] = useState<number|null>(null);
 
     return (
         <>
@@ -12,12 +12,12 @@ export default function BrowserSelection({ assemblies }) {
             <Container className="d-flex justify-content-center align-items-center vh-100">
                 <Row>
                     <Col>
-                        <Card className="text-center" style={{ minWidth: '50vh' }}>
+                        <Card className="gnom-panel text-center" style={{ minWidth: '50vh' }}>
                             <Card.Body>
                                 <Card.Title>Select assembly</Card.Title>
                                 <Form.Select
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => SetAssemblyID(e.target.value as number)}
-                                    value={assemblyID}
+                                    value={assemblyID as number}
                                 >
                                     <option>Select assembly</option>
                                     {assemblies &&
@@ -28,7 +28,7 @@ export default function BrowserSelection({ assemblies }) {
                                         ))}
                                 </Form.Select>
                             </Card.Body>
-                            <Button href={route('assemblies.browser', [assemblyID])} className="m-3" disabled={!assemblyID}>
+                            <Button href={route('browser', [assemblyID])} className="m-3" disabled={!assemblyID}>
                                 Launch Browser
                             </Button>
                         </Card>

@@ -91,6 +91,10 @@
     opacity: 1;
 }
 
+/* =========================================
+   Assembly Page
+   ========================================= */
+
 .assembly-card {
     border: 1px solid var(--bs-border-color);
     border-radius: 1rem;
@@ -266,6 +270,10 @@
     }
 }
 
+/* =========================================
+   Assemblies Page
+   ========================================= */
+
 
 
 .assemblies-results {
@@ -304,6 +312,9 @@
     border-top: 1px solid var(--bs-border-color);
 }
 
+/* =========================================
+   Assembly Page
+   ========================================= */
 
 .taxon-visual-card {
     border-radius: 1rem;
@@ -639,6 +650,9 @@
     border-bottom: 1px solid var(--bs-border-color);
 }
 
+/* =========================================
+   Taxon Page
+   ========================================= */
 
 .taxon-profile {
     max-width: 1440px;
@@ -764,5 +778,969 @@
     .taxon-image-credit {
         top: .75rem;
         bottom: auto;
+    }
+}
+
+/* =========================================
+   G-nom Navbar
+   ========================================= */
+
+.gnom-navbar {
+    position: relative;
+    z-index: 1030;
+    min-height: 80px;
+    padding: 0.65rem 0;
+    background: #171c24;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Branding */
+
+.gnom-navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+    margin-right: 2rem;
+}
+
+.gnom-navbar-logo {
+    display: block;
+    width: auto;
+    max-width: 150px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.gnom-navbar-brand-divider {
+    width: 1px;
+    height: 34px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Navigation */
+
+.gnom-navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.gnom-navbar .gnom-navbar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.6rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.gnom-navbar .gnom-navbar-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.gnom-navbar .gnom-navbar-link.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.gnom-navbar-link i {
+    font-size: 1rem;
+    opacity: 0.85;
+}
+
+/* Account area */
+
+.gnom-navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.gnom-navbar-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.65rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.gnom-navbar-icon-button:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.gnom-navbar .gnom-navbar-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 0.65rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.gnom-navbar .gnom-navbar-account:hover,
+.gnom-navbar .gnom-navbar-account:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+.gnom-navbar-avatar {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 1rem;
+}
+
+.gnom-navbar-account-name {
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Dropdown */
+
+.gnom-navbar-dropdown {
+    min-width: 220px;
+    margin-top: 0.65rem;
+    padding: 0.4rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.75rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.gnom-navbar-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.45rem;
+    font-size: 0.875rem;
+}
+
+.gnom-navbar-dropdown .dropdown-item:hover {
+    background: var(--bs-tertiary-bg);
+}
+
+/* Mobile */
+
+@media (max-width: 991.98px) {
+    .gnom-navbar {
+        min-height: 70px;
+    }
+
+    .gnom-navbar-logo {
+        height: 42px;
+    }
+
+    .gnom-navbar-links {
+        align-items: stretch;
+        gap: 0.2rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gnom-navbar .gnom-navbar-link {
+        padding: 0.85rem 1rem;
+    }
+
+    .gnom-navbar-actions {
+        justify-content: space-between;
+        margin-top: 0.75rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gnom-navbar-link,
+    .gnom-navbar-icon-button {
+        transition: none;
+    }
+}
+
+/* =========================================
+   Assembly Page Header
+   ========================================= */
+
+.assembly-page-header {
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.assembly-page-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+/* Identity */
+
+.assembly-page-taxon {
+    font-size: 1.15rem;
+    font-weight: 500;
+}
+
+.assembly-page-title {
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    font-weight: 650;
+    line-height: 1.2;
+}
+
+
+.assembly-page-separator {
+    font-size: 1rem;
+    opacity: 0.5;
+    padding: 0.5rem;
+}
+
+.assembly-page-section {
+    color: var(--bs-secondary-color);
+}
+
+.assembly-page-title {
+    margin: 0;
+    color: var(--bs-emphasis-color);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+}
+
+/* Actions */
+
+.assembly-page-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0.5rem;
+}
+
+.assembly-page-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 0.65rem;
+    font-size: 1.05rem;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.assembly-page-action-divider {
+    width: 1px;
+    height: 28px;
+    margin: 0 0.25rem;
+    background: var(--bs-border-color);
+}
+
+.assembly-page-action.is-bookmarked {
+    color: var(--bs-btn-active-color);
+}
+
+/* Responsive */
+
+@media (max-width: 767.98px) {
+    .assembly-page-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        min-height: 0;
+        padding: 1.25rem 0;
+    }
+
+    .assembly-page-actions {
+        width: 100%;
+    }
+
+    .assembly-page-action {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .assembly-page-action {
+        transition: none;
+    }
+}
+
+/* =========================================
+   Welcome Page
+   ========================================= */
+
+.welcome-page {
+    min-height: 100vh;
+    background: var(--bs-body-bg);
+}
+
+/* Hero */
+
+.welcome-hero {
+    padding: clamp(3.5rem, 6vw, 6rem) 0;
+    background:
+        radial-gradient(
+            ellipse at 90% 15%,
+            #1ab307ff 0%,
+            transparent 45%
+        ),
+        var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.welcome-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.welcome-title {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 750;
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+    color: var(--bs-emphasis-color);
+    overflow-wrap: anywhere;
+}
+
+.welcome-description {
+    max-width: 780px;
+    color: var(--bs-secondary-color);
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.welcome-description p:last-child {
+    margin-bottom: 0;
+}
+
+.welcome-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.welcome-primary-action,
+.welcome-secondary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.35rem;
+    border-radius: 0.7rem;
+    font-weight: 600;
+}
+
+/* Hero panel */
+
+.welcome-hero-panel {
+    padding: 2rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.045);
+}
+
+.welcome-hero-panel-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 1.5rem;
+    border-radius: 0.875rem;
+    background: var(--bs-tertiary-bg);
+    color: #1ab307ff;
+}
+
+.welcome-hero-panel-icon .material-symbols-outlined {
+    font-size: 2rem;
+}
+
+.welcome-hero-highlight {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.welcome-hero-highlight strong {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--bs-emphasis-color);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Sections */
+
+.welcome-section {
+    padding: 4rem 0;
+}
+
+.welcome-quality-section {
+    padding-top: 1rem;
+    padding-bottom: 5rem;
+}
+
+.welcome-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+}
+
+.welcome-section-eyebrow {
+    margin-bottom: 0.5rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.welcome-section-title {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+}
+
+/* Statistics */
+
+.welcome-stat-card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.875rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.035);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.welcome-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.07);
+}
+
+.welcome-stat-card .card-body {
+    padding: 1.5rem;
+}
+
+.welcome-stat-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 0.75rem;
+    background: var(--bs-tertiary-bg);
+    color: #1ab307ff;
+    font-size: 1.25rem;
+}
+
+.welcome-stat-value {
+    margin-bottom: 0.35rem;
+    font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    color: var(--bs-emphasis-color);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.welcome-stat-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.welcome-stat-description {
+    margin-top: 0.35rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.825rem;
+}
+
+/* Completeness */
+
+.welcome-quality-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.welcome-quality-card > .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 1.75rem;
+}
+
+.welcome-quality-footer {
+    margin-top: auto;
+    padding: 0.9rem 1.25rem;
+    background: var(--bs-tertiary-bg);
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.welcome-quality-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 180px;
+    color: var(--bs-secondary-color);
+    text-align: center;
+}
+
+.welcome-quality-empty > i {
+    font-size: 2rem;
+}
+
+/* Footer */
+
+.welcome-footer {
+    border-top: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+}
+
+.welcome-footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    color: var(--bs-secondary-color);
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+
+@media (max-width: 767.98px) {
+    .welcome-hero {
+        padding: 3rem 0;
+    }
+
+    .welcome-title {
+        font-size: clamp(2.5rem, 9vw, 3.5rem);
+    }
+
+    .welcome-hero-panel {
+        padding: 1.5rem;
+    }
+
+    .welcome-section {
+        padding: 2.75rem 0;
+    }
+
+    .welcome-quality-section {
+        padding-top: 0;
+        padding-bottom: 3rem;
+    }
+
+    .welcome-stat-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .welcome-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-stat-card {
+        transition: none;
+    }
+
+    .welcome-stat-card:hover {
+        transform: none;
+    }
+}
+
+/* =========================================
+   Collection Detail Page
+   ========================================= */
+
+.collection-page {
+    min-height: 100vh;
+    background: var(--bs-body-bg);
+}
+
+/* Page header */
+
+.collection-page-header {
+    border-bottom: 1px solid var(--bs-border-color);
+    background: var(--bs-body-bg);
+}
+
+.collection-page-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 0;
+}
+
+.collection-page-identity {
+    min-width: 0;
+}
+
+.collection-page-eyebrow {
+    margin-bottom: 0.6rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.collection-page-title {
+    margin-bottom: 1rem;
+    color: var(--bs-emphasis-color);
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+}
+
+.collection-page-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.collection-meta-badge {
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.collection-page-actions {
+    flex-shrink: 0;
+}
+
+.collection-gallery-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.8rem 1.2rem;
+    border-radius: 0.65rem;
+    font-weight: 600;
+}
+
+/* Sections */
+
+.collection-section {
+    margin-bottom: 3rem;
+}
+
+.collection-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.collection-section-title {
+    margin-bottom: 0.35rem;
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+}
+
+.collection-section-count {
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.5rem;
+}
+
+/* Tree */
+
+.collection-tree-panel {
+    min-width: 0;
+
+}
+
+.collection-tree-viewport {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.collection-tree-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 260px;
+    color: var(--bs-secondary-color);
+    text-align: center;
+}
+
+.collection-tree-state > i {
+    font-size: 1.75rem;
+}
+
+/* Assembly table */
+
+.collection-table-panel {
+    overflow: hidden;
+}
+
+.collection-table {
+    --bs-table-bg: transparent;
+    vertical-align: middle;
+}
+
+.collection-table thead th {
+    padding: 1rem 1.25rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.collection-table tbody td {
+    padding: 1rem 1.25rem;
+    border-color: var(--bs-border-color);
+}
+
+.collection-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.collection-assembly-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.collection-assembly-name {
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.collection-assembly-name:hover {
+    color: var(--bs-primary);
+}
+
+.collection-assembly-id {
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.collection-access-badge {
+    padding: 0.4rem 0.65rem;
+    border-radius: 0.45rem;
+    font-weight: 500;
+}
+
+.collection-table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.collection-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 0.55rem;
+}
+
+.collection-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 250px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.collection-empty-state > i {
+    color: var(--bs-secondary-color);
+    font-size: 2rem;
+}
+
+.collection-empty-state h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Management */
+
+.collection-management-card > .card-body {
+    padding: 1.5rem;
+}
+
+.collection-management-card .form-label {
+    color: var(--bs-secondary-color);
+    font-size: 0.825rem;
+    font-weight: 600;
+}
+
+.collection-management-card .form-control,
+.collection-management-card .form-select {
+    border-radius: 0.55rem;
+}
+
+.collection-management-card .btn {
+    border-radius: 0.55rem;
+}
+
+.collection-visibility-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.65rem;
+    background: var(--bs-tertiary-bg);
+}
+
+/* Members */
+
+.collection-members-section {
+    margin-bottom: 1rem;
+}
+
+.collection-members-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.collection-member {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    max-width: 100%;
+    padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.65rem;
+    background: var(--bs-tertiary-bg);
+}
+
+.collection-member-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    background: var(--bs-body-bg);
+    color: var(--bs-secondary-color);
+}
+
+.collection-member-name {
+    min-width: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.collection-member-role {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* Responsive */
+
+@media (max-width: 767.98px) {
+    .collection-page-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem 0;
+    }
+
+    .collection-page-actions {
+        width: 100%;
+    }
+
+    .collection-gallery-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .collection-section {
+        margin-bottom: 2.25rem;
+    }
+
+    .collection-table thead th,
+    .collection-table tbody td {
+        padding: 0.8rem;
+    }
+
+    .collection-management-card > .card-body {
+        padding: 1.25rem;
     }
 }

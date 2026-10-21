@@ -29,6 +29,9 @@ const CoverageDistributionPlot = ({ coverage_data }) => {
                 type: 'line',
                 textinfo: 'label',
                 hoverinfo: 'label',
+                marker: {
+                    color: '#1ab307ff',
+                },
             },
         ]);
 

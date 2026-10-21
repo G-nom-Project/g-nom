@@ -1,7 +1,8 @@
 import { Head } from '@inertiajs/react';
-import { Button, Card, Container } from 'react-bootstrap';
+import { Button, Card, Container, Table } from 'react-bootstrap';
 import { Assembly } from '@/types/data';
 import TopNavBar from '@/Components/TopNavBar';
+import React from 'react';
 
 interface SimpleData {
     id: number;
@@ -21,7 +22,7 @@ export default function AssemblyEditPage({ assembly }: { assembly: Assembly }) {
                 return 'No data';
             }
             return (
-                <table className="table-striped table">
+                <Table responsive hover className="collection-table mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -44,7 +45,7 @@ export default function AssemblyEditPage({ assembly }: { assembly: Assembly }) {
                             );
                         })}
                     </tbody>
-                </table>
+                </Table>
             );
         }
     };
@@ -54,45 +55,32 @@ export default function AssemblyEditPage({ assembly }: { assembly: Assembly }) {
             <Head title={'Edit Assembly #' + assembly.id} />
             <TopNavBar />
             <Container style={{ minHeight: '100vh' }}>
-                <h1 className="mt-2">
-                    Edit assembly {assembly.name} (#{assembly.id})
-                </h1>
-                <Card className="mt-5">
-                    <Card.Body>
-                        <Card.Title>Annotations</Card.Title>
-                        {simple_table(assembly.genomic_annotations, 'annotations')}
-                    </Card.Body>
+                <Card className="gnom-panel mt-2">
+                    <Card.Header>Annotations</Card.Header>
+                    <Card.Body>{simple_table(assembly.genomic_annotations, 'annotations')}</Card.Body>
                 </Card>
-                <Card className="mt-5">
-                    <Card.Body>
-                        <Card.Title>Mappings</Card.Title>
-                        {simple_table(assembly.mappings, 'mappings')}
-                    </Card.Body>
+                <Card className="gnom-panel mt-2">
+                    <Card.Header>Mappings</Card.Header>
+                    <Card.Body>{simple_table(assembly.mappings, 'mappings')}</Card.Body>
                 </Card>
-                <Card className="mt-5">
-                    <Card.Body>
-                        <Card.Title>Annotation Completeness (BUSCO)</Card.Title>
-                        {simple_table(assembly.busco_analyses, 'buscos')}
-                    </Card.Body>
+                <Card className="gnom-panel mt-2">
+                    <Card.Header>Completeness assessment (BUSCO)</Card.Header>
+                    <Card.Body>{simple_table(assembly.busco_analyses, 'buscos')}</Card.Body>
                 </Card>
-                <Card className="mt-5">
-                    <Card.Body>
-                        <Card.Title>Annotation Completeness (fCat)</Card.Title>
-                        {simple_table(assembly.fcat_analyses, 'fcats')}
-                    </Card.Body>
+                <Card className="gnom-panel mt-2">
+                    <Card.Header>Completeness assessment (fCat)</Card.Header>
+                    <Card.Body>{simple_table(assembly.fcat_analyses, 'fcats')}</Card.Body>
                 </Card>
-                <Card className="mt-5">
+                <Card className="gnom-panel mt-2">
+                    <Card.Header>Repeatmasker</Card.Header>
                     <Card.Body>
-                        <Card.Title>Repeatmasker</Card.Title>
                         <p>Note: Removing a Repeatmasker analysis will also remove the associated .gff file.</p>
                         {simple_table(assembly.repeatmasker_analyses, 'repeatmaskers')}
                     </Card.Body>
                 </Card>
-                <Card className="mt-5">
-                    <Card.Body>
-                        <Card.Title>taXaminer Analyses</Card.Title>
-                        {simple_table(assembly.taxaminer_analyses, 'taxaminers')}
-                    </Card.Body>
+                <Card className="gnom-panel mb-5 mt-2">
+                    <Card.Header>taXaminer analyses</Card.Header>
+                    <Card.Body>{simple_table(assembly.taxaminer_analyses, 'taxaminers')}</Card.Body>
                 </Card>
             </Container>
         </>
