@@ -16,7 +16,6 @@ We are currently in the process of migrating Laravel from a Flask + React stack 
 G-nom is developed in the [Ebersberger Lab](https://github.com/BIONF) at the Goethe University Frankfurt and is licenced under GPLv2. 
 
 # Acknowledgements
-## Open source software
 The G-nom tech stack includes open-source software, typically used as-is (via docker images) or with minor modifications. The table below lists software required for G-nom to function.
 
 | Software        | Source                                | Copyright notice                                                                                                                                    | License                                                              |
@@ -33,5 +32,9 @@ The code used to dynamically generated trees using d3 in different parts of this
 
 The snail plots provided on the assembly page as well as the code used to produce the data consumed by the plot is adapted from 
 https://zenodo.org/records/322347 by Richard Challis, licensed under the MIT License.
+
+# AI disclaimer
+AI tools were used to design and refactor parts of the the frontend of G-nom. All AI-generated code was manually reviewed by humans. All final decisions, modifications, and validations were made by the project author(s).
+
 
 

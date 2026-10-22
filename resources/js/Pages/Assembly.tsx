@@ -666,7 +666,6 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                 <Card.Body>
                                                     {assembly.fcat_analyses.length === 0 ? (
                                                         <div className="completeness-empty">
-                                                            <i className="bi bi-bar-chart-line" />
                                                             <div className="fw-semibold mt-2">No fCat analysis available</div>
                                                             <p className="small text-secondary mb-3">
                                                                 Annotation completeness results will appear here when available.
