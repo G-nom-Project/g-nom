@@ -1,5 +1,10 @@
 FROM php:8.4-fpm
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV BASH_ENV="${HOME:-/root}/.bash_env"
+RUN touch "${BASH_ENV}"
+RUN echo '. "${BASH_ENV}"' >> ~/.bashrc
+
 # Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
 
@@ -8,6 +13,11 @@ WORKDIR /var/www
 
 # Install dependencies
 RUN apt-get update
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | PROFILE="${BASH_ENV}" bash
+RUN echo node > .nvmrc
+RUN nvm install 22
+
 RUN apt-get install -y \
     build-essential \
     libpng-dev \
@@ -27,8 +37,6 @@ RUN apt-get install -y \
     libjson-perl \
     tabix \
     samtools \
-    nodejs \
-    npm \
     libmagickwand-dev \
     ncbi-blast+
 
