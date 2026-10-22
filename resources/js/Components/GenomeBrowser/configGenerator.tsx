@@ -3,7 +3,7 @@ import { Assembly } from '@/types/data';
 
 const generateConfig = (assembly: Assembly, location_string: string | undefined) => {
     // Convert Annotations into JBrowse Tracks
-    const annot_basename = 'sorted.gff3.gz';
+    // const annot_basename = 'sorted.gff3.gz';
 
     const my_annotations = assembly.genomic_annotations.filter((annot) => annot.name != 'Repeatmasker');
     const annotations = my_annotations.map((annotation) => {
@@ -47,7 +47,7 @@ const generateConfig = (assembly: Assembly, location_string: string | undefined)
             },
         };
     });
-
+    /**
     const repeatmasker_annot = [
         {
             type: 'FeatureTrack',
@@ -70,6 +70,7 @@ const generateConfig = (assembly: Assembly, location_string: string | undefined)
                 },
             },
             displays: [
+
                 {
                     type: 'LinearBasicDisplay',
                     displayId: 'repeatmasker-LinearBasicDisplay',
@@ -81,9 +82,11 @@ const generateConfig = (assembly: Assembly, location_string: string | undefined)
                         showLabels: false,
                     },
                 },
+
             ],
         },
     ];
+     */
 
     // Convert Mappings into JBrowse Tracks
     const mappings = assembly.mappings.map((mapping) => {
@@ -178,7 +181,7 @@ const generateConfig = (assembly: Assembly, location_string: string | undefined)
                 },
             },
         ],
-        tracks: [gc_track, ...repeatmasker_annot, ...annotations, ...mappings, ...wiggle_tracks],
+        tracks: [gc_track, ...annotations, ...mappings, ...wiggle_tracks],
         defaultSession: {
             name: assembly.name + ' - default',
             drawerPosition: 'right',

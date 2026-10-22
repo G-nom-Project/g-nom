@@ -125,17 +125,6 @@ class AssemblyController extends Controller
         ]);
     }
 
-    public function selection(Request $request): Response
-    {
-        // Fetch assemblies
-        $assemblies = Assembly::query()->visibleTo($request->user())->get();
-
-        // Pass the data to the Inertia component
-        return Inertia::render('BrowserSelection', [
-            'assemblies' => $assemblies,
-        ]);
-    }
-
     /**
      * @throws AuthorizationException
      */
@@ -168,8 +157,16 @@ class AssemblyController extends Controller
         ]);
     }
 
-    public function browser($id): Response
+    public function browser($id=null): Response
     {
+        if (!$id) {
+            $assemblies = Assembly::query()->visibleTo(Auth()->user())->get();
+            // Pass the data to the Inertia component
+            return Inertia::render('BrowserSelection', [
+                'assemblies' => $assemblies,
+            ]);
+        }
+
         $assembly = Assembly::with(['mappings', 'genomicAnnotations', 'repeatmaskerAnalyses', 'wiggleTracks'])->findOrFail($id);
         $this->authorize('view', $assembly);
 
@@ -435,7 +432,7 @@ class AssemblyController extends Controller
 
     public function stats(Request $request)
     {
-        $totalAssemblies = Cache::rememberForever('totalAssemblies',  function () {
+        $totalAssemblies = Cache::rememberForever('totalAssemblies', function () {
             return Assembly::count();
         });
 
@@ -465,7 +462,7 @@ class AssemblyController extends Controller
         });
 
         $avgFcat = Cache::rememberForever('avg_fcat', function () {
-            return  [
+            return [
                 'dataset' => 'mixed',
                 'm1_similarPercent' => FcatAnalysis::avg('m1_similarPercent'),
                 'm1_dissimilarPercent' => FcatAnalysis::avg('m1_dissimilarPercent'),
@@ -493,17 +490,14 @@ class AssemblyController extends Controller
             ];
         });
 
-
         $sparqlStats = [];
-        if (!app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
+        if (! app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
             $response = Http::timeout(120)
                 ->get(config('gnom.qlever_host'), [
                     'cmd' => 'stats',
                 ]);
             $sparqlStats = $response->json();
         }
-
-
 
         return Inertia::render('Welcome', [
             'totalAssemblies' => $totalAssemblies,

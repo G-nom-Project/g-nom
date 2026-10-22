@@ -69,8 +69,7 @@ Route::middleware([
 Route::get('/assemblies/{id}/edit', [AssemblyController::class, 'editDashboard'])->name('assemblies.edit')->middleware(['auth', GnomReadOnly::class]);
 Route::get('/assemblies/{id}/taxonomicAssignments', [AssemblyController::class, 'taxonomicAssignmentStats'])->name('assemblies.taxonStats')->middleware(['auth']);
 
-Route::get('/browser', [AssemblyController::class, 'selection'])->name('browser');
-Route::get('/browser/{id}', [AssemblyController::class, 'browser'])->name('assemblies.browser');
+Route::get('/browser/{id?}', [AssemblyController::class, 'browser'])->name('browser');
 
 Route::middleware([
     GnomPublicInstance::class,
@@ -97,7 +96,9 @@ Route::middleware([
 
 // Update Taxon
 Route::middleware(['auth', GnomReadOnly::class])->group(function () {
+    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon')->middleware(['auth']);
     Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon')->middleware(['auth']);
+    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon')->middleware(['auth']);
     Route::post('/taxon/upload-image', [TaxonController::class, 'uploadImage'])->middleware(['auth']);
     Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middleware(['auth']);
     Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);

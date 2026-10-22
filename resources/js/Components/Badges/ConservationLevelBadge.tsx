@@ -1,7 +1,7 @@
 import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 
-const ConservationLevelBadge = ({ status }: { status: string}) => {
+const ConservationLevelBadge = ({ status }: { status: string|null}) => {
     const levels = {
         'Least Concern': { short: 'LC', type: 'success' },
         'Near Threatened': { short: 'NL', type: 'secondary' },
@@ -15,15 +15,15 @@ const ConservationLevelBadge = ({ status }: { status: string}) => {
     };
 
     return (
-            levels[status] &&
+            levels[status as keyof typeof levels] &&
                 <OverlayTrigger placement="top" overlay={<Tooltip id="button-tooltip-2">IUCN: <b>{status}</b></Tooltip>}>
-                    <Badge bg={levels[status].type}>
-                        <i className="bi bi-activity"></i>
+                    <Badge bg={levels[status as keyof typeof levels].type} className="assembly-access-badge">
+                        <i className="bi bi-activity"></i> {status}
                     </Badge>
                 </OverlayTrigger>
             ||
                 <OverlayTrigger placement="top" overlay={<Tooltip id="button-tooltip-2">IUCN status unknown</Tooltip>}>
-                    <Badge bg='grey' style={{backgroundColor: 'lightgrey'}}>
+                    <Badge bg='secondary' className="assembly-access-badge">
                         <i className="bi bi-activity"></i>
                     </Badge>
                 </OverlayTrigger>

@@ -1,0 +1,403 @@
+import TaxMap from '@/Components/AssemblyPage/TaxMap';
+import NotificationListener from '@/Components/NotificationsListener';
+import TopNavBar from '@/Components/TopNavBar';
+import { deleteGeoData, getGeoData, getLineage, getTaxonInfo, uploadGeoData } from '@/REST/taxon';
+import { TaxonData } from '@/types/data';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { Button, Card, Col, Container, Form, ListGroup, Modal, Placeholder, Row, Tab, Tabs } from 'react-bootstrap';
+import InputGroup from 'react-bootstrap/InputGroup';
+
+export default function EditTaxon({ taxon }) {
+    const [lineage, setLineage] = useState<TaxonData[] | null>(null);
+    const [geoData, setGeoData] = useState([]);
+    const [activeTab, setActiveTab] = useState('image');
+
+    // Taxon Information
+    const [taxonHeadline, setTaxonHeadline] = useState<string>('');
+    const [taxonInfo, setTaxonInfo] = useState('');
+
+    // Modals
+    const [showEditImage, setEditImage] = useState<boolean>(false);
+    const [showEditGeo, setEditGeo] = useState<boolean>(false);
+    const [showAddGeo, setAddGeo] = useState<boolean>(false);
+
+    // Upload only
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [iconFile, setIconFile] = useState<File | null>(null);
+    const [imageCredit, setImageCredit] = useState();
+
+    // GEO Data Upload Form
+    const [geoFormData, setGeoFormData] = useState({
+        name: '',
+        type: '',
+        description: '',
+        source_link: '',
+        data_link: '',
+        data: '',
+    });
+    const [geoValidated, setGeoValidated] = useState<boolean>(false);
+
+    const handleGeoChange = (e) => {
+        const { name, value } = e.target;
+        setGeoFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleGeoSubmit = (event) => {
+        const form = event.currentTarget;
+        if (form.checkValidity() ) {
+            uploadGeoData(taxon.ncbiTaxonID, geoFormData);
+        }
+        setGeoValidated(true);
+    };
+
+    const handleImageUpload = async () => {
+        if (!imageFile) return;
+
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('taxonID', taxon.ncbiTaxonID);
+        formData.append('credit', imageCredit);
+
+        try {
+            const response = await axios.post('/taxon/upload-image', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+        } catch (error) {
+            console.error('Upload failed:', error);
+        }
+    };
+
+    const handleIconUpload = async () => {
+        if (!iconFile) return;
+
+        const formData = new FormData();
+        formData.append('icon', iconFile);
+        formData.append('taxonID', taxon.ncbiTaxonID);
+
+        try {
+            const response = await axios.post('/taxon/upload-icon', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload success:', response.data);
+        } catch (error) {
+            console.error('Upload failed:', error);
+        }
+    };
+
+    const handleUpdateTexts = async () => {
+        const formData = new FormData();
+        formData.append('taxonID', taxon.ncbiTaxonID);
+        formData.append('headline', taxonHeadline);
+        formData.append('text', taxonInfo);
+
+        try {
+            const response = await axios.post('/taxon/update-infos', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Update success:', response.data);
+        } catch (error) {
+            console.error('Update failed:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchTaxonData = async () => {
+            try {
+                // Taxon Info Text
+                const info_response = await getTaxonInfo(taxon.ncbiTaxonID);
+                if (info_response.data.infos[0]) {
+                    setTaxonInfo(info_response.data.infos[0]?.text);
+                    setTaxonHeadline(info_response.data.infos[0]?.headline);
+                }
+
+                // Taxon Geo Data
+                const data = await getGeoData(taxon.ncbiTaxonID);
+                setGeoData(data.geo_data);
+
+                // NCBI Lineage
+                const new_lineage = await getLineage(taxon.ncbiTaxonID);
+                setLineage(new_lineage);
+            } catch (error) {
+                console.error('Error fetching Taxon data:', error);
+            }
+        };
+
+        if (taxon.ncbiTaxonID) {
+            fetchTaxonData().then(() => setImageCredit(taxon.imageCredit));
+        }
+    }, [taxon.imageCredit, taxon.ncbiTaxonID]);
+
+    return (
+        <>
+            <TopNavBar />
+            <NotificationListener />
+            <Container className="mt-2">
+                <Row className="mt-2">
+                    {/* Left Column: Tabs (Image / Map) */}
+                    <Col xs={12} md={5} className="mb-md-0 mb-3">
+                        <Card className="h-100">
+                            <Tabs defaultActiveKey="image" className="mb-3" onSelect={(k) => setActiveTab(k)}>
+                                <Tab title="Image" eventKey="image">
+                                    <Card className="m-1 shadow" style={{ minHeight: '300px' }}>
+                                        <Card.Img
+                                            className="img-fluid rounded-top"
+                                            src={`/taxon/${taxon.ncbiTaxonID}/image?updated=${taxon.updated_at}`}
+                                            alt="Card image"
+                                            style={{
+                                                height: '400px',
+                                                objectFit: 'cover',
+                                                backgroundColor: '#D1D5DB',
+                                            }}
+                                        />
+                                        <Card.Body>
+                                            Image Credit: {imageCredit}
+                                            <br />
+                                            <Button onClick={() => setEditImage(true)}>
+                                                <i className="bi bi-pencil-square"></i> Edit Taxon Image
+                                            </Button>
+                                        </Card.Body>
+                                    </Card>
+                                </Tab>
+                                <Tab title="Map" eventKey="overview-map">
+                                    {activeTab === 'overview-map' && (
+                                        <Card className="m-1 shadow" style={{ height: '450px' }}>
+                                            <TaxMap isVisible={true} geoDataMeta={geoData} />
+                                            <Card.Body>
+                                                <Button className="m-2" onClick={() => setEditGeo(true)}>
+                                                    <i className="bi bi-pencil-square"></i> Edit Geo Data
+                                                </Button>
+                                            </Card.Body>
+                                        </Card>
+                                    )}
+                                </Tab>
+                            </Tabs>
+                        </Card>
+                    </Col>
+
+                    {/* Right Column: Taxon Info */}
+                    <Col xs={12} md={7}>
+                        <Card className="h-100 shadow">
+                            <Card.Body>
+                                <Card.Title className="capitalize">{taxon.commonName || taxon.scientificName}</Card.Title>
+                                <Card.Text>
+                                    <Form>
+                                        <Form.Group className="mb-3">
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={3}
+                                                value={taxonHeadline}
+                                                onChange={(e) => setTaxonHeadline(e.target.value)}
+                                            />
+                                        </Form.Group>
+                                    </Form>
+                                    <hr />
+                                    <Form>
+                                        <Form.Group className="mb-3">
+                                            <Form.Control as="textarea" rows={10} value={taxonInfo} onChange={(e) => setTaxonInfo(e.target.value)} />
+                                        </Form.Group>
+                                    </Form>
+                                    <Button onClick={() => handleUpdateTexts()}>
+                                        <i className="bi bi-pencil-square"></i> Save
+                                    </Button>
+                                </Card.Text>
+                            </Card.Body>
+                            <ListGroup className="list-group-flush">
+                                <ListGroup.Item>
+                                    {lineage ? (
+                                        <>
+                                            {lineage.map((each, index) =>
+                                                each.scientificName === 'root' ? (
+                                                    <i key={index} className="bi bi-diamond-half me-1" />
+                                                ) : (
+                                                    <span key={index}>
+                                                        <i className="bi bi-arrow-right mx-1" />
+                                                        <a
+                                                            href={`https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${each.ncbiTaxonID}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            {each.scientificName}
+                                                        </a>
+                                                    </span>
+                                                ),
+                                            )}
+                                            {` (${taxon.ncbiTaxonID})`}
+                                        </>
+                                    ) : (
+                                        <Placeholder as="p" animation="glow">
+                                            <Placeholder xs={12} />
+                                        </Placeholder>
+                                    )}
+                                </ListGroup.Item>
+                            </ListGroup>
+                        </Card>
+                    </Col>
+                </Row>
+                <Modal show={showEditImage}>
+                    <Modal.Body>
+                        <Modal.Title>Upload a new Taxon Image</Modal.Title>
+                        <p>
+                            Uploading a new image will replace the previous one. Please provide proper image credit for all uploaded images and only
+                            upload images you have permission to use.
+                        </p>
+                        <InputGroup>
+                            <Form.Control type="file" onChange={(e) => setImageFile(e.target?.files?.[0] ?? null)} />
+                        </InputGroup>
+                        <InputGroup className="mt-2">
+                            <InputGroup.Text id="basic-addon1">Image Credit</InputGroup.Text>
+                            <Form.Control type="text" onChange={(e) => setImageCredit(e.target.value)} value={imageCredit}></Form.Control>
+                        </InputGroup>
+                        <hr />
+                        <p>Upload a SVG Image to be shown in the top left navbar on all assembly pages with this Taxon ID.</p>
+                        {taxon.phylopic && (
+                            <img
+                                src={`/taxon/${taxon.ncbiTaxonID}/icon?updated=${taxon.updated_at}`}
+                                alt="Taxon Icon"
+                                style={{
+                                    height: '80px',
+                                    filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)',
+                                    backgroundColor: 'grey',
+                                    padding: '10px',
+                                }}
+                                className="m-1 rounded"
+                            />
+                        )}
+                        <InputGroup>
+                            <Form.Control type="file" onChange={(e) => setIconFile(e.target?.files?.[0] ?? null)} />
+                        </InputGroup>
+                        <hr />
+                        <p>You may have to reload the page for changes to take effect.</p>
+                        <Button className="mt-1" variant="danger" onClick={() => setEditImage(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            className="ml-1 mt-1"
+                            variant="success"
+                            onClick={() => {
+                                handleImageUpload();
+                                handleIconUpload().then(() => setEditImage(false));
+                            }}
+                        >
+                            Save
+                        </Button>
+                    </Modal.Body>
+                </Modal>
+                <Modal show={showEditGeo}>
+                    <Modal.Body>
+                        <Modal.Title>Edit Taxon Geodata</Modal.Title>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th className="table-cells">Title</th>
+                                    <th className="table-cells" style={{ width: '10%' }}>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {geoData.map((each) => {
+                                    return (
+                                        <tr>
+                                            <th className="table-cells">{each.name}</th>
+                                            <th className="table-cells" style={{ textAlign: 'center' }}>
+                                                <Button
+                                                    size="sm"
+                                                    variant="danger"
+                                                    onClick={() => {
+                                                        deleteGeoData(each.id, taxon.ncbiTaxonID);
+                                                        window.location.reload();
+                                                    }}
+                                                >
+                                                    <i className="bi bi-trash-fill"></i>
+                                                </Button>
+                                            </th>
+                                        </tr>
+                                    );
+                                })}
+                                <tr>
+                                    <th className="table-cells" style={{ textAlign: 'center' }}>
+                                        <Button size="sm" onClick={() => setAddGeo(true)} disabled={showAddGeo}>
+                                            Add new
+                                        </Button>
+                                    </th>
+                                    <th className="table-cells" style={{ textAlign: 'center' }}>
+                                        <Button size="sm" disabled={true} variant="danger">
+                                            <i className="bi bi-trash-fill"></i>
+                                        </Button>
+                                    </th>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <hr />
+
+                        {showAddGeo && (
+                            <>
+                                <h5>Metadata</h5>
+                                <Form noValidate validated={geoValidated}>
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Name</Form.Label>
+                                        <Form.Control name="name" value={geoFormData.name} onChange={handleGeoChange} required />
+                                        <Form.Control.Feedback type="invalid">Name is a required field</Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Type</Form.Label>
+                                        <Form.Control name="type" value={geoFormData.type} onChange={handleGeoChange} required />
+                                        <Form.Control.Feedback type="invalid">Type is a required field</Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Description</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            name="description"
+                                            value={geoFormData.description}
+                                            onChange={handleGeoChange}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Source link</Form.Label>
+                                        <Form.Control name="source_link" value={geoFormData.source_link} onChange={handleGeoChange} required />
+                                        <Form.Control.Feedback type="invalid">Cite sources for Geo Data</Form.Control.Feedback>
+                                    </Form.Group>
+                                    <h5>Data</h5>
+                                    <p>
+                                        Provide GeoJSON data either as a URL pointing to valid GeoJSON or copy and paste your data in the field below.
+                                        G-nom will not validate GeoJSON data by itself.
+                                    </p>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Data link</Form.Label>
+                                        <Form.Control name="data_link" value={geoFormData.data_link} onChange={handleGeoChange} />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Raw data</Form.Label>
+                                        <Form.Control as="textarea" rows={3} name="data" value={geoFormData.data} onChange={handleGeoChange} />
+                                    </Form.Group>
+                                    <Button onClick={handleGeoSubmit}>Submit Geo Data</Button>
+                                </Form>
+                            </>
+                        )}
+                        <br />
+                        <Button>Close</Button>
+                    </Modal.Body>
+                </Modal>
+            </Container>
+        </>
+    );
+}

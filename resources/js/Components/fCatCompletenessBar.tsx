@@ -5,34 +5,45 @@ import { fCatAnalysis } from '@/types/data';
 
 type fCatCompletenessBarProps = {
     analysis: fCatAnalysis;
+    name: string | null;
 };
 
-export default function FCatCompletenessBar({ analysis }: fCatCompletenessBarProps) {
+export default function FCatCompletenessBar({ analysis, name }: fCatCompletenessBarProps) {
     const [clicks, setClicks] = useState<number>(0);
-    const [current, setCurrent] = useState({
-        similar: Math.round(analysis['m1_similarPercent'] * 100) / 100,
-        duplicated: Math.round(analysis['m1_duplicatedPercent'] * 100) / 100,
-        dissimilar: Math.round(analysis['m1_dissimilarPercent'] * 100) / 100,
-        missing: Math.round(analysis['m1_missingPercent'] * 100) / 100,
-        ignored: Math.round(analysis['m1_ignoredPercent'] * 100) / 100,
-    });
+    const [current, setCurrent] = useState(
+        (analysis && {
+            similar: Math.round(analysis['m1_similarPercent'] * 100) / 100,
+            duplicated: Math.round(analysis['m1_duplicatedPercent'] * 100) / 100,
+            dissimilar: Math.round(analysis['m1_dissimilarPercent'] * 100) / 100,
+            missing: Math.round(analysis['m1_missingPercent'] * 100) / 100,
+            ignored: Math.round(analysis['m1_ignoredPercent'] * 100) / 100,
+        }) || {
+            similar: -1,
+            duplicated: -1,
+            dissimilar: -1,
+            missing: -1,
+            ignored: -1,
+        },
+    );
     const modes = ['m1', 'm2', 'm3', 'm4'];
 
     useEffect(() => {
-        setCurrent({
-            similar: Math.round(analysis[modes[clicks % 4] + '_similarPercent'] * 100) / 100,
-            duplicated: Math.round(analysis[modes[clicks % 4] + '_duplicatedPercent'] * 100) / 100,
-            dissimilar: Math.round(analysis[modes[clicks % 4] + '_dissimilarPercent'] * 100) / 100,
-            missing: Math.round(analysis[modes[clicks % 4] + '_missingPercent'] * 100) / 100,
-            ignored: Math.round(analysis[modes[clicks % 4] + '_ignoredPercent'] * 100) / 100,
-        });
+        if (analysis) {
+            setCurrent({
+                similar: Math.round(analysis[modes[clicks % 4] + '_similarPercent'] * 100) / 100,
+                duplicated: Math.round(analysis[modes[clicks % 4] + '_duplicatedPercent'] * 100) / 100,
+                dissimilar: Math.round(analysis[modes[clicks % 4] + '_dissimilarPercent'] * 100) / 100,
+                missing: Math.round(analysis[modes[clicks % 4] + '_missingPercent'] * 100) / 100,
+                ignored: Math.round(analysis[modes[clicks % 4] + '_ignoredPercent'] * 100) / 100,
+            });
+        }
     }, [clicks]);
 
     const generateBar = () => {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setClicks(clicks + 1)}>
-                <span style={{ width: '15%' }}>
-                    <b className="text-muted">fCat</b>
+            <div style={{ display: 'flex', alignItems: 'center', gap: name && '8px' || '0px' }} onClick={() => setClicks(clicks + 1)}>
+                <span style={{ width: name && '8ch' || '0ch' }}>
+                    <b className="text-muted">{name}</b>
                 </span>
 
                 <CompositionBar

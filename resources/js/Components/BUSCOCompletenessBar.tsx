@@ -5,7 +5,7 @@ import { BuscoAnalysis } from '@/types/data';
 
 type CompletenessBarProps = {
     analyses: BuscoAnalysis[];
-    name?: string;
+    name?: string | null;
 };
 
 export default function BUSCOCompletenessBar({ analyses, name = 'BUSCO'}: CompletenessBarProps) {
@@ -19,8 +19,8 @@ export default function BUSCOCompletenessBar({ analyses, name = 'BUSCO'}: Comple
 
     const generateBar = () => {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '15%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: name && '8px' || '0px' }}>
+                <span style={{ width: name && '8ch' || '0ch'}}>
                     <b className="text-muted">{name}</b>
                 </span>
                 { current &&
@@ -67,8 +67,8 @@ export default function BUSCOCompletenessBar({ analyses, name = 'BUSCO'}: Comple
                     {generateBar()}
                 </OverlayTrigger>
             )) || (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '15%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: name && '8px' || '0px'}}>
+                    <span style={{ width: name && '8ch' || '0ch' }}>
                         <b className="text-muted">{name}</b>
                     </span>
 

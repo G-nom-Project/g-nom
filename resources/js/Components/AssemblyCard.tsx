@@ -1,155 +1,275 @@
-import { Badge, Button, Card, Col, ListGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import {
+    Badge,
+    Button,
+    Card,
+    OverlayTrigger,
+    Tooltip,
+} from 'react-bootstrap';
 import axios from 'axios';
 import { useState } from 'react';
-import ConservationLevelBadge from '@/Components/Badges/ConservationLevelBadge';
-import { truncateAtWord } from '@/utils/text';
 import { router } from '@inertiajs/react';
-import CollectionsBadge from '@/Components/Badges/CollectionsBadge';
+import ConservationLevelBadge from '@/Components/Badges/ConservationLevelBadge';
 import BUSCOCompletenessBar from '@/Components/BUSCOCompletenessBar';
 import FCatCompletenessBar from '@/Components/fCatCompletenessBar';
-import { BuscoAnalysis, fCatAnalysis } from '@/types/data';
+import { truncateAtWord } from '@/utils/text';
+import { BuscoAnalysis, Collection, fCatAnalysis } from '@/types/data';
+
 
 interface Props {
-    assemblyName: string;
-    assemblyID: number;
-    ncbiID: number;
-    info_text: string;
-    mappings: number;
-    annotations: number;
-    last_update: string;
-    public: boolean;
-    buscos: BuscoAnalysis[];
-    fcats: fCatAnalysis[];
-    n50: number;
-    maxBuscoScore: number;
-    repeatmaskers: number;
-    taxaminers: number;
-    taxon_updated_at: string;
-    is_bookmarked: boolean | null;
-    taxon_name: string;
-    conservation_status: string|null;
-    wiki_image: string | null;
-    is_wiki_text: boolean | null;
-    collections: [];
+    assemblyName: string,
+    assemblyID: number,
+    ncbiID: number,
+    info_text: string | null,
+    mappings: number,
+    annotations: number,
+    public: boolean,
+    buscos: BuscoAnalysis[],
+    fcats: fCatAnalysis[],
+    n50: number,
+    maxBuscoScore: number,
+    repeatmaskers: number,
+    taxaminers: number,
+    taxon_updated_at: string,
+    is_bookmarked: boolean | null,
+    taxon_name: string,
+    conservation_status: string | null,
+    wiki_image: string | null,
+    is_wiki_text: boolean | null,
+    collections: Collection[],
+    last_update?: string
 }
 
+export default function AssemblyCard(props: Props) {
+    const [isBookmarked, setIsBookmarked] = useState(
+        props.is_bookmarked ?? false
+    );
+    const [bookmarkPending, setBookmarkPending] = useState(false);
 
+    const toggleBookmark = async () => {
+        if (bookmarkPending) return;
 
-const AssemblyCard = (props: Props) => {
-    const [isBookmarked, setIsBookmarked] = useState(props.is_bookmarked || false);
+        setBookmarkPending(true);
 
-    const setBookmark = () => {
-        axios.post(`/assemblies/${props.assemblyID}/bookmark`)
-            .then(() => setIsBookmarked(true));
-    }
-
-    const deleteBookmark = () => {
-        axios.delete(`/assemblies/${props.assemblyID}/bookmark`).then(() => setIsBookmarked(false));
+        try {
+            if (isBookmarked) {
+                await axios.delete(
+                    `/assemblies/${props.assemblyID}/bookmark`
+                );
+                setIsBookmarked(false);
+            } else {
+                await axios.post(
+                    `/assemblies/${props.assemblyID}/bookmark`
+                );
+                setIsBookmarked(true);
+            }
+        } catch (error) {
+            console.error('Failed to update bookmark:', error);
+        } finally {
+            setBookmarkPending(false);
+        }
     };
 
+    const imageUrl =
+        props.wiki_image ||
+        `${route('taxon.image', [props.ncbiID])}?updated=${props.taxon_updated_at}`;
+
+    const showDetails = () => {
+        router.visit(route('assemblies.show', [props.assemblyID]));
+    };
 
     return (
-        <Card
-            className="h-100"
-            style={{
-                width: '100%',
-                minWidth: '280px',
-            }}
-        >
-            <Card.Img
-                className="image-class-name img-responsive"
-                variant="top"
-                src={props.wiki_image || `${route('taxon.image', [props.ncbiID])}?updated=${props.taxon_updated_at}`}
-                style={{
-                    height: '200px',
-                    objectFit: 'cover',
-                    backgroundColor: '#D1D5DB',
-                }}
-            />
-            <Card.Body>
-                <Card.Title>
-                    <a className="text-decoration-none" href={`/assemblies/${props.assemblyID}`}>
-                        {props.taxon_name}
-                    </a>
-                    <br />
-                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{(props.public && 'Public access') || 'Internal use only'}</Tooltip>}>
-                        <Badge bg={(props.public && 'success') || 'secondary'}>
-                            <i className={(props.public && 'bi bi-unlock-fill') || 'bi bi-lock-fill'}></i>
-                        </Badge>
-                    </OverlayTrigger>{' '}
-                    <CollectionsBadge collections={props.collections} />{' '}
-                    {<ConservationLevelBadge status={props.conservation_status}></ConservationLevelBadge>}
-                </Card.Title>
-                <Card.Subtitle className="text-muted mb-2">
-                    <i>{props.assemblyName}</i> (NCBI: {props.ncbiID})
-                </Card.Subtitle>
-                <Card.Text style={{ height: '14rem' }}>
-                    {(props.info_text && truncateAtWord(props.info_text, 450)) || (
-                        <p className="text-muted">
-                            <b>No info text available.</b>
-                        </p>
-                    )}{' '}
-                    {props.is_wiki_text && (
-                        <Badge>
-                            <i className="bi bi-wikipedia"></i>
-                        </Badge>
-                    )}
-                </Card.Text>
-            </Card.Body>
-            <ListGroup className="list-group-flush">
-                <ListGroup.Item>
-                    <Button
-                        onClick={(!isBookmarked && (() => setBookmark())) || (() => deleteBookmark())}
-                        variant={isBookmarked ? 'danger' : 'primary'}
-                    >
-                        <i className={!isBookmarked ? 'bi bi-bookmark-plus' : 'bi bi-bookmark-dash'}></i>
-                    </Button>
-                    <Button className="m-2" onClick={() => router.visit(route('assemblies.show', [props.assemblyID]))}>
-                        Show details <i className="bi bi-arrow-right-circle"></i>
-                    </Button>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    <Row>
-                        <Col>
-                            Annotations:{' '}
-                            {(props.annotations == 0 && <b className="text-danger">0 available</b>) || (
-                                <b className="text-success">{props.annotations} available</b>
-                            )}
-                        </Col>
-                        <Col>
-                            Mappings:{' '}
-                            {(props.mappings == 0 && <b className="text-danger">0 available</b>) || (
-                                <b className="text-success">{props.mappings} available</b>
-                            )}
-                        </Col>
-                    </Row>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    <Row>
-                        <Col>
-                            Repeatmasker:{' '}
-                            {(props.repeatmaskers === 0 && <i className="bi bi-x-lg text-danger" />) || <i className="bi bi-check-lg text-success" />}
-                        </Col>
-                        <Col>
-                            taXaminer:{' '}
-                            {(props.taxaminers === 0 && <b className="text-danger">0 available</b>) || (
-                                <b className="text-success">{props.taxaminers} available</b>
-                            )}
-                        </Col>
-                    </Row>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    {(props.buscos.length > 0 && <BUSCOCompletenessBar analyses={props.buscos} />) || (
-                        <BUSCOCompletenessBar analyses={[]}/>
-                    )}
+        <Card className="assembly-card h-100">
 
-                    {(props.fcats.length > 0 && <FCatCompletenessBar analysis={props.fcats[0]} />) || (
-                        <BUSCOCompletenessBar analyses={[]} name={'fCat'} />
+            {/* Image */}
+            <div className="assembly-card-image">
+                <Card.Img
+                    variant="top"
+                    src={imageUrl}
+                    alt={props.taxon_name}
+                />
+
+                <div className="assembly-image-badges">
+                    <OverlayTrigger
+                        overlay={
+                            <Tooltip>
+                                {props.public
+                                    ? 'Public access'
+                                    : 'Internal use only'}
+                            </Tooltip>
+                        }
+                    >
+                        <Badge
+                            bg={props.public ? 'success' : 'secondary'}
+                            className="assembly-access-badge"
+                        >
+                            <i
+                                className={`bi bi-${
+                                    props.public
+                                        ? 'unlock'
+                                        : 'lock'
+                                } me-1`}
+                            />
+                            {props.public ? 'Public' : 'Internal'}
+                        </Badge>
+                    </OverlayTrigger>
+                    {' '}
+                    <ConservationLevelBadge
+                        status={props.conservation_status}
+                    />
+                </div>
+            </div>
+
+            <Card.Body className="d-flex flex-column p-4">
+
+                {/* Title and bookmark */}
+                <div className="d-flex justify-content-between align-items-start">
+                    <div className="flex-grow-1 overflow-hidden">
+                        <h3 className="assembly-card-title">
+                            <a
+                                href={`/assemblies/${props.assemblyID}`}
+                                className="text-decoration-none"
+                            >
+                                {props.taxon_name}
+                            </a>
+                        </h3>
+                        <div className="assembly-card-subtitle">
+                            <span className="text-truncate d-block">
+                                <i>{props.assemblyName}</i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <Button
+                        variant="light"
+                        className={`assembly-bookmark ${
+                            isBookmarked ? 'active' : ''
+                        }`}
+                        onClick={toggleBookmark}
+                        disabled={bookmarkPending}
+                        aria-label={
+                            isBookmarked
+                                ? 'Remove bookmark'
+                                : 'Add bookmark'
+                        }
+                        title={
+                            isBookmarked
+                                ? 'Remove bookmark'
+                                : 'Add bookmark'
+                        }
+                    >
+                        <i
+                            className={`bi bi-bookmark${
+                                isBookmarked ? '-fill' : ''
+                            }`}
+                        />
+                    </Button>
+                </div>
+
+                {/* Description */}
+                <div className="assembly-description">
+                    {props.info_text ? (
+                        <p className="mb-0">
+                            {truncateAtWord(props.info_text, 240)}
+                            {props.is_wiki_text && (
+                                <i
+                                    className="bi bi-wikipedia ms-2 text-secondary"
+                                    title="Wikipedia source"
+                                />
+                            )}
+                        </p>
+                    ) : (
+                        <p className="text-secondary fst-italic mb-0">
+                            No description available.
+                        </p>
                     )}
-                </ListGroup.Item>
-            </ListGroup>
+                </div>
+
+                <hr className="assembly-divider" />
+
+                {/* Data availability */}
+                <div className="assembly-section-label">
+                    AVAILABLE DATA
+                </div>
+
+                <div className="assembly-metrics">
+                    <div className="assembly-metric">
+                        <span className="assembly-metric-value">
+                            {props.annotations}
+                        </span>
+                        <span className="assembly-metric-label">
+                            Annotations
+                        </span>
+                    </div>
+
+                    <div className="assembly-metric">
+                        <span className="assembly-metric-value">
+                            {props.mappings}
+                        </span>
+                        <span className="assembly-metric-label">
+                            Mappings
+                        </span>
+                    </div>
+
+                    <div className="assembly-metric">
+                        <span className="assembly-metric-value">
+                            {props.repeatmaskers > 0 ? (
+                                <i className="bi bi-check-lg text-success" />
+                            ) : (
+                                <span className="text-secondary">—</span>
+                            )}
+                        </span>
+                        <span className="assembly-metric-label">
+                            RepeatMasker
+                        </span>
+                    </div>
+
+                    <div className="assembly-metric">
+                        <span className="assembly-metric-value">
+                            {props.taxaminers}
+                        </span>
+                        <span className="assembly-metric-label">
+                            taXaminer
+                        </span>
+                    </div>
+                </div>
+
+                <hr className="assembly-divider" />
+
+                {/* Quality */}
+                <div className="assembly-section-label">
+                    ASSEMBLY QUALITY
+                </div>
+
+                <div className="assembly-quality mb-2">
+                    <BUSCOCompletenessBar
+                        analyses={props.buscos}
+                    />
+
+                    {props.fcats.length > 0 ? (
+                        <FCatCompletenessBar
+                            analysis={props.fcats[0]}
+                            name="fCat"
+                        />
+                    ) : (
+                        <BUSCOCompletenessBar
+                            analyses={[]}
+                            name="fCat"
+                        />
+                    )}
+                </div>
+                <hr className="assembly-divider" />
+                {/* Footer */}
+                <div className="mt-auto">
+                    <Button
+                        variant="primary"
+                        className="assembly-details-button w-100"
+                        onClick={showDetails}
+                    >
+                        <span>View assembly</span>
+                        <i className="bi bi-arrow-up-right" />
+                    </Button>
+                </div>
+            </Card.Body>
         </Card>
     );
-};
-
-export default AssemblyCard;
+}
