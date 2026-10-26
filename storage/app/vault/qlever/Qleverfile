@@ -1,0 +1,18 @@
+[data]
+NAME         = gnom
+DESCRIPTION  = G-nom Triples
+
+[index]
+INPUT_FILES     = *.ttl
+SETTINGS_JSON   = { "file-format": "ttl" }
+CAT_INPUT_FILES = cat ${INPUT_FILES}
+
+[server]
+PORT         = 8888
+MEMORY_FOR_QUERIES = 25G
+CACHE_MAX_SIZE     = 20G
+TIMEOUT            = 240s
+
+[runtime]
+SYSTEM = native
+
