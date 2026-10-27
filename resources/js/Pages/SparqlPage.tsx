@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { useState } from 'react';
 import TopNavBar from '@/Components/TopNavBar';
-import { Alert, Button, Container, OverlayTrigger, Spinner, Table, Tooltip } from 'react-bootstrap';
+import { Alert, Button, Container, Dropdown, OverlayTrigger, Row, Spinner, Stack, Table, Tooltip } from 'react-bootstrap';
 import { sparql } from 'codemirror-lang-sparql';
 import CodeMirror from '@uiw/react-codemirror';
+import examples from "../../static/data/sparql_examples.json";
 
 const default_headers =
     'PREFIX gnom: <https://w3id.org/gnom/>\n' +
@@ -103,7 +104,7 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
             <Container fluid className="bg-light" style={{ minHeight: '100vh' }}>
                 <h1 className="mt-3">
                     <a href="http://www.w3.org/2001/sw/">
-                        <img src="/images/sw-cube-v.svg" className="inline-svg" alt="SW Cube"/>
+                        <img src="/images/sw-cube-v.svg" className="inline-svg" alt="SW Cube" />
                     </a>{' '}
                     Execute SPARQL Query
                 </h1>
@@ -118,22 +119,45 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
                     <a href="https://biolink.github.io/biolink-model/">biolink</a>, and the G-nom ontology as well as their dependencies.
                 </p>
                 <CodeMirror value={query} height="400px" extensions={[sparql()]} onChange={setQuery} />
-                <Button className="mt-2" onClick={() => setQuery(default_headers + '\n' + query)}>
-                    <i className="bi bi-braces-asterisk"></i> Insert default Headers
-                </Button>{' '}
-                <Button className="mt-2" onClick={execute} disabled={loading}>
-                    {(loading && <Spinner animation="border" size="sm" />) || <i className="bi bi-lightning-charge-fill"></i>} Execute Query
-                </Button>
+                <Stack direction="horizontal" gap={2} className="mt-2">
+                    <Button onClick={() => setQuery(default_headers + '\n' + query)}>
+                        <i className="bi bi-braces-asterisk"></i> Insert default Headers
+                    </Button>
+                    <Button onClick={execute} disabled={loading}>
+                        {(loading && <Spinner animation="border" size="sm" />) || <i className="bi bi-lightning-charge-fill"></i>} Execute Query
+                    </Button>
+                    <Dropdown>
+                        <Dropdown.Toggle variant="secondary" id="dropdown-examples">
+                            Example queries
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {
+                                examples.map((each) => {
+                                   return <Dropdown.Item onClick={() => setQuery(each.code)}>{each.name}</Dropdown.Item>
+                                })
+                            }
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Stack>
                 <hr />
-                { error &&
+                {error && (
                     <Alert variant="danger">
                         <b>Could not execute Query</b>
                         <p>
-                            { error.exception && <><b>Exception:</b> {error.exception}</>}
-                            <br/>
-                            {error.metadata && <><b>Line:</b> {error.metadata.line}</>}
+                            {error.exception && (
+                                <>
+                                    <b>Exception:</b> {error.exception}
+                                </>
+                            )}
+                            <br />
+                            {error.metadata && (
+                                <>
+                                    <b>Line:</b> {error.metadata.line}
+                                </>
+                            )}
                         </p>
-                    </Alert>}
+                    </Alert>
+                )}
                 {results && (
                     <>
                         <p>
@@ -152,13 +176,11 @@ export default function SparqlPage({stats}:{stats: QleverStats}) {
                                     <tr key={rowIndex}>
                                         {results.head.vars.map(
                                             (col: string) =>
-                                                ( row[col] &&
-                                                    row[col].type === 'uri' && (
+                                                (row[col] && row[col].type === 'uri' && (
                                                     <td key={col}>
                                                         <a href={row[col]?.value as string}>{mapToSpecial(row[col]?.value as string) ?? ''}</a>
                                                     </td>
-                                                )
-                                                ) || <td key={col}>{row[col]?.value ?? ''}</td>,
+                                                )) || <td key={col}>{row[col]?.value ?? ''}</td>,
                                         )}
                                     </tr>
                                 ))}

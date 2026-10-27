@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Find all taxa below the clade S. cerevisiae",
+        "code": "PREFIX gnom: <https://w3id.org/gnom/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?x ?name\nWHERE {\n  ?x gnom:parent_taxon ?genus .\n  ?genus rdfs:label \"Saccharomyces cerevisiae\" .\n  ?x rdfs:label ?name .\n}"
+    },
+    {
+        "name": "Find all genes with Bacterial assignments from taXaminer",
+        "code": "PREFIX gnom: <https://w3id.org/gnom/>\nPREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?y ?x ?name\nWHERE {\n  ?y gnom:in_taxon ?x .\n  ?x gnom:parent_taxon* ?genus .\n  ?genus rdfs:label \"Bacteria\" .\n  ?x rdfs:label ?name .\n}"
+    }
+]
