@@ -10,12 +10,14 @@ const JBrowseView = ({
     my_assembly,
     annotations,
     mappings,
+    app_url,
     location = '',
 }: {
     my_assembly: Assembly;
     annotations: Annotation[];
     mappings: Mapping[];
     location: string;
+    app_url: string;
 }) => {
     const [assembly, setAssembly] = useState<Assembly>();
     const [tracks, setTracks] = useState<object[]>();
@@ -52,15 +54,15 @@ const JBrowseView = ({
                 adapter: {
                     type: 'BgzipFastaAdapter',
                     fastaLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz`,
+                        uri: `${app_url}/tracks/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz`,
                         locationType: 'UriLocation',
                     },
                     faiLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz.fai`,
+                        uri: `${app_url}/tracks/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz.fai`,
                         locationType: 'UriLocation',
                     },
                     gziLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz.gzi`,
+                        uri: `${app_url}/tracks/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/assembly.fa.gz.gzi`,
                         locationType: 'UriLocation',
                     },
                 },
@@ -79,12 +81,12 @@ const JBrowseView = ({
                 adapter: {
                     type: 'Gff3TabixAdapter',
                     gffGzLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz`,
+                        uri: `${app_url}/tracks/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz`,
                         locationType: 'UriLocation',
                     },
                     index: {
                         location: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz.tbi`,
+                            uri: `${app_url}/tracks/taxa/${my_assembly.taxon.ncbiTaxonID}/${my_assembly.id}/annotations/${annotation.id}.sorted.gff3.gz.tbi`,
                             locationType: 'UriLocation',
                         },
                         indexType: 'TBI',
@@ -101,12 +103,12 @@ const JBrowseView = ({
                 adapter: {
                     type: 'BamAdapter',
                     bamLocation: {
-                        uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/${fileBasename}`,
+                        uri: `${app_url}/tracks/assemblies/${my_assembly.name}/${fileBasename}`,
                         locationType: 'UriLocation',
                     },
                     index: {
                         location: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/${fileBasename}.bai`,
+                            uri: `${app_url}/tracks/assemblies/${my_assembly.name}/${fileBasename}.bai`,
                             locationType: 'UriLocation',
                         },
                         indexType: 'BAI',
@@ -114,15 +116,15 @@ const JBrowseView = ({
                     sequenceAdapter: {
                         type: 'BgzipFastaAdapter',
                         fastaLocation: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/${my_assembly.name}.fasta.gz`,
+                            uri: `${app_url}/tracks/assemblies/${my_assembly.name}/${my_assembly.name}.fasta.gz`,
                             locationType: 'UriLocation',
                         },
                         faiLocation: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/${my_assembly.name}.fasta.gz.fai`,
+                            uri: `${app_url}/tracks/assemblies/${my_assembly.name}/${my_assembly.name}.fasta.gz.fai`,
                             locationType: 'UriLocation',
                         },
                         gziLocation: {
-                            uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/${my_assembly.name}.fasta.gz.gzi`,
+                            uri: `${app_url}/tracks/assemblies/${my_assembly.name}/${my_assembly.name}.fasta.gz.gzi`,
                             locationType: 'UriLocation',
                         },
                     },
@@ -204,15 +206,15 @@ const JBrowseView = ({
                 type: 'TrixTextSearchAdapter',
                 textSearchAdapterId: 'text_search_adapter_annotation_' + my_assembly.name,
                 ixFilePath: {
-                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/trix/${my_assembly.name}.ix`,
+                    uri: `${app_url}/tracks/assemblies/${my_assembly.name}/trix/${my_assembly.name}.ix`,
                     locationType: 'UriLocation',
                 },
                 ixxFilePath: {
-                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/trix/${my_assembly.name}.ixx`,
+                    uri: `${app_url}/tracks/assemblies/${my_assembly.name}/trix/${my_assembly.name}.ixx`,
                     locationType: 'UriLocation',
                 },
                 metaFilePath: {
-                    uri: `${import.meta.env.VITE_JBROWSE_ADRESS}/assemblies/${my_assembly.name}/trix/${my_assembly.name}_meta.json`,
+                    uri: `${app_url}/tracks/assemblies/${my_assembly.name}/trix/${my_assembly.name}_meta.json`,
                     locationType: 'UriLocation',
                 },
                 assemblyNames: [my_assembly.name],

@@ -1,5 +1,5 @@
 import TopBar from '@/Components/TopNavBar';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import React from 'react';
 import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 
@@ -25,7 +25,8 @@ export default function Welcome({
     buscoStats: BuscoAnalysis | null;
     fcatStats: fCatAnalysis | null;
 }) {
-    const title = import.meta.env.VITE_CUSTOM_TITLE || 'G-nom';
+    const title = usePage().props.gnom.title || 'G-nom';
+
 
     const statistics = [
         {

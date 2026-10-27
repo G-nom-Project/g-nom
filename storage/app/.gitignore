@@ -1,6 +1,6 @@
-*
-!private/
-!public/
-!vault/
-!.gitignore
-!.dockerignore
+vault/taxa/
+vault/qlever/taxa.ttl
+vault/qlever/gnom.*
+!vault/qlever/gnom.settings.json
+!vault/qlever/Qleverfile
+taxa.ttl

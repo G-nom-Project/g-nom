@@ -34,6 +34,17 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'gnom' => [
+                'title' => config('gnom.custom_title'),
+                'app_url' => config('gnom.app_url'),
+                'custom_logo' => config('gnom.custom_logo'),
+            ],
+            'reverb' => [
+                'key' => config('gnom.reverb_key'),
+                'host' => config('gnom.reverb_host'),
+                'port' => config('gnom.reverb_port'),
+                'scheme' => config('gnom.reverb_scheme'),
+            ]
         ];
     }
 }
