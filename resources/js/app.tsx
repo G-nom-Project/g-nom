@@ -10,6 +10,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { initEcho } from '@/echo';
+import Footer from '@/Components/Footer';
 
 const appName = 'G-nom';
 
@@ -25,6 +26,7 @@ createInertiaApp({
         root.render(
             <>
                 <App {...props} />
+                <Footer/>
             </>,
         );
     },
