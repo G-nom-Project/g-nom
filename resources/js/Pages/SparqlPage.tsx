@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import TopNavBar from '@/Components/TopNavBar';
-import { Alert, Button, Container, Dropdown, OverlayTrigger, Row, Spinner, Stack, Table, Tooltip } from 'react-bootstrap';
+import { Alert, Button, Container, Dropdown, OverlayTrigger, Spinner, Stack, Table, Tooltip } from 'react-bootstrap';
 import { sparql } from 'codemirror-lang-sparql';
 import CodeMirror from '@uiw/react-codemirror';
 import examples from "../../static/data/sparql_examples.json";
