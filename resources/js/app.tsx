@@ -9,8 +9,10 @@ import '../css/circleplot.css'
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { initEcho } from '@/echo';
+import Footer from '@/Components/Footer';
 
-const appName = import.meta.env.VITE_APP_NAME || 'G-nom';
+const appName = 'G-nom';
 
 // eslint-disable-next-line
 const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
@@ -20,10 +22,11 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./Pages/${name}.tsx`, import.meta.glob('./Pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
-
+        initEcho(props.initialPage.props.reverb);
         root.render(
             <>
                 <App {...props} />
+                <Footer/>
             </>,
         );
     },

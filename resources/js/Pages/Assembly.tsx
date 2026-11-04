@@ -25,7 +25,7 @@ import {
     Tooltip,
 } from 'react-bootstrap';
 import TaxonomicDistributionPlot from '@/Components/AssemblyPage/TaxonomicDistributionPlot';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import CoveragePlot from '@/Components/AssemblyPage/CoveragePlot';
 import CoverageThresholdsPlot from '@/Components/AssemblyPage/CoverageThresholdsPlot';
 import SnailPlot from '@/Components/AssemblyPage/SnailPlot';
@@ -35,6 +35,7 @@ import FCatCompletenessBar from '@/Components/fCatCompletenessBar';
 
 
 export default function Assemblies({ assembly, is_read_only } : { assembly: Assembly, is_read_only: boolean }) {
+    const app_url = usePage().props.gnom.app_url;
     const [renderCompleteness, setRenderCompleteness] = useState<boolean>(false);
     const [renderRepeats, setRenderRepeats] = useState<boolean>(false);
     const [location, setLocation] = useState<string>('');
@@ -830,6 +831,7 @@ export default function Assemblies({ assembly, is_read_only } : { assembly: Asse
                                                             annotations={assembly.genomic_annotations}
                                                             mappings={assembly.mappings}
                                                             location={location}
+                                                            app_url={app_url}
                                                         />
                                                     )}
                                                 </div>

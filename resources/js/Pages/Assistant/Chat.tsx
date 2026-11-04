@@ -5,7 +5,7 @@ import MessageList from './MessageList';
 import { Conversation, Message, Model } from '@/types/assistant';
 import { Button, ButtonGroup, Dropdown, DropdownButton, Form, InputGroup, Modal, ToggleButton } from 'react-bootstrap';
 import { router } from '@inertiajs/react';
-import echo from '@/echo';
+import { getEcho } from '@/echo';
 
 
 interface Props {
@@ -71,7 +71,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
         }
 
         const channelName = `conversation.${conversation.id}`;
-        const channel = echo.private(channelName);
+        const channel = getEcho().private(channelName);
 
         channel.subscribed(() => {
             console.log('SUCCESSFULLY SUBSCRIBED:', channelName);
@@ -89,7 +89,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
         });
 
         return () => {
-            echo.leave(channelName);
+            getEcho().leave(channelName);
         };
     }, [conversation?.id]);
 
@@ -100,7 +100,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
         }
 
         const streamChannelName = `conversation.${conversation.id}.stream`;
-        const channel = echo.private(streamChannelName);
+        const channel = getEcho().private(streamChannelName);
 
         channel.subscribed(() => {
             console.log('SUCCESSFULLY SUBSCRIBED:', streamChannelName);
@@ -118,7 +118,7 @@ export default function Chat({ conversation, messages, onMessagesChange, models,
         );
 
         return () => {
-            echo.leave(streamChannelName);
+            getEcho().leave(streamChannelName);
         };
     }, [conversation?.id]);
 

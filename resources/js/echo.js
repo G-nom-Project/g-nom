@@ -1,19 +1,30 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+
 window.Pusher = Pusher;
 
-const echo = new Echo({
-    broadcaster: 'reverb',
-    key: import.meta.env.VITE_REVERB_APP_KEY,
+let echo = null;
 
-    wsHost: import.meta.env.VITE_REVERB_HOST,
-    wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 80),
-    wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 443),
+export function initEcho({ key, host, port, scheme }) {
+    if (echo) return echo;
+    console.log("Initializing echo");
 
-    forceTLS: import.meta.env.VITE_REVERB_SCHEME === 'https',
+    echo = new Echo({
+        broadcaster: 'reverb',
+        key,
+        wsHost: host,
+        wsPort: Number(port ?? 80),
+        wssPort: Number(port ?? 443),
+        forceTLS: scheme === 'https',
+        enabledTransports: ['ws', 'wss'],
+    });
+    console.log(echo)
 
-    enabledTransports: ['ws', 'wss'],
-});
+    window.echo = echo;
+    return echo;
+}
 
-window.echo = echo;
-export default echo;
+export function getEcho() {
+    if (!echo) throw new Error('Echo not initialised yet');
+    return echo;
+}

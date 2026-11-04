@@ -12,7 +12,7 @@ class SparqlController extends Controller
     //
     public function queryPage()
     {
-        if (!app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
+        if (! app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
             abort(503, 'SPARQL console is disabled on this instance');
         }
 
@@ -28,7 +28,7 @@ class SparqlController extends Controller
 
     public function query(Request $request)
     {
-        if (!app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
+        if (! app(ApplicationModeService::class)->isSparqlConsoleEnabled()) {
             abort(503, 'SPARQL console is disabled on this instance');
         }
 

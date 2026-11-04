@@ -20,6 +20,7 @@ use App\Http\Controllers\TaxonController;
 use App\Http\Controllers\VaultFileController;
 use App\Http\Controllers\WiggleTrackController;
 use App\Http\Middleware\AiMode;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\GnomPublicInstance;
 use App\Http\Middleware\GnomReadOnly;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,20 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'view'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified', EnsureUserIsAdmin::class])->group(function () {
+    Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
+    Route::post('/admin/flush', [DashboardController::class, 'flushCache'])->name('admin.flush');
+    Route::post('/admin/clean', [DashboardController::class, 'cleanData'])->name('admin.flush');
+    Route::post('/admin/taxonomy', [DashboardController::class, 'updateTaxonomy'])->name('admin.taxonomy');
+    Route::post('/admin/index', [DashboardController::class, 'rebuildIndex'])->name('admin.index');
+    Route::post('/admin/prunejobs', [DashboardController::class, 'pruneJobs'])->name('admin.prune');
+    Route::put('/admin/users/{user}', [DashboardController::class, 'editUser'])->name('admin.user.edit');
+    Route::post('/admin/users', [DashboardController::class, 'storeUser'])->name('admin.user.store');
+    Route::post('/admin/users/impersonate/{user}', [DashboardController::class, 'impersonate'])->name('admin.users.impersonate');
+    Route::post('/admin/users/lock/{user}', [DashboardController::class, 'lockUser'])->name('admin.users.lock');
+    Route::post('/admin/users/unlock/{user}', [DashboardController::class, 'unlockUser'])->name('admin.users.unlock');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

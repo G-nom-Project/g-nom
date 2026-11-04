@@ -1,4 +1,6 @@
 import { Col, Container, Row } from 'react-bootstrap';
+import MarkdownContent from '@/Components/MarkdownContent';
+import React from 'react';
 
 const Footer = () => {
     return (
@@ -11,12 +13,9 @@ const Footer = () => {
         >
             <Container>
                 <Row>
-                    <Col md={4}>
-                        <h4>About G-nom</h4>
-                        <p>
-                            G-nom is a web-based platform for storage and analysis of genome assemblies. G-nom provides rich visualizations of
-                            assembly-level and inter-species analyses.
-                        </p>
+                    <Col md={8}>
+                        <h4>About</h4>
+                        <MarkdownContent file_name="footer.md" />
                     </Col>
                     <Col md={4}>
                         <h4>Links</h4>
@@ -26,27 +25,14 @@ const Footer = () => {
                                     <i className="bi bi-file-text"></i> Impressum
                                 </a>
                             </li>
-                            <li>
-                                <a href="/privacy" style={{ textDecoration: 'none' }}>
-                                    <i className="bi bi-incognito"></i> Privacy Policy
-                                </a>
-                            </li>
                         </ul>
-                    </Col>
-                    <Col md={4}>
-                        <h4>Contact Information</h4>
-                        <address>
-                            General questions?{' '}
-                            <div className="golden-text">
-                                info<i className="bi bi-at"></i>test.com
-                            </div>
-                        </address>
                     </Col>
                 </Row>
                 <Row className="mt-4">
                     <Col className="text-center">
                         <small>
-                            Gnom is open source software, made with ♥️ by the <a href="https://g-nom-project.github.io/">G-nom Project</a>
+                            G-nom is open-source software, made with ♥️ by the <a href="https://g-nom-project.github.io/antora-docs/">G-nom Project</a> and
+                            licensed under the <a href="https://github.com/G-nom-Project/g-nom/blob/main/LICENSE">GPL 2.0 license</a>.
                         </small>
                     </Col>
                 </Row>

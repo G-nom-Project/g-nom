@@ -1744,3 +1744,409 @@
         padding: 1.25rem;
     }
 }
+
+/* =========================================
+   Administration Dashboard
+   ========================================= */
+
+.admin-page {
+    min-height: 100vh;
+    background: var(--bs-body-bg);
+}
+
+.admin-page-header {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.admin-page-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 0;
+}
+
+.admin-page-eyebrow {
+    margin-bottom: 0.6rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.admin-page-title {
+    margin-bottom: 0.5rem;
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+}
+
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.admin-environment-badge {
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.55rem;
+}
+
+.admin-section {
+    margin-bottom: 3rem;
+}
+
+.admin-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.admin-section-title {
+    margin-bottom: 0.35rem;
+    font-size: 1.35rem;
+    font-weight: 650;
+}
+
+/* Statistics */
+
+.admin-stat-card .card-body {
+    padding: 1.5rem;
+}
+
+.admin-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-primary);
+    font-size: 1.25rem;
+}
+
+.admin-stat-value {
+    margin-bottom: 0.35rem;
+    font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-stat-label {
+    font-weight: 600;
+}
+
+.admin-stat-detail {
+    margin-top: 0.35rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+}
+
+/* Health */
+
+.admin-card-header {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.admin-health-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.admin-health-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-health-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+    padding: 1.15rem 1.25rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.admin-health-item:nth-child(odd) {
+    border-right: 1px solid var(--bs-border-color);
+}
+
+.admin-health-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.6rem;
+    font-size: 1.1rem;
+}
+
+.admin-health-icon.healthy {
+    color: var(--bs-success);
+    background: var(--bs-success-bg-subtle);
+}
+
+.admin-health-icon.warning {
+    color: var(--bs-warning-text-emphasis);
+    background: var(--bs-warning-bg-subtle);
+}
+
+.admin-health-icon.failed {
+    color: var(--bs-danger);
+    background: var(--bs-danger-bg-subtle);
+}
+
+.admin-health-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-health-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    text-align: right;
+}
+
+.admin-health-detail {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.admin-health-detail.healthy { color: var(--bs-success); }
+.admin-health-detail.warning { color: var(--bs-warning-text-emphasis); }
+.admin-health-detail.failed { color: var(--bs-danger); }
+
+/* Queue and storage */
+
+.admin-queue-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding: 0.5rem 0 1.5rem;
+}
+
+.admin-queue-metrics > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.admin-queue-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-queue-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.admin-storage-progress {
+    height: 9px;
+    border-radius: 999px;
+}
+
+/* Users */
+
+.admin-users-panel {
+    overflow: hidden;
+}
+
+.admin-users-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.admin-user-search {
+    max-width: 350px;
+}
+
+.admin-role-filter {
+    max-width: 180px;
+}
+
+.admin-users-table {
+    --bs-table-bg: transparent;
+    vertical-align: middle;
+}
+
+.admin-users-table thead th {
+    padding: 1rem 1.25rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-users-table tbody td {
+    padding: 0.85rem 1.25rem;
+    border-color: var(--bs-border-color);
+}
+
+.admin-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-user-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 0.6rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+}
+
+.admin-user-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.admin-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bs-secondary-color);
+}
+
+.admin-user-status.active .admin-status-dot {
+    background: var(--bs-success);
+}
+
+.admin-user-status.locked .admin-status-dot {
+    background: var(--bs-warning);
+}
+
+.admin-user-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+.admin-user-actions .btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 0.5rem;
+}
+
+.admin-table-footer {
+    padding: 0.85rem 1.25rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+}
+
+/* Administrative jobs */
+
+.admin-job-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+}
+
+.admin-job-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-primary);
+    font-size: 1.25rem;
+}
+
+.admin-job-icon.danger {
+    background: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger);
+}
+
+.admin-job-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 650;
+}
+
+.admin-job-description {
+    flex: 1;
+    line-height: 1.6;
+}
+
+.admin-job-button {
+    margin-top: 0.75rem;
+    border-radius: 0.55rem;
+}
+
+/* Responsive */
+
+@media (max-width: 991.98px) {
+    .admin-health-list {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-health-item:nth-child(odd) {
+        border-right: 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .admin-page-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-header-actions {
+        flex-wrap: wrap;
+    }
+
+    .admin-section {
+        margin-bottom: 2.25rem;
+    }
+
+    .admin-users-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-user-search,
+    .admin-role-filter {
+        max-width: none;
+    }
+
+    .admin-health-item {
+        flex-wrap: wrap;
+    }
+
+    .admin-health-result {
+        margin-left: auto;
+    }
+}

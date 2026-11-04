@@ -14,3 +14,5 @@ Broadcast::channel('conversation.{conversation}', function ($user, Conversation 
 Broadcast::channel('conversation.{conversation}.stream', function ($user, Conversation $conversation) {
     return $conversation->participant_id === $user->id;
 });
+
+Broadcast::channel('health', fn ($user) => $user !== null);

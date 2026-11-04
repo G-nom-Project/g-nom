@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use PharData;
 
 class RebuildTaxonTable implements ShouldBeUnique, ShouldQueue
 {
@@ -18,30 +20,51 @@ class RebuildTaxonTable implements ShouldBeUnique, ShouldQueue
 
     protected $userID;
 
+    protected $download_link;
+
     public $timeout = 120;
 
-    public function __construct(int $userID)
+    public function __construct(int $userID, string $download_link)
     {
         $this->userID = $userID;
+        $this->download_link = $download_link;
     }
 
     public function handle(): void
     {
         $local = Storage::disk('local');
+
+        // Download new taxdump
+        Log::info('Downloading...');
+        $result = file_put_contents($local->path('/uploads/taxdump.tar.gz'), file_get_contents($this->download_link));
+        if (! $result) {
+            $this->fail('Failed to write taxdmp.tar.gz file.');
+        } else {
+            Log::info("Downloaded {$result} Bytes");
+        }
+
+        // Unpack taxdump
+        Log::info('Unpacking taxdump...');
+        try {
+            $phar = new PharData($local->path('/uploads/taxdump.tar.gz'));
+            $phar->extractTo($local->path('/uploads/taxdump'), overwrite: true);
+        } catch (Exception $e) {
+            $this->fail("Failed to unpack taxdmp.tar.gz file: {$e}");
+        }
+
         $namesPath = $local->path('/uploads/taxdump/names.dmp');
         $nodesPath = $local->path('/uploads/taxdump/nodes.dmp');
 
         try {
             $taxonData = file($namesPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             $nodeData = file($nodesPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('File read error: '.$e->getMessage());
 
             return;
         }
 
         DB::beginTransaction();
-
         try {
             // 1. Drop + recreate staging table
             DB::statement('DROP TABLE IF EXISTS taxa_staging');
@@ -69,13 +92,13 @@ class RebuildTaxonTable implements ShouldBeUnique, ShouldQueue
 
                 if ($nextID !== $currentTaxonID) {
                     if (empty($scientificName)) {
-                        throw new \Exception("Missing scientific name for taxon ID $currentTaxonID");
+                        throw new Exception("Missing scientific name for taxon ID $currentTaxonID");
                     }
 
                     $nodeSplit = explode("\t", $nodeData[$counter] ?? '');
 
                     if ((int) ($nodeSplit[0] ?? -1) !== $currentTaxonID) {
-                        throw new \Exception("Mismatched node data for taxon ID $currentTaxonID at index $counter");
+                        throw new Exception("Mismatched node data for taxon ID $currentTaxonID at index $counter");
                     }
 
                     $parentTaxonID = (int) $nodeSplit[2];
@@ -117,7 +140,7 @@ class RebuildTaxonTable implements ShouldBeUnique, ShouldQueue
             $count = DB::table('taxa')->count();
             Log::info("Success: $count taxa imported.");
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Taxa import failed: '.$e->getMessage());
         }
