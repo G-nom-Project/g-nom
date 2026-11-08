@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
                 'host' => config('gnom.reverb_host'),
                 'port' => config('gnom.reverb_port'),
                 'scheme' => config('gnom.reverb_scheme'),
-            ]
+            ],
         ];
     }
 }

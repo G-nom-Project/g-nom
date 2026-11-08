@@ -4,7 +4,7 @@ import TopNavBar from '@/Components/TopNavBar';
 import { Assembly, TaxonData } from '@/types/data';
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Accordion, Alert, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { Accordion, Alert, Button, Card, Col, Container, Form, InputGroup, ProgressBar, Row } from 'react-bootstrap';
 
 const default_taxon = {
     assemblies: [],
@@ -64,6 +64,34 @@ export default function Import() {
     const [taxaminerName, setTaxaminerName] = useState<string>();
     const [taxaminerData, setTaxaminerData] = useState<File | null>(null);
 
+    const [uploadProgress, setUploadProgress] = useState<number>(0);
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'processing' | 'done' | 'error'>('idle');
+
+    const postWithProgress = async (url: string, formData: FormData): Promise<boolean> => {
+        setUploadProgress(0);
+        setUploadStatus('uploading');
+
+        try {
+            const response = await axios.post(url, formData, {
+                // Don't set Content-Type manually: axios/the browser add it with the correct multipart boundary
+                onUploadProgress: (e) => {
+                    if (!e.total) return;
+                    const pct = Math.round((e.loaded * 100) / e.total);
+                    setUploadProgress(pct);
+                    // Bytes are all sent, but the server may still be working
+                    if (pct === 100) setUploadStatus('processing');
+                },
+            });
+            console.log('Upload success:', response.data);
+            setUploadStatus('done');
+            return true;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            setUploadStatus('error');
+            return false;
+        }
+    };
+
     const updateTaxon = () => {
         axios.get('/taxon-assemblies/' + taxonID).then((taxon) => {
             if (taxon.data.taxon) {
@@ -85,17 +113,7 @@ export default function Import() {
         formData.append('assembly', assemblyFile);
         formData.append('taxonID', taxonID);
         formData.append('name', assemblyName);
-
-        try {
-            const response = await axios.post('/upload-assembly', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-        } catch (error) {
-            console.error('Upload failed:', error);
-        }
+        return postWithProgress('/upload-assembly', formData);
     };
 
     const handleCoverageUpload = async () => {
@@ -105,19 +123,7 @@ export default function Import() {
         formData.append('file', covFile);
         formData.append('assemblyID', assemblyID);
         formData.append('taxonID', taxonID);
-
-        try {
-            const response = await axios.post('/upload-coverage', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-coverage', formData);
     };
 
     const handleAnnotationUpload = async () => {
@@ -129,18 +135,7 @@ export default function Import() {
         formData.append('taxonID', taxonID);
         formData.append('name', annotationName);
 
-        try {
-            const response = await axios.post('/upload-annotation', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-annotation', formData);
     };
 
     const handleWiggleUpload = async () => {
@@ -152,18 +147,7 @@ export default function Import() {
         formData.append('taxonID', taxonID);
         formData.append('name', wiggleName);
 
-        try {
-            const response = await axios.post('/upload-bigwig', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-bigwig', formData);
     };
 
     const handleMappingUpload = async () => {
@@ -175,18 +159,7 @@ export default function Import() {
         formData.append('taxonID', taxonID);
         formData.append('name', mappingName);
 
-        try {
-            const response = await axios.post('/upload-mapping', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-mapping', formData);
     };
 
     const handleBuscoUpload = async () => {
@@ -198,18 +171,7 @@ export default function Import() {
         formData.append('taxonID', taxonID);
         formData.append('name', buscoName);
 
-        try {
-            const response = await axios.post('/upload-busco', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-busco', formData);
     };
 
     const handleFcatUpload = async () => {
@@ -221,18 +183,7 @@ export default function Import() {
         formData.append('taxonID', taxonID);
         formData.append('name', fcatName);
 
-        try {
-            const response = await axios.post('/upload-fcat', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-fcat', formData);
     };
 
     const handleRepeatMaskerUpload = async () => {
@@ -244,18 +195,7 @@ export default function Import() {
         formData.append('assemblyID', assemblyID);
         formData.append('taxonID', taxonID);
 
-        try {
-            const response = await axios.post('/upload-repeatmasker', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-repeatmasker', formData);
     };
 
     const handleTaxaminerUpload = async () => {
@@ -267,23 +207,12 @@ export default function Import() {
         formData.append('taxonID', taxonID);
         formData.append('name', taxaminerName as string);
 
-        try {
-            const response = await axios.post('/upload-taxaminer', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload success:', response.data);
-            return true;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            return false;
-        }
+        return postWithProgress('/upload-taxaminer', formData);
     };
 
     const handleUpload = async () => {
         if (assemblyName) {
-            await handleAssemblyUpload();
+            return await handleAssemblyUpload();
         } else {
             if (covFile) {
                 const success = await handleCoverageUpload();
@@ -627,7 +556,29 @@ export default function Import() {
                                 <Card.Body>
                                     <Card.Title>Start Import job</Card.Title>
                                     <Card.Text>You will be notified once the import is finished.</Card.Text>
-                                    <Button onClick={handleUpload}>Start Import</Button>
+
+                                    {uploadStatus !== 'idle' && (
+                                        <ProgressBar
+                                            className="mb-3"
+                                            striped={uploadStatus === 'uploading' || uploadStatus === 'processing'}
+                                            animated={uploadStatus === 'uploading' || uploadStatus === 'processing'}
+                                            now={uploadStatus === 'uploading' ? uploadProgress : 100}
+                                            variant={uploadStatus === 'error' ? 'danger' : uploadStatus === 'done' ? 'success' : undefined}
+                                            label={
+                                                uploadStatus === 'uploading'
+                                                    ? `${uploadProgress}%`
+                                                    : uploadStatus === 'processing'
+                                                      ? 'Processing on server…'
+                                                      : uploadStatus === 'done'
+                                                        ? 'Upload complete'
+                                                        : 'Upload failed'
+                                            }
+                                        />
+                                    )}
+
+                                    <Button onClick={handleUpload} disabled={uploadStatus === 'uploading' || uploadStatus === 'processing'}>
+                                        Start Import...
+                                    </Button>
                                 </Card.Body>
                             </Card>
                         </Col>

@@ -161,7 +161,7 @@ Route::middleware([
 });
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
-    ->where('path', '.*');
+    ->where('path', '.*')->name('vault.file.serve');
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
 
