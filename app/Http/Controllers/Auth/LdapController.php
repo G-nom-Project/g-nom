@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\FederatedUser;
 use App\Models\User;
 use App\Services\Ldap\LdapService;
 use Illuminate\Http\RedirectResponse;
@@ -44,10 +45,11 @@ class LdapController extends Controller
             return back()->withErrors(['uid' => 'Invalid credentials.']);
         }
 
-        $user = User::where('email', $ldapUser->email)->first();
+        // First find the federated user
+        $federatedUser = FederatedUser::where('upstream_uid', $data['uid'])->first();
 
         // Federate users on first login
-        if ($user === null) {
+        if ($federatedUser === null) {
             $user = new User;
             $user->email = $ldapUser->email;
             $user->name = $ldapUser->name;
@@ -61,10 +63,32 @@ class LdapController extends Controller
             $user->password = Str::password(24);
             $user->is_federated = true;
             $user->save();
+
+            try {
+                // Attach federation
+                $federatedUser = new FederatedUser;
+                $federatedUser->user_id = $user->id;
+                $federatedUser->provider_type = "ldap";
+                $federatedUser->upstream_uid = $ldapUser->username;
+                $federatedUser->save();
+            } catch (RuntimeException $e) {
+                report($e);
+                // Don't leave user account dangling
+                $user->delete();
+            }
+
+        } else {
+            $user = $federatedUser->user();
         }
 
         if ($user->is_locked) {
             return back()->withErrors(['uid' => 'Account is locked in G-nom.']);
+        }
+
+        # User is LDAP authenticated and matched to a federated user => check for attribute changes
+        if($ldapUser->email != $user->email) {
+            $user->email = $ldapUser->email;
+            $user->save();
         }
 
         Auth::login($user);
