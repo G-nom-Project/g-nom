@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Alert, Button, Card, Form } from 'react-bootstrap';
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, ldap_enabled, ldap_login_banner }) {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
@@ -14,7 +14,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <div style={{minHeight: '80vh'}}>
+        <div style={{ minHeight: '80vh' }}>
             <Card className="mx-auto mt-5" style={{ maxWidth: '400px' }}>
                 <Card.Body>
                     <h3 className="mb-4 text-center">Sign In</h3>
@@ -61,6 +61,7 @@ export default function Login({ status, canResetPassword }) {
                             </Button>
                         </div>
                     </Form>
+                    {ldap_enabled && <><hr/><Button disabled={processing} style={{width: "100%"}} href={route('ldap.create')}>{ldap_login_banner}</Button></>}
                 </Card.Body>
             </Card>
         </div>

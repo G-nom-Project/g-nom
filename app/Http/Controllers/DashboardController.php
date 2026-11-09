@@ -58,10 +58,14 @@ class DashboardController extends Controller
             WHERE datname = current_database()
         ');
 
-        $qlever_response = Http::timeout(120)
-            ->get(config('gnom.qlever_host'), [
-                'cmd' => 'stats',
-            ]);
+        try {
+            $qlever_response = Http::timeout(120)
+                ->get(config('gnom.qlever_host'), [
+                    'cmd' => 'stats',
+                ]);
+        } catch (ConnectionException $e) {
+            $qlever_response = null;
+        }
 
         $path = Storage::disk('vault')->path('');
         $disk_total = disk_total_space($path);

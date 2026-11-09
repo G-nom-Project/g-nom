@@ -14,9 +14,10 @@ WORKDIR /var/www
 # Install dependencies
 RUN apt-get update
 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | PROFILE="${BASH_ENV}" bash
-RUN echo node > .nvmrc
-RUN nvm install 22
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates gnupg \
+ && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+ && apt-get install -y nodejs
 
 RUN apt-get install -y \
     build-essential \
@@ -38,7 +39,8 @@ RUN apt-get install -y \
     tabix \
     samtools \
     libmagickwand-dev \
-    ncbi-blast+
+    ncbi-blast+ \
+    libldap2-dev
 
 # Install JBrose CLI
 RUN npm install -g @jbrowse/cli
@@ -48,7 +50,7 @@ RUN npm install -g yarn
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
-RUN docker-php-ext-install  mbstring zip exif pcntl pdo_pgsql pgsql gd
+RUN docker-php-ext-install  mbstring zip exif pcntl pdo_pgsql pgsql gd ldap
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 # RUN docker-php-ext-install gd
 
