@@ -502,7 +502,12 @@ export default function AdminDashboard({db, cache_healthy, qlever, vault, data, 
                                                         <i className="bi bi-person" />
                                                     </span>
                                                     <div>
-                                                        <div className="fw-semibold">{user.name}</div>
+                                                        <div className="fw-semibold">
+                                                            {user.name}
+                                                            {'  '}
+                                                            {user.is_federated &&
+                                                                <i className="bi bi-key" title={"Federated from an external identity provider"}></i>}
+                                                        </div>
                                                         <div className="text-secondary small">{user.email}</div>
                                                     </div>
                                                 </div>
@@ -511,9 +516,9 @@ export default function AdminDashboard({db, cache_healthy, qlever, vault, data, 
                                                 <Badge bg={user.role === 'admin' ? 'primary' : 'secondary'}>{user.role}</Badge>
                                             </td>
                                             <td>
-                                                <span className={user.is_locked && 'admin-user-status locked' || 'admin-user-status active'}>
+                                                <span className={(user.is_locked && 'admin-user-status locked') || 'admin-user-status active'}>
                                                     <span className="admin-status-dot" />
-                                                    {user.is_locked && "Locked" || "Active"}
+                                                    {(user.is_locked && 'Locked') || 'Active'}
                                                 </span>
                                             </td>
                                             <td className="text-secondary">{user.created_at}</td>
@@ -536,8 +541,7 @@ export default function AdminDashboard({db, cache_healthy, qlever, vault, data, 
                                                     >
                                                         <i className="bi bi-incognito" />
                                                     </Button>
-                                                    {
-                                                        user.role !== 'admin' &&
+                                                    {user.role !== 'admin' && (
                                                         <Button
                                                             variant={(user.is_locked && 'outline-success') || 'outline-danger'}
                                                             size="sm"
@@ -552,8 +556,7 @@ export default function AdminDashboard({db, cache_healthy, qlever, vault, data, 
                                                         >
                                                             <i className="bi bi-person-fill-lock" />
                                                         </Button>
-                                                    }
-
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

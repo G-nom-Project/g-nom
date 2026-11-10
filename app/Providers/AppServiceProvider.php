@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Policies\BookmarkPolicy;
 use App\Services\GrobidClient;
 use App\Services\GrobidTeiParser;
+use App\Services\Ldap\LdapService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -26,8 +27,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(GrobidTeiParser::class, function () {
-            return new GrobidTeiParser();
+            return new GrobidTeiParser;
         });
+
+        $this->app->singleton(LdapService::class, fn () => new LdapService(config('ldap')));
     }
 
     /**
