@@ -9,10 +9,12 @@ use App\Services\Ldap\LdapService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use SebastianBergmann\Template\RuntimeException;
+use Throwable;
 
 class LdapController extends Controller
 {
@@ -50,35 +52,37 @@ class LdapController extends Controller
 
         // Federate users on first login
         if ($federatedUser === null) {
-            $user = new User;
-            $user->email = $ldapUser->email;
-            $user->name = $ldapUser->name;
-            /**
-             * Storing the password the user used to authenticate against the LDAP would introduce an additional
-             * attack vector for malicious actors trying to obtain login credentials, but we need a password to comply
-             * with the NON-NULL constraint => safely generate a random password.
-             *
-             * Since the user is tagged as federated, this password will never be used to authenticate the user.
-             **/
-            $user->password = Str::password(24);
-            $user->is_federated = true;
-            $user->save();
-
             try {
-                // Attach federation
-                $federatedUser = new FederatedUser;
-                $federatedUser->user_id = $user->id;
-                $federatedUser->provider_type = "ldap";
-                $federatedUser->upstream_uid = $ldapUser->username;
-                $federatedUser->save();
-            } catch (RuntimeException $e) {
-                report($e);
-                // Don't leave user account dangling
-                $user->delete();
-            }
+                $user = DB::transaction(function () use ($ldapUser) {
+                    $user = new User;
+                    $user->email = $ldapUser->email;
+                    $user->name = $ldapUser->name;
+                    /**
+                     * Storing the password the user used to authenticate against the LDAP would introduce an additional
+                     * attack vector for malicious actors trying to obtain login credentials, but we need a password to comply
+                     * with the NON-NULL constraint => safely generate a random password.
+                     *
+                     * Since the user is tagged as federated, this password will never be used to authenticate the user.
+                     **/
+                    $user->password = Str::password(24);
+                    $user->is_federated = true;
+                    $user->save();
 
+                    // Attach federation
+                    $federatedUser = new FederatedUser;
+                    $federatedUser->user_id = $user->id;
+                    $federatedUser->provider_type = 'ldap';
+                    $federatedUser->upstream_uid = $ldapUser->username;
+                    $federatedUser->save();
+
+                    return $user;
+                });
+            } catch (Throwable $e) {
+                report($e);
+                return back()->withErrors(['uid' => 'Could not create your G-nom account.']);
+            }
         } else {
-            $user = $federatedUser->user();
+            $user = $federatedUser->user;
         }
 
         if ($user->is_locked) {

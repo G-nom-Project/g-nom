@@ -291,8 +291,15 @@ export default function AdminDashboard({db, cache_healthy, qlever, vault, data, 
                 curr_health.push({
                     name: 'Qlever',
                     description: 'Triple store and knowledge graph',
-                    status: qlever['num-triples-normal'] > 0 ? 'healthy' : 'failed',
+                    status: qlever['num-triples-normal'] > 0 ? 'healthy' : 'warning',
                     detail: qlever['num-triples-normal'].toLocaleString('en-GB') + ' triples',
+                });
+            } else {
+                curr_health.push({
+                    name: 'Qlever',
+                    description: 'Triple store and knowledge graph',
+                    status: 'failed',
+                    detail: "Timeout",
                 });
             }
 

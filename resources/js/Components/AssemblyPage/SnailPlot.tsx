@@ -6,7 +6,7 @@ import MissingData from '@/Components/MissingData';
 const SnailPlot = ({taxon_id, assembly_id}:{taxon_id: number, assembly_id: number}) => {
     const [errorDiv, setErrorDiv] = useState();
     useEffect(() => {
-        d3.json(import.meta.env.VITE_JBROWSE_ADRESS + `/taxa/${taxon_id}/${assembly_id}/snail.json`)
+        d3.json(route('vault.file.serve', `taxa/${taxon_id}/${assembly_id}/snail.json`))
             .then((json) => {
                 const asm = new Assembly(json);
                 asm.drawPlot('assembly_stats');

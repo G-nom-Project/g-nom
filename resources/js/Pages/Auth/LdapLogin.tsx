@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Alert, Button, Card, Form } from 'react-bootstrap';
 
-export default function LdapLogin({ status, canResetPassword, ldap_enabled, ldap_login_banner }) {
+export default function LdapLogin({ status, ldap_login_banner }) {
     const { data, setData, post, processing, errors } = useForm({
         uid: '',
         password: '',

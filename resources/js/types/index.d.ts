@@ -5,6 +5,7 @@ export interface User {
     email_verified_at?: string;
     role?: string;
     is_locked?: boolean;
+    is_federated?: boolean;
     created_at?: string;
 }
 
