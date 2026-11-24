@@ -39,7 +39,7 @@ Route::get('/dashboard', [DashboardController::class, 'view'])->middleware(['aut
 Route::middleware(['auth', 'verified', EnsureUserIsAdmin::class])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::post('/admin/flush', [DashboardController::class, 'flushCache'])->name('admin.flush');
-    Route::post('/admin/clean', [DashboardController::class, 'cleanData'])->name('admin.flush');
+    Route::post('/admin/clean', [DashboardController::class, 'cleanData'])->name('admin.clean');
     Route::post('/admin/taxonomy', [DashboardController::class, 'updateTaxonomy'])->name('admin.taxonomy');
     Route::post('/admin/index', [DashboardController::class, 'rebuildIndex'])->name('admin.index');
     Route::post('/admin/prunejobs', [DashboardController::class, 'pruneJobs'])->name('admin.prune');
@@ -111,9 +111,8 @@ Route::middleware([
 
 // Update Taxon
 Route::middleware(['auth', GnomReadOnly::class])->group(function () {
-    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon')->middleware(['auth']);
-    Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon')->middleware(['auth']);
-    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon')->middleware(['auth']);
+    Route::get('/taxon/{id}', [TaxonController::class, 'index'])->name('taxon.show')->middleware(['auth']);
+    Route::get('/edit-taxon/{id}', [TaxonController::class, 'edit'])->name('taxon.edit')->middleware(['auth']);
     Route::post('/taxon/upload-image', [TaxonController::class, 'uploadImage'])->middleware(['auth']);
     Route::post('/taxon/upload-icon', [TaxonController::class, 'uploadIcon'])->middleware(['auth']);
     Route::post('/taxon/update-infos', [TaxonController::class, 'updateTexts'])->middleware(['auth']);
@@ -161,7 +160,8 @@ Route::middleware([
 });
 
 Route::get('/tracks/{path}', [VaultFileController::class, 'serve'])
-    ->where('path', '.*');
+    ->where('path', '.*')->name('vault.file.serve');
+
 
 Route::get('/stats', [AssemblyController::class, 'stats']);
 

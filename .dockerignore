@@ -1,1 +1,13 @@
-storage/
+.git
+.env*
+vendor
+node_modules
+bootstrap/cache/*.php
+storage/logs/*
+storage/app/taxa*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/private/uploads/*
+storage/app/vault/*
+public/build

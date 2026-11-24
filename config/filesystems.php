@@ -32,7 +32,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => '/var/www/storage/app/private',
             'serve' => true,
             'throw' => false,
             'report' => false,
@@ -40,7 +40,7 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => '/var/www/storage/app/public',
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
@@ -49,7 +49,7 @@ return [
 
         'vault' => [
             'driver' => 'local',
-            'root' => storage_path('app/vault'),
+            'root' => '/var/www/storage/app/vault',
             'visibility' => 'private',
         ],
     ],
